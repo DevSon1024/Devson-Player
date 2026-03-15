@@ -123,8 +123,8 @@ dependencies {
     implementation(libs.androidx.media3.extractor)
 
     // FFmpeg prebuilt AAR (software decode path) — ffmpeg-kit replaces deprecated mobile-ffmpeg
-    ffmpegConfig(files("libs/ffmpeg-kit-https-4.5.1-1.aar"))
-    implementation(files("libs/ffmpeg-kit-https-4.5.1-1.aar"))
+    ffmpegConfig("io.github.maitrungduc1410:ffmpeg-kit-https:6.0.1")
+    implementation("io.github.maitrungduc1410:ffmpeg-kit-https:6.0.1")
 
     // Coil (video thumbnails)
     implementation(libs.coil.compose)
@@ -158,8 +158,11 @@ val extractFFmpegJni by tasks.registering(Copy::class) {
 }
 
 // Ensure the extraction runs before any CMake configure or build tasks
-tasks.whenTaskAdded {
-    if (name.startsWith("generateJsonModel") || name.contains("ExternalNativeBuild")) {
+tasks.configureEach {
+    if (name.startsWith("configureCMake") ||
+        name.startsWith("buildCMake") ||
+        name.startsWith("generateJsonModel") ||
+        name == "preBuild") {
         dependsOn(extractFFmpegJni)
     }
 }

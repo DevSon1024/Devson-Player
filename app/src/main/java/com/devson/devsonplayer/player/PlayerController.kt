@@ -113,7 +113,7 @@ class PlayerController(private val context: Context) {
         return try {
             val mmr = MediaMetadataRetriever()
             mmr.setDataSource(context, uri)
-            val mime  = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_CODEC) ?: "video/avc"
+            val mime  = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE) ?: "video/avc"
             val w     = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)?.toIntOrNull() ?: 1920
             val h     = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)?.toIntOrNull() ?: 1080
             mmr.release()

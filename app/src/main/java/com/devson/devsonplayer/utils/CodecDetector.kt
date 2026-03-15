@@ -135,10 +135,10 @@ object CodecDetector {
     private fun hasVp910BitProfile(caps: MediaCodecInfo.CodecCapabilities): Boolean {
         return caps.profileLevels.any { pl ->
             pl.profile == MediaCodecInfo.CodecProfileLevel.VP9Profile2 ||
-            pl.profile == MediaCodecInfo.CodecProfileLevel.VP9Profile3 ||
-            (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && (
-             pl.profile == MediaCodecInfo.CodecProfileLevel.VP9Profile2HDR10 ||
-             pl.profile == MediaCodecInfo.CodecProfileLevel.VP9Profile3HDR10))
+                    pl.profile == MediaCodecInfo.CodecProfileLevel.VP9Profile3 ||
+                    (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && (
+                            pl.profile == MediaCodecInfo.CodecProfileLevel.VP9Profile2HDR ||
+                                    pl.profile == MediaCodecInfo.CodecProfileLevel.VP9Profile3HDR))
         }
     }
 
