@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.FastForward
 import androidx.compose.material.icons.filled.FastRewind
+import androidx.compose.material.icons.filled.AspectRatio
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Speed
@@ -64,7 +65,11 @@ fun PlayerControls(
     onPause: () -> Unit,
     onSeek: (Long) -> Unit,
     onSpeedChange: (Float) -> Unit,
+    scalingMode: ScalingMode,
+    onScalingToggle: () -> Unit,
     onBack: () -> Unit,
+    controlsVisible: Boolean,
+    onToggleControls: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val positionMs = when (playerState) {
@@ -79,7 +84,7 @@ fun PlayerControls(
     }
     val isPlaying = playerState is PlayerController.PlayerState.Playing
 
-    var controlsVisible by remember { mutableStateOf(true) }
+    // var controlsVisible by remember { mutableStateOf(true) } // Hoisted
     var seekDelta by remember { mutableLongStateOf(0L) }
     var speedMenuVisible by remember { mutableStateOf(false) }
     var currentSpeed by remember { mutableFloatStateOf(1.0f) }
@@ -97,41 +102,14 @@ fun PlayerControls(
     LaunchedEffect(controlsVisible, isPlaying) {
         if (controlsVisible && isPlaying) {
             delay(3_000)
-            controlsVisible = false
+            onToggleControls()
         }
     }
 
     Box(
-        modifier = modifier
-            .fillMaxSize()
-            // ─── Gesture zones ──────────────────────────────────────────────
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onDoubleTap = { offset ->
-                        // Double-tap left → seek -10s, right → seek +10s
-                        val delta = if (offset.x < size.width / 2) -10_000L else +10_000L
-                        onSeek((positionMs + delta).coerceIn(0, durationMs))
-                        seekDelta = delta
-                    },
-                    onTap = { controlsVisible = !controlsVisible }
-                )
-            }
-            .pointerInput(Unit) {
-                // Horizontal drag → seek
-                detectHorizontalDragGestures(
-                    onDragEnd = {
-                        val targetMs = (seekBarValue * durationMs).toLong()
-                        onSeek(targetMs)
-                        isUserSeeking = false
-                    }
-                ) { _, dragAmount ->
-                    isUserSeeking = true
-                    val seekFraction = dragAmount / size.width.toFloat() * 0.1f
-                    seekBarValue = (seekBarValue + seekFraction).coerceIn(0f, 1f)
-                }
-            }
+        modifier = modifier.fillMaxSize()
     ) {
-        // ─── Subtitle overlay (always visible) ─────────────────────────────
+        //  Subtitle overlay (always visible) 
         if (!subtitleCue.isNullOrBlank()) {
             SubtitleOverlay(
                 text     = subtitleCue,
@@ -141,7 +119,7 @@ fun PlayerControls(
             )
         }
 
-        // ─── Controls overlay ───────────────────────────────────────────────
+        //  Controls overlay 
         AnimatedVisibility(
             visible = controlsVisible,
             enter   = fadeIn(),
@@ -175,6 +153,22 @@ fun PlayerControls(
                             )
                         }
                         Spacer(Modifier.weight(1f))
+                        
+                        // Scaling Mode Toggle
+                        IconButton(onClick = onScalingToggle) {
+                            Icon(
+                                imageVector = Icons.Default.AspectRatio,
+                                contentDescription = "Scaling Mode",
+                                tint = Color.White
+                            )
+                        }
+                        Text(
+                            text = scalingMode.name,
+                            color = Color.White,
+                            fontSize = 10.sp,
+                            modifier = Modifier.padding(end = 8.dp)
+                        )
+
                         if (decoderLabel != null) {
                             DecoderBadge(label = decoderLabel)
                         }
@@ -301,7 +295,7 @@ fun PlayerControls(
     }
 }
 
-// ─── Sub-composables ──────────────────────────────────────────────────────────
+//  Sub-composables 
 
 @Composable
 private fun SubtitleOverlay(text: String, modifier: Modifier = Modifier) {
@@ -331,7 +325,7 @@ private fun DecoderBadge(label: String) {
     )
 }
 
-// ─── Formatter ────────────────────────────────────────────────────────────────
+//  Formatter 
 
 private fun formatMs(ms: Long): String {
     val totalSec = ms / 1000

@@ -74,7 +74,7 @@ class NativePlayer {
         return true
     }
 
-    // ─── JNI declarations ────────────────────────────────────────────────────
+    //  JNI declarations 
     private external fun nativeInitPlayer(path: String, surface: Surface, width: Int, height: Int): Long
     private external fun nativeStartDecoding(handle: Long)
     private external fun nativePause(handle: Long)

@@ -38,7 +38,7 @@ class PlayerController(private val context: Context) {
     private val TAG = "PlayerController"
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
-    // ─── State ────────────────────────────────────────────────────────────────
+    // State 
 
     sealed class PlayerState {
         object Idle : PlayerState()
@@ -55,12 +55,15 @@ class PlayerController(private val context: Context) {
     private val _decoderType = MutableStateFlow<DecoderType?>(null)
     val decoderType: StateFlow<DecoderType?> = _decoderType.asStateFlow()
 
-    // ─── Hardware player (ExoPlayer) ──────────────────────────────────────────
+    private val _videoInfo = MutableStateFlow<DecoderSelector.VideoInfo?>(null)
+    val videoInfo: StateFlow<DecoderSelector.VideoInfo?> = _videoInfo.asStateFlow()
+
+    //  Hardware player (ExoPlayer) 
 
     private var exoPlayer: ExoPlayer? = null
     private var hardwareSurface: Surface? = null
 
-    // ─── Software player (FFmpeg / NativePlayer) ──────────────────────────────
+    //  Software player (FFmpeg / NativePlayer) 
 
     private val nativePlayer = NativePlayer()
     private var softwareSurface: Surface? = null
@@ -68,11 +71,11 @@ class PlayerController(private val context: Context) {
     private var currentPositionMs = 0L
     private var isPlayingNative = false
 
-    // ─── Current state ────────────────────────────────────────────────────────
+    //  Current state 
 
     private var activeDecoder: DecoderType = DecoderType.HARDWARE
 
-    // ─── Surface binding ──────────────────────────────────────────────────────
+    //  Surface binding 
 
     /** Bind the SurfaceView surface (used for hardware decode). */
     fun setHardwareSurface(surface: Surface?) {
@@ -85,7 +88,7 @@ class PlayerController(private val context: Context) {
         softwareSurface = surface
     }
 
-    // ─── Load & play ──────────────────────────────────────────────────────────
+    //  Load & play 
 
     fun load(uri: Uri) {
         _state.value = PlayerState.Buffering
@@ -96,6 +99,7 @@ class PlayerController(private val context: Context) {
 
         // Probe for video info via MediaMetadataRetriever
         val videoInfo = probeVideoInfo(path, uri)
+        _videoInfo.value = videoInfo
         Log.i(TAG, "VideoInfo: $videoInfo")
 
         val decoder = DecoderSelector.selectDecoder(videoInfo)
@@ -135,7 +139,7 @@ class PlayerController(private val context: Context) {
         }
     }
 
-    // ─── Hardware path ────────────────────────────────────────────────────────
+    //  Hardware path 
 
     private fun loadWithExoPlayer(uri: Uri) {
         releaseExoPlayer()
@@ -187,7 +191,7 @@ class PlayerController(private val context: Context) {
         }
     }
 
-    // ─── Software path ────────────────────────────────────────────────────────
+    //  Software path 
 
     private fun loadWithFFmpeg(path: String) {
         activeDecoder = DecoderType.SOFTWARE
@@ -222,7 +226,7 @@ class PlayerController(private val context: Context) {
         }
     }
 
-    // ─── Unified control API ──────────────────────────────────────────────────
+    //  Unified control API 
 
     fun play() {
         when (activeDecoder) {
@@ -272,7 +276,7 @@ class PlayerController(private val context: Context) {
         }
     }
 
-    // ─── Release ──────────────────────────────────────────────────────────────
+    //  Release 
 
     fun release() {
         releaseExoPlayer()
@@ -290,7 +294,7 @@ class PlayerController(private val context: Context) {
         nativePlayer.release()
     }
 
-    // ─── Utility ──────────────────────────────────────────────────────────────
+    //  Utility 
 
     private fun mimeFromCodecName(name: String): String {
         return when {

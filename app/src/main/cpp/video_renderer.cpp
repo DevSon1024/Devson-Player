@@ -16,7 +16,7 @@
 #define LOGI(...)  __android_log_print(ANDROID_LOG_INFO,  LOG_TAG, __VA_ARGS__)
 #define LOGE(...)  __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
-// ─── GLSL Shaders ─────────────────────────────────────────────────────────────
+//  GLSL Shaders 
 
 static const char* kVertexShader = R"glsl(
 attribute vec4 a_position;
@@ -61,7 +61,7 @@ static const GLfloat kQuadVertices[] = {
      1.0f, -1.0f, 1.0f, 1.0f,   // bottom-right
 };
 
-// ─── helpers ──────────────────────────────────────────────────────────────────
+//  helpers 
 
 static GLuint compileShader(GLenum type, const char* src) {
     GLuint shader = glCreateShader(type);
@@ -103,7 +103,7 @@ static GLuint createProgram(const char* vs_src, const char* fs_src) {
     return prog;
 }
 
-// ─── VideoRenderer implementation ────────────────────────────────────────────
+//  VideoRenderer implementation 
 
 VideoRenderer::VideoRenderer()
     : native_window_(nullptr), egl_display_(EGL_NO_DISPLAY),

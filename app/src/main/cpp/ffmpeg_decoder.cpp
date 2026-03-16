@@ -30,7 +30,7 @@ extern "C" {
 #include <libswresample/swresample.h>
 }
 
-// ─── FFmpegDecoder implementation ────────────────────────────────────────────
+//  FFmpegDecoder implementation 
 
 FFmpegDecoder::FFmpegDecoder()
     : fmt_ctx_(nullptr), codec_ctx_(nullptr), sws_ctx_(nullptr),
@@ -309,7 +309,7 @@ void FFmpegDecoder::processVideoPacket() {
     }
 }
 
-// ─── Getters ─────────────────────────────────────────────────────────────────
+//  Getters 
 int     FFmpegDecoder::getWidth()      const { return width_; }
 int     FFmpegDecoder::getHeight()     const { return height_; }
 int64_t FFmpegDecoder::getDurationUs() const { return duration_us_; }

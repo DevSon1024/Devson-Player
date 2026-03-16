@@ -121,7 +121,7 @@ object CodecDetector {
         }
     }
 
-    // ─── Bit-depth profile checks ─────────────────────────────────────────────
+    //  Bit-depth profile checks 
 
     private fun hasHevc10BitProfile(caps: MediaCodecInfo.CodecCapabilities): Boolean {
         return caps.profileLevels.any { pl ->
@@ -151,7 +151,7 @@ object CodecDetector {
         }
     }
 
-    // ─── Hardware codec detection ─────────────────────────────────────────────
+    //  Hardware codec detection 
 
     private fun isHardwareCodec(info: MediaCodecInfo): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {

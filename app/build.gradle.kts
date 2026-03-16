@@ -140,7 +140,7 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
 
-// ─── Extract FFmpeg .so files before CMake runs ──────────────────────────────
+//  Extract FFmpeg .so files before CMake runs 
 val extractFFmpegJni by tasks.registering(Copy::class) {
     val ffmpegConfig = configurations.getByName("ffmpegConfig")
     dependsOn(ffmpegConfig)

@@ -55,7 +55,7 @@ class MainActivity : ComponentActivity() {
 fun DevsonPlayerApp() {
     val navController = rememberNavController()
 
-    // ─── Permission handling ──────────────────────────────────────────────────
+    //  Permission handling 
     val requiredPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
         Manifest.permission.READ_MEDIA_VIDEO
     else
@@ -81,7 +81,7 @@ fun DevsonPlayerApp() {
         }
     }
 
-    // ─── Navigation ───────────────────────────────────────────────────────────
+    //  Navigation 
     when {
         hasPermission -> {
             NavHost(

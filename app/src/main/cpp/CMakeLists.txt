@@ -4,7 +4,7 @@ project(devson_player CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# ─── FFmpeg prebuilt .so files ────────────────────────────────────────────────
+#  FFmpeg prebuilt .so files 
 # ffmpeg-kit-full AAR .so files are extracted by Gradle. The variable
 # FFMPEG_JNI_DIR is injected by build.gradle.kts via cmake arguments.
 if(DEFINED FFMPEG_JNI_DIR)
@@ -34,7 +34,7 @@ add_ffmpeg_lib(swresample)
 # FFmpeg C headers placed in app/src/main/cpp/include/
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
-# ─── Our native player library ───────────────────────────────────────────────
+#  Our native player library 
 add_library(
     devson_player
     SHARED
@@ -43,7 +43,7 @@ add_library(
     native_player.cpp
 )
 
-# ─── Android system libraries ────────────────────────────────────────────────
+#  Android system libraries 
 find_library(log-lib    log)
 find_library(android-lib android)
 find_library(gles2-lib  GLESv2)

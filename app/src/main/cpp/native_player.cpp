@@ -26,7 +26,7 @@
 #define LOGI(...)  __android_log_print(ANDROID_LOG_INFO,  LOG_TAG, __VA_ARGS__)
 #define LOGE(...)  __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
-// ─── Player session context ───────────────────────────────────────────────────
+//  Player session context 
 
 struct PlayerContext {
     FFmpegDecoder  decoder;
@@ -35,12 +35,12 @@ struct PlayerContext {
     bool           renderer_ready = false;
 };
 
-// ─── Helper: pointer ↔ jlong ─────────────────────────────────────────────────
+//  Helper: pointer ↔ jlong 
 static PlayerContext* toCtx(jlong handle) {
     return reinterpret_cast<PlayerContext*>(handle);
 }
 
-// ─── JNI Functions ────────────────────────────────────────────────────────────
+//  JNI Functions 
 
 extern "C" {
 

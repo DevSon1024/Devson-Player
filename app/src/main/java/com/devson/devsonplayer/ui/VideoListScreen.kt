@@ -81,7 +81,7 @@ fun VideoListScreen(
             TopAppBar(
                 title = {
                     Text(
-                        "DevsonPlayer",
+                        "Devson Player",
                         fontWeight = FontWeight.Bold,
                         fontSize   = 22.sp
                     )
@@ -202,7 +202,7 @@ private fun VideoCard(video: VideoItem, onClick: () -> Unit) {
     }
 }
 
-// ─── MediaStore loader ────────────────────────────────────────────────────────
+//  MediaStore loader 
 
 private suspend fun loadVideos(context: Context): List<VideoItem> =
     withContext(Dispatchers.IO) {

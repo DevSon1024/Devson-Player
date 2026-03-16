@@ -26,7 +26,7 @@ class SubtitleManager {
 
     private var cues: List<SubtitleCue> = emptyList()
 
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
 
     /** Load SRT subtitle file content. */
     fun loadSrt(content: String) {
@@ -51,7 +51,7 @@ class SubtitleManager {
         _currentCue.value = null
     }
 
-    // ─── SRT Parser ──────────────────────────────────────────────────────────
+    //  SRT Parser 
 
     private fun parseSrt(content: String): List<SubtitleCue> {
         val result = mutableListOf<SubtitleCue>()
@@ -85,7 +85,7 @@ class SubtitleManager {
         return Pair(start, end)
     }
 
-    // ─── ASS/SSA Parser ──────────────────────────────────────────────────────
+    //  ASS/SSA Parser 
 
     private fun parseAss(content: String): List<SubtitleCue> {
         val result = mutableListOf<SubtitleCue>()
@@ -135,7 +135,7 @@ class SubtitleManager {
         return (h * 3600L + mn * 60L + s) * 1000L + cs * 10L
     }
 
-    // ─── Helpers ──────────────────────────────────────────────────────────────
+    //  Helpers 
 
     private fun toMs(h: String, m: String, s: String, ms: String): Long {
         return h.toLong() * 3_600_000L + m.toLong() * 60_000L +
