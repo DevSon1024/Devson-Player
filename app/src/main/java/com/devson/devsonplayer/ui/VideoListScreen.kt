@@ -40,15 +40,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.foundation.background
+
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.LightMode
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.runtime.collectAsState
+import com.devson.devsonplayer.MainViewModel
+import com.devson.devsonplayer.ThemeMode
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.unit.dp
 import com.devson.devsonplayer.ui.viewsettings.FolderGridItem
 import com.devson.devsonplayer.ui.viewsettings.FolderListItem
 import com.devson.devsonplayer.ui.viewsettings.LayoutStyle
@@ -64,13 +75,16 @@ import com.devson.devsonplayer.ui.viewsettings.ViewSettingsSheet
 fun VideoListScreen(
     onVideoSelected: (List<VideoItem>, Int) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: VideoListViewModel = viewModel()
+    viewModel: VideoListViewModel = viewModel(),
+    mainViewModel: MainViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val settings by viewModel.viewSettings.collectAsStateWithLifecycle()
     val currentFolderPath by viewModel.currentFolderPath.collectAsStateWithLifecycle()
+    val themeMode by mainViewModel.themeMode.collectAsState()
     
     var showSettingsSheet by rememberSaveable { mutableStateOf(false) }
+    var showThemeMenu by remember { mutableStateOf(false) }
 
     // Scroll states for Explorer Mode
     val explorerRootListState = rememberLazyListState()
@@ -116,6 +130,30 @@ fun VideoListScreen(
                     IconButton(onClick = { showSettingsSheet = true }) {
                         Icon(Icons.Default.Tune, contentDescription = "View Settings")
                     }
+                    Box {
+                        IconButton(onClick = { showThemeMenu = true }) {
+                            Icon(Icons.Default.Settings, contentDescription = "Theme Settings")
+                        }
+                        DropdownMenu(
+                            expanded = showThemeMenu,
+                            onDismissRequest = { showThemeMenu = false }
+                        ) {
+                            ThemeMode.entries.forEach { mode ->
+                                DropdownMenuItem(
+                                    text = { Text(mode.name.lowercase().replaceFirstChar { it.uppercase() }.replace("_", " ")) },
+                                    onClick = {
+                                        mainViewModel.setThemeMode(mode)
+                                        showThemeMenu = false
+                                    },
+                                    trailingIcon = {
+                                        if (themeMode == mode) {
+                                            Icon(Icons.Default.PlayCircle, contentDescription = "Selected", modifier = Modifier.size(16.dp))
+                                        }
+                                    }
+                                )
+                            }
+                        }
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface,
@@ -146,7 +184,7 @@ fun VideoListScreen(
                                     if (currentFolderPath == null) {
                                         LazyColumn(
                                             state = explorerRootListState,
-                                            contentPadding = PaddingValues(8.dp),
+                                            contentPadding = PaddingValues(top = 8.dp, bottom = 16.dp),
                                             verticalArrangement = Arrangement.spacedBy(4.dp),
                                             modifier = Modifier.fillMaxSize()
                                         ) {
@@ -157,7 +195,7 @@ fun VideoListScreen(
                                     } else {
                                         LazyColumn(
                                             state = explorerFolderListState,
-                                            contentPadding = PaddingValues(8.dp),
+                                            contentPadding = PaddingValues(top = 8.dp, bottom = 16.dp),
                                             verticalArrangement = Arrangement.spacedBy(4.dp),
                                             modifier = Modifier.fillMaxSize()
                                         ) {
@@ -175,9 +213,9 @@ fun VideoListScreen(
                                         LazyVerticalGrid(
                                             state = explorerRootGridState,
                                             columns = GridCells.Fixed(settings.gridColumnCount),
-                                            contentPadding = PaddingValues(8.dp),
-                                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                            contentPadding = PaddingValues(16.dp),
+                                            verticalArrangement = Arrangement.spacedBy(16.dp),
+                                            horizontalArrangement = Arrangement.spacedBy(16.dp),
                                             modifier = Modifier.fillMaxSize()
                                         ) {
                                             items(state.folders, key = { it.path }) { folder ->
@@ -188,9 +226,9 @@ fun VideoListScreen(
                                         LazyVerticalGrid(
                                             state = explorerFolderGridState,
                                             columns = GridCells.Fixed(settings.gridColumnCount),
-                                            contentPadding = PaddingValues(8.dp),
-                                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                            contentPadding = PaddingValues(16.dp),
+                                            verticalArrangement = Arrangement.spacedBy(16.dp),
+                                            horizontalArrangement = Arrangement.spacedBy(16.dp),
                                             modifier = Modifier.fillMaxSize()
                                         ) {
                                             itemsIndexed(
@@ -215,7 +253,7 @@ fun VideoListScreen(
                                 LayoutStyle.LIST -> {
                                     LazyColumn(
                                         state = flatListState,
-                                        contentPadding = PaddingValues(8.dp),
+                                        contentPadding = PaddingValues(top = 8.dp, bottom = 16.dp),
                                         verticalArrangement = Arrangement.spacedBy(4.dp),
                                         modifier = Modifier.fillMaxSize()
                                     ) {
@@ -231,9 +269,9 @@ fun VideoListScreen(
                                     LazyVerticalGrid(
                                         state = flatGridState,
                                         columns = GridCells.Fixed(settings.gridColumnCount),
-                                        contentPadding = PaddingValues(8.dp),
-                                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        contentPadding = PaddingValues(16.dp),
+                                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                                        horizontalArrangement = Arrangement.spacedBy(16.dp),
                                         modifier = Modifier.fillMaxSize()
                                     ) {
                                         itemsIndexed(

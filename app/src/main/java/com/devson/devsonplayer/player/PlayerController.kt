@@ -24,23 +24,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-/**
- * PlayerController
- *
- * Unified player API that transparently switches between:
- * - Hardware path: Media3 ExoPlayer (MediaCodec) → SurfaceView
- * - Software path: FFmpeg via NativePlayer → GLSurfaceView
- *
- * Exposes [PlayerState] as a StateFlow for UI observation.
- */
 @OptIn(UnstableApi::class)
 class PlayerController(private val context: Context) {
 
     private val TAG = "PlayerController"
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
-
-    // State 
 
     sealed class PlayerState {
         object Idle : PlayerState()
@@ -97,32 +87,33 @@ class PlayerController(private val context: Context) {
     }
 
     //  Load & play 
-
     fun load(uri: Uri) {
         _state.value = PlayerState.Buffering
         
-        // Use the new helper to get the real absolute path for FFmpeg
-        val realPath = getRealPathFromUri(context, uri) ?: uri.path ?: run {
-            _state.value = PlayerState.Error("Invalid URI: $uri")
-            return
-        }
+        // Launch in the background to prevent blocking the Main Thread
+        scope.launch(Dispatchers.IO) {
+            val realPath = getRealPathFromUri(context, uri) ?: uri.path ?: run {
+                _state.value = PlayerState.Error("Invalid URI: $uri")
+                return@launch
+            }
 
-        currentRealPath = realPath
+            // Probe for video info via MediaMetadataRetriever (Heavy File I/O)
+            val videoInfo = probeVideoInfo(realPath, uri) 
+            _videoInfo.value = videoInfo
+            Log.i(TAG, "VideoInfo: $videoInfo")
 
-        // Probe for video info via MediaMetadataRetriever
-        val videoInfo = probeVideoInfo(realPath, uri) // Use realPath here for better 10-bit detection
-        _videoInfo.value = videoInfo
-        Log.i(TAG, "VideoInfo: $videoInfo")
+            val decoder = DecoderSelector.selectDecoder(videoInfo)
+            activeDecoder = decoder
+            _decoderType.value = decoder
+            Log.i(TAG, "Selected decoder: $decoder")
 
-        val decoder = DecoderSelector.selectDecoder(videoInfo)
-        activeDecoder = decoder
-        _decoderType.value = decoder
-        Log.i(TAG, "Selected decoder: $decoder")
-
-        when (decoder) {
-            // Pass the realPath along to ExoPlayer so it can use it for the fallback
-            DecoderType.HARDWARE -> loadWithExoPlayer(uri, realPath) 
-            DecoderType.SOFTWARE -> loadWithFFmpeg(realPath) // FFmpeg now gets the real path
+            // Switch back to the Main thread to configure ExoPlayer / NativePlayer UI
+            withContext(Dispatchers.Main) {
+                when (decoder) {
+                    DecoderType.HARDWARE -> loadWithExoPlayer(uri, realPath) 
+                    DecoderType.SOFTWARE -> loadWithFFmpeg(realPath)
+                }
+            }
         }
     }
 

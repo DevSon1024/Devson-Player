@@ -24,6 +24,8 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.compose.ui.unit.dp
+
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.devson.devsonplayer.player.DecoderSelector
@@ -33,6 +35,20 @@ import com.devson.devsonplayer.player.PlayerViewModel
 import com.devson.devsonplayer.player.SubtitleManager
 import android.app.Activity
 import android.content.pm.ActivityInfo
+import androidx.compose.runtime.collectAsState
+import com.devson.devsonplayer.MainViewModel
+import com.devson.devsonplayer.ThemeMode
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.LightMode
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.fillMaxSize
+
 
 /**
  * PlayerScreen
@@ -49,11 +65,14 @@ fun PlayerScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: PlayerViewModel = viewModel(),
-    prefsViewModel: PlayerPreferencesViewModel = viewModel()
+    prefsViewModel: PlayerPreferencesViewModel = viewModel(),
+    mainViewModel: MainViewModel = viewModel()
 ) {
     val context  = LocalContext.current
     val view     = LocalView.current
     val activity = context as? Activity
+    val themeMode by mainViewModel.themeMode.collectAsState()
+
 
     val playerState: PlayerController.PlayerState by viewModel.state.collectAsStateWithLifecycle()
     val decoderType: DecoderSelector.DecoderType? by viewModel.decoderType.collectAsStateWithLifecycle()
@@ -178,7 +197,6 @@ fun PlayerScreen(
             modifier         = Modifier.fillMaxSize()
         )
     }
-
     DisposableEffect(activity) {
         onDispose {
             viewModel.controller.release()

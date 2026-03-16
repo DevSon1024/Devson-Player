@@ -28,9 +28,12 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.devson.devsonplayer.ui.PlayerScreen
-import com.devson.devsonplayer.ui.VideoListScreen
 import com.devson.devsonplayer.ui.theme.DevsonPlayerTheme
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.runtime.collectAsState
+import com.devson.devsonplayer.ui.VideoListScreen
+import com.devson.devsonplayer.ui.PlayerScreen
+
 
 class MainActivity : ComponentActivity() {
 
@@ -39,12 +42,15 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            DevsonPlayerTheme {
+            val mainViewModel: MainViewModel = viewModel()
+            val themeMode by mainViewModel.themeMode.collectAsState()
+
+            DevsonPlayerTheme(themeMode = themeMode) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color    = MaterialTheme.colorScheme.background
                 ) {
-                    DevsonPlayerApp()
+                    DevsonPlayerApp(mainViewModel)
                 }
             }
         }
@@ -52,7 +58,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun DevsonPlayerApp() {
+fun DevsonPlayerApp(mainViewModel: MainViewModel) {
     val navController = rememberNavController()
 
     //  Permission handling 
@@ -90,6 +96,7 @@ fun DevsonPlayerApp() {
             ) {
                 composable(Screen.VideoList.route) {
                     VideoListScreen(
+                        mainViewModel = mainViewModel,
                         onVideoSelected = { videos: List<VideoItem>, index: Int ->
                             val uris = videos.map { it.uri.toString() }
                             val titles = videos.map { it.title }
@@ -114,6 +121,7 @@ fun DevsonPlayerApp() {
 
                     if (uris != null && titles != null) {
                         PlayerScreen(
+                            mainViewModel = mainViewModel,
                             playlistUris   = uris.map { Uri.parse(it) },
                             playlistTitles = titles,
                             startIndex      = startIndex,

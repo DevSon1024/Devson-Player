@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -20,6 +22,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import androidx.compose.ui.platform.LocalContext
+import coil.compose.AsyncImage
+import coil.request.CachePolicy
+import coil.request.videoFrameMillis
 import coil.decode.VideoFrameDecoder
 
 // --- Formatters ---
@@ -39,37 +45,42 @@ fun FolderListItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Card(
+    Surface(
         modifier = modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(horizontal = 8.dp, vertical = 4.dp),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+            .clickable(onClick = onClick),
+        color = Color.Transparent
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = Icons.Default.Folder,
-                contentDescription = "Folder",
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(40.dp)
-            )
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.secondaryContainer,
+                modifier = Modifier.size(56.dp)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = Icons.Rounded.Folder,
+                        contentDescription = "Folder",
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                        modifier = Modifier.size(32.dp)
+                    )
+                }
+            }
             Spacer(Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = folder.name,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
+                    style = MaterialTheme.typography.titleMedium,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
                     text = "${folder.videoCount} videos • %.1f MB".format(folder.totalSizeMb),
-                    fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -82,37 +93,45 @@ fun FolderGridItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Card(
+    Surface(
         modifier = modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .aspectRatio(1f),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+            .clickable(onClick = onClick),
+        color = Color.Transparent
     ) {
         Column(
-            modifier = Modifier.padding(12.dp),
-            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.padding(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Icon(
-                imageVector = Icons.Default.Folder,
-                contentDescription = "Folder",
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(48.dp)
-            )
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.secondaryContainer,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1f)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = Icons.Rounded.Folder,
+                        contentDescription = "Folder",
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                        modifier = Modifier.size(48.dp)
+                    )
+                }
+            }
             Spacer(Modifier.height(8.dp))
             Text(
                 text = folder.name,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 14.sp,
+                style = MaterialTheme.typography.titleMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
             Text(
-                text = "${folder.videoCount} videos",
-                fontSize = 11.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                text = "${folder.videoCount} videos • %.1f MB".format(folder.totalSizeMb),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }
@@ -129,32 +148,39 @@ fun VideoListItem(
 ) {
     val context = LocalContext.current
 
-    Card(
+    Surface(
         modifier = modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(horizontal = 8.dp, vertical = 4.dp),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            .clickable(onClick = onClick),
+        color = Color.Transparent
     ) {
         Row(
-            modifier = Modifier.height(88.dp),
+            modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
-                    .width(136.dp)
-                    .fillMaxHeight()
+                    .width(140.dp)
+                    .aspectRatio(16f / 9f)
+                    .clip(RoundedCornerShape(8.dp))
             ) {
                 AsyncImage(
-                    model = ImageRequest.Builder(context)
+                    model = ImageRequest.Builder(LocalContext.current)
                         .data(video.uri)
-                        .decoderFactory { result, options, _ -> VideoFrameDecoder(result.source, options) }
+//                        .videoFrameMillis(1000)
+                        .diskCacheKey("${video.id}_${video.dateAdded}")
+                        .memoryCacheKey("${video.id}_${video.dateAdded}")
+                        // Explicitly tell Coil to READ and WRITE to our caches
+                        .diskCachePolicy(CachePolicy.ENABLED)
+                        .memoryCachePolicy(CachePolicy.ENABLED)
                         .crossfade(true)
                         .build(),
-                    contentDescription = video.title,
+                    contentDescription = "Thumbnail for ${video.title}",
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier
+                        .width(140.dp)
+                        .aspectRatio(16f / 9f)
+                        .clip(RoundedCornerShape(8.dp))
                 )
                 
                 if (settings.showDuration) {
@@ -162,14 +188,13 @@ fun VideoListItem(
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
                             .padding(4.dp)
-                            .background(Color(0xCC000000), RoundedCornerShape(4.dp))
+                            .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(4.dp))
                             .padding(horizontal = 4.dp, vertical = 2.dp)
                     ) {
                         Text(
                             text = formatDurationMs(video.durationMs),
                             color = Color.White,
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Medium
+                            style = MaterialTheme.typography.labelSmall
                         )
                     }
                 }
@@ -178,47 +203,49 @@ fun VideoListItem(
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(horizontal = 12.dp),
+                    .padding(start = 16.dp),
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
                     text = video.title,
+                    style = MaterialTheme.typography.titleMedium,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 
-                if (settings.viewMode == ViewMode.FLAT) {
-                    Text(
-                        text = video.folderName,
-                        fontSize = 11.sp,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(top = 2.dp),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-
-                if (settings.showFileSize) {
-                    Text(
-                        text = "%.1f MB".format(video.sizeMb),
-                        fontSize = 11.sp,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                        modifier = Modifier.padding(top = 2.dp)
-                    )
+                val metadata = buildString {
+                    if (settings.viewMode == ViewMode.FLAT) {
+                        append(video.folderName)
+                        append(" • ")
+                    }
+                    if (settings.showFileSize) {
+                        append("%.1f MB".format(video.sizeMb))
+                    }
+                    if (settings.showResolution) {
+                        if (isNotEmpty()) append(" • ")
+                        append("HD")
+                    }
                 }
                 
-                if (settings.showResolution) {
-                    // We don't have resolution extracted yet in our fast query, but prepared for future expansion
+                if (metadata.isNotEmpty()) {
                     Text(
-                        text = "HD",
-                        fontSize = 11.sp,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                        modifier = Modifier.padding(top = 2.dp)
+                        text = metadata,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.padding(top = 4.dp)
                     )
                 }
+            }
+
+            IconButton(onClick = { /* TODO: More actions */ }) {
+                Icon(
+                    imageVector = Icons.Default.MoreVert,
+                    contentDescription = "More",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
     }
@@ -233,81 +260,103 @@ fun VideoGridItem(
 ) {
     val context = LocalContext.current
 
-    Card(
+    Surface(
         modifier = modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        color = Color.Transparent
     ) {
-        Column {
-            Box(modifier = Modifier.aspectRatio(16f / 9f)) {
+        Column(modifier = Modifier.padding(8.dp)) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(16f / 9f)
+                    .clip(RoundedCornerShape(8.dp))
+            ) {
                 AsyncImage(
-                    model = ImageRequest.Builder(context)
+                    model = ImageRequest.Builder(LocalContext.current)
                         .data(video.uri)
-                        .decoderFactory { result, options, _ -> VideoFrameDecoder(result.source, options) }
+//                        .videoFrameMillis(1000)
+                        .diskCacheKey("${video.id}_${video.dateAdded}")
+                        .memoryCacheKey("${video.id}_${video.dateAdded}")
+                        // Explicitly tell Coil to READ and WRITE to our caches
+                        .diskCachePolicy(CachePolicy.ENABLED)
+                        .memoryCachePolicy(CachePolicy.ENABLED)
                         .crossfade(true)
                         .build(),
-                    contentDescription = video.title,
+                    contentDescription = "Thumbnail for ${video.title}",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .fillMaxSize()
-                        .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
+                        .width(140.dp)
+                        .aspectRatio(16f / 9f)
+                        .clip(RoundedCornerShape(8.dp))
                 )
                 if (settings.showDuration) {
                     Box(
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
                             .padding(6.dp)
-                            .background(Color(0xCC000000), RoundedCornerShape(4.dp))
+                            .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(4.dp))
                             .padding(horizontal = 6.dp, vertical = 2.dp)
                     ) {
                         Text(
                             text = formatDurationMs(video.durationMs),
                             color = Color.White,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Medium
+                            style = MaterialTheme.typography.labelSmall
                         )
                     }
                 }
             }
 
-            Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp)) {
-                Text(
-                    text = video.title,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                
-                if (settings.viewMode == ViewMode.FLAT) {
+            Row(
+                modifier = Modifier
+                    .padding(top = 8.dp)
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.Top
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = video.folderName,
-                        fontSize = 10.sp,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(top = 2.dp),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        text = video.title,
+                        style = MaterialTheme.typography.titleMedium,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
+                    
+                    val metadata = buildString {
+                        if (settings.viewMode == ViewMode.FLAT) {
+                            append(video.folderName)
+                            append(" • ")
+                        }
+                        if (settings.showFileSize) {
+                            append("%.1f MB".format(video.sizeMb))
+                        }
+                        if (settings.showResolution) {
+                            if (isNotEmpty()) append(" • ")
+                            append("HD")
+                        }
+                    }
+                    
+                    if (metadata.isNotEmpty()) {
+                        Text(
+                            text = metadata,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                 }
                 
-                if (settings.showFileSize) {
-                    Text(
-                        text = "%.1f MB".format(video.sizeMb),
-                        fontSize = 11.sp,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                        modifier = Modifier.padding(top = 2.dp)
-                    )
-                }
-                
-                if (settings.showResolution) {
-                    Text(
-                        text = "HD",
-                        fontSize = 11.sp,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                        modifier = Modifier.padding(top = 2.dp)
+                IconButton(
+                    onClick = { /* TODO: More actions */ },
+                    modifier = Modifier.size(24.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.MoreVert,
+                        contentDescription = "More",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(20.dp)
                     )
                 }
             }

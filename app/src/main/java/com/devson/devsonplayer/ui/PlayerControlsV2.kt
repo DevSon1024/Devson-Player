@@ -557,9 +557,7 @@ private fun BottomRow(
     }
 }
 
-// 
-//  Audio Tracks Bottom Sheet  — uses app MaterialTheme (no hardcoded colors)
-// 
+//  Audio Tracks Bottom Sheet  — uses app MaterialTheme (no hardcoded colors) 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -604,9 +602,7 @@ private fun AudioTracksBottomSheet(
     }
 }
 
-// 
 //  Subtitles Bottom Sheet
-// 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

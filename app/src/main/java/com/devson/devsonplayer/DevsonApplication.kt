@@ -8,23 +8,27 @@ import coil.disk.DiskCache
 import coil.memory.MemoryCache
 
 class DevsonApplication : Application(), ImageLoaderFactory {
+
     override fun newImageLoader(): ImageLoader {
         return ImageLoader.Builder(this)
+            // 1. Add the Video Frame Decoder
             .components {
                 add(VideoFrameDecoder.Factory())
             }
+            // 2. Configure a robust Memory Cache (Fastest, wiped on app close)
             .memoryCache {
                 MemoryCache.Builder(this)
-                    .maxSizePercent(0.25) // Use 25% of app's available memory
+                    .maxSizePercent(0.25) // Use 25% of available app memory
                     .build()
             }
+            // 3. Configure a persistent Disk Cache (Survives app restarts!)
             .diskCache {
                 DiskCache.Builder()
-                    .directory(cacheDir.resolve("video_thumbnails_cache"))
-                    .maxSizePercent(0.05) // Use up to 5% of free disk space
+                    .directory(this.cacheDir.resolve("video_thumbnails"))
+                    .maxSizeBytes(100L * 1024 * 1024) // 100 MB cache limit
                     .build()
             }
-            // Force caching even if cache-control headers say otherwise
+            // Force Coil to ignore headers and aggressively cache everything
             .respectCacheHeaders(false)
             .build()
     }
