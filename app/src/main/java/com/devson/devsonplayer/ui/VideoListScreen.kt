@@ -1,79 +1,72 @@
 package com.devson.devsonplayer.ui
 
-import android.content.ContentUris
-import android.content.Context
 import android.net.Uri
-import android.provider.MediaStore
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.PlayCircle
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
-import coil.decode.VideoFrameDecoder
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-
-data class VideoItem(
-    val id: Long,
-    val title: String,
-    val uri: Uri,
-    val durationMs: Long,
-    val sizeMb: Float
-)
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.devson.devsonplayer.ui.viewsettings.FolderGridItem
+import com.devson.devsonplayer.ui.viewsettings.FolderListItem
+import com.devson.devsonplayer.ui.viewsettings.LayoutStyle
+import com.devson.devsonplayer.ui.viewsettings.VideoGridItem
+import com.devson.devsonplayer.ui.viewsettings.VideoListItem
+import com.devson.devsonplayer.ui.viewsettings.VideoListUiState
+import com.devson.devsonplayer.ui.viewsettings.VideoListViewModel
+import com.devson.devsonplayer.ui.viewsettings.ViewSettingsSheet
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VideoListScreen(
     onVideoSelected: (Uri, String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: VideoListViewModel = viewModel()
 ) {
-    val context = LocalContext.current
-    var videos by remember { mutableStateOf<List<VideoItem>>(emptyList()) }
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val settings by viewModel.viewSettings.collectAsStateWithLifecycle()
+    val currentFolderPath by viewModel.currentFolderPath.collectAsStateWithLifecycle()
+    
+    var showSettingsSheet by rememberSaveable { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
-        videos = loadVideos(context)
+    // Handle system back button for folder navigation
+    BackHandler(enabled = currentFolderPath != null) {
+        viewModel.navigateBack()
     }
 
     Scaffold(
@@ -81,164 +74,154 @@ fun VideoListScreen(
             TopAppBar(
                 title = {
                     Text(
-                        "Devson Player",
+                        if (currentFolderPath != null) currentFolderPath!!.substringAfterLast('/') else "Devson Player",
                         fontWeight = FontWeight.Bold,
-                        fontSize   = 22.sp
+                        fontSize = 22.sp
                     )
                 },
+                navigationIcon = {
+                    if (currentFolderPath != null) {
+                        IconButton(onClick = { viewModel.navigateBack() }) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        }
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { showSettingsSheet = true }) {
+                        Icon(Icons.Default.Tune, contentDescription = "View Settings")
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor    = MaterialTheme.colorScheme.surface,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    actionIconContentColor = MaterialTheme.colorScheme.onSurface
                 )
             )
         },
         modifier = modifier
-    ) { inner ->
-        if (videos.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(inner),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(
-                        imageVector        = Icons.Default.PlayCircle,
-                        contentDescription = null,
-                        tint               = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
-                        modifier           = Modifier.size(80.dp)
-                    )
-                    Spacer(Modifier.height(16.dp))
-                    Text(
-                        "No videos found",
-                        color    = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                        fontSize = 18.sp
-                    )
+    ) { innerPadding ->
+        
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            when (val state = uiState) {
+                is VideoListUiState.Loading -> {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                }
+                is VideoListUiState.ExplorerMode -> {
+                    if (state.folders.isEmpty() && state.videos.isEmpty()) {
+                        EmptyState()
+                    } else {
+                        AnimatedContent(targetState = settings.layoutStyle, label = "layout_anim") { layout ->
+                            when (layout) {
+                                LayoutStyle.LIST -> {
+                                    LazyColumn(
+                                        contentPadding = PaddingValues(8.dp),
+                                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                                        modifier = Modifier.fillMaxSize()
+                                    ) {
+                                        items(state.folders, key = { it.path }) { folder ->
+                                            FolderListItem(folder, onClick = { viewModel.navigateToFolder(folder.path) })
+                                        }
+                                        items(state.videos, key = { it.id }) { video ->
+                                            VideoListItem(video, settings, onClick = { onVideoSelected(video.uri, video.title) })
+                                        }
+                                    }
+                                }
+                                LayoutStyle.GRID -> {
+                                    LazyVerticalGrid(
+                                        columns = GridCells.Fixed(settings.gridColumnCount),
+                                        contentPadding = PaddingValues(8.dp),
+                                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        modifier = Modifier.fillMaxSize()
+                                    ) {
+                                        items(state.folders, key = { it.path }) { folder ->
+                                            FolderGridItem(folder, onClick = { viewModel.navigateToFolder(folder.path) })
+                                        }
+                                        items(state.videos, key = { it.id }) { video ->
+                                            VideoGridItem(video, settings, onClick = { onVideoSelected(video.uri, video.title) })
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                is VideoListUiState.FlatMode -> {
+                    if (state.videos.isEmpty()) {
+                        EmptyState()
+                    } else {
+                        AnimatedContent(targetState = settings.layoutStyle, label = "layout_anim") { layout ->
+                            when (layout) {
+                                LayoutStyle.LIST -> {
+                                    LazyColumn(
+                                        contentPadding = PaddingValues(8.dp),
+                                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                                        modifier = Modifier.fillMaxSize()
+                                    ) {
+                                        items(state.videos, key = { it.id }) { video ->
+                                            VideoListItem(video, settings, onClick = { onVideoSelected(video.uri, video.title) })
+                                        }
+                                    }
+                                }
+                                LayoutStyle.GRID -> {
+                                    LazyVerticalGrid(
+                                        columns = GridCells.Fixed(settings.gridColumnCount),
+                                        contentPadding = PaddingValues(8.dp),
+                                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        modifier = Modifier.fillMaxSize()
+                                    ) {
+                                        items(state.videos, key = { it.id }) { video ->
+                                            VideoGridItem(video, settings, onClick = { onVideoSelected(video.uri, video.title) })
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
-        } else {
-            LazyVerticalGrid(
-                columns         = GridCells.Fixed(2),
-                contentPadding  = PaddingValues(8.dp),
-                verticalArrangement   = Arrangement.spacedBy(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(inner)
-            ) {
-                items(videos, key = { it.id }) { video ->
-                    VideoCard(video = video, onClick = { onVideoSelected(video.uri, video.title) })
-                }
-            }
+        }
+
+        if (showSettingsSheet) {
+            ViewSettingsSheet(
+                settings = settings,
+                onViewModeChange = { viewModel.setViewMode(it) },
+                onLayoutStyleChange = { viewModel.setLayoutStyle(it) },
+                onGridColumnCountChange = { viewModel.setGridColumnCount(it) },
+                onSortByChange = { viewModel.setSortBy(it) },
+                onToggleShowDuration = { viewModel.toggleShowDuration(it) },
+                onToggleShowFileSize = { viewModel.toggleShowFileSize(it) },
+                onToggleShowResolution = { viewModel.toggleShowResolution(it) },
+                onDismiss = { showSettingsSheet = false }
+            )
         }
     }
 }
 
 @Composable
-private fun VideoCard(video: VideoItem, onClick: () -> Unit) {
-    val context = LocalContext.current
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
-        shape    = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+private fun EmptyState() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
     ) {
-        Column {
-            Box(modifier = Modifier.aspectRatio(16f / 9f)) {
-                AsyncImage(
-                    model = ImageRequest.Builder(context)
-                        .data(video.uri)
-                        .decoderFactory { result, options, _ ->
-                            VideoFrameDecoder(result.source, options)
-                        }
-                        .crossfade(true)
-                        .build(),
-                    contentDescription = video.title,
-                    contentScale       = ContentScale.Crop,
-                    modifier           = Modifier
-                        .fillMaxSize()
-                        .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
-                )
-                // Duration badge
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(6.dp)
-                        .background(Color(0xCC000000), RoundedCornerShape(4.dp))
-                        .padding(horizontal = 6.dp, vertical = 2.dp)
-                ) {
-                    Text(
-                        text     = formatDurationMs(video.durationMs),
-                        color    = Color.White,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
-            }
-
-            Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)) {
-                Text(
-                    text          = video.title,
-                    maxLines      = 2,
-                    overflow      = TextOverflow.Ellipsis,
-                    fontSize      = 13.sp,
-                    fontWeight    = FontWeight.SemiBold,
-                    color         = MaterialTheme.colorScheme.onSurface
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text     = "%.1f MB".format(video.sizeMb),
-                        fontSize = 11.sp,
-                        color    = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-                    )
-                }
-            }
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Icon(
+                imageVector = Icons.Default.PlayCircle,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
+                modifier = Modifier.size(80.dp)
+            )
+            Spacer(Modifier.height(16.dp))
+            Text(
+                "No videos found",
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                fontSize = 18.sp
+            )
         }
     }
-}
-
-//  MediaStore loader 
-
-private suspend fun loadVideos(context: Context): List<VideoItem> =
-    withContext(Dispatchers.IO) {
-        val result = mutableListOf<VideoItem>()
-        val collection = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
-        val projection = arrayOf(
-            MediaStore.Video.Media._ID,
-            MediaStore.Video.Media.DISPLAY_NAME,
-            MediaStore.Video.Media.DURATION,
-            MediaStore.Video.Media.SIZE
-        )
-        val sortOrder = "${MediaStore.Video.Media.DATE_ADDED} DESC"
-
-        context.contentResolver.query(collection, projection, null, null, sortOrder)
-            ?.use { cursor ->
-                val idCol       = cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID)
-                val nameCol     = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DISPLAY_NAME)
-                val durationCol = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DURATION)
-                val sizeCol     = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.SIZE)
-
-                while (cursor.moveToNext()) {
-                    val id       = cursor.getLong(idCol)
-                    val name     = cursor.getString(nameCol) ?: "Video"
-                    val duration = cursor.getLong(durationCol)
-                    val size     = cursor.getLong(sizeCol)
-                    val uri      = ContentUris.withAppendedId(collection, id)
-
-                    result.add(VideoItem(id, name, uri, duration, size / 1_048_576f))
-                }
-            }
-        result
-    }
-
-private fun formatDurationMs(ms: Long): String {
-    val s = ms / 1000
-    val h = s / 3600; val m = (s % 3600) / 60; val sec = s % 60
-    return if (h > 0) "%d:%02d:%02d".format(h, m, sec)
-           else       "%02d:%02d".format(m, sec)
 }
