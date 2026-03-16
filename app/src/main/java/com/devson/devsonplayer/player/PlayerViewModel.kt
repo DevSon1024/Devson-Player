@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 
 /**
@@ -30,6 +31,14 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
 
     val controller      = PlayerController(application)
     val subtitleManager = SubtitleManager()
+
+    private val _playlistUris = MutableStateFlow<List<Uri>>(emptyList())
+    private val _playlistTitles = MutableStateFlow<List<String>>(emptyList())
+    private val _currentIndex = MutableStateFlow(0)
+
+    val currentTitle: StateFlow<String> = combine(_playlistTitles, _currentIndex) { titles, index ->
+        titles.getOrNull(index) ?: "Now Playing"
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), "Now Playing")
 
     init {
         // Wire real ExoPlayer track info into this ViewModel
@@ -125,6 +134,30 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
             ScalingMode.CROP     -> ScalingMode.ORIGINAL
             ScalingMode.ORIGINAL -> ScalingMode.FIT
             else                 -> ScalingMode.FIT
+        }
+    }
+
+    fun setPlaylist(uris: List<Uri>, titles: List<String>, startIndex: Int) {
+        _playlistUris.value = uris
+        _playlistTitles.value = titles
+        _currentIndex.value = startIndex.coerceIn(0, uris.size - 1)
+        
+        load(uris[_currentIndex.value])
+    }
+
+    fun playNext() {
+        val nextIndex = _currentIndex.value + 1
+        if (nextIndex < _playlistUris.value.size) {
+            _currentIndex.value = nextIndex
+            load(_playlistUris.value[nextIndex])
+        }
+    }
+
+    fun playPrevious() {
+        val prevIndex = _currentIndex.value - 1
+        if (prevIndex >= 0) {
+            _currentIndex.value = prevIndex
+            load(_playlistUris.value[prevIndex])
         }
     }
 

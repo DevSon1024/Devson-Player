@@ -1,5 +1,5 @@
 package com.devson.devsonplayer
-
+import com.devson.devsonplayer.ui.viewsettings.VideoItem
 import android.Manifest
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -90,27 +90,34 @@ fun DevsonPlayerApp() {
             ) {
                 composable(Screen.VideoList.route) {
                     VideoListScreen(
-                        onVideoSelected = { uri, title ->
+                        onVideoSelected = { videos: List<VideoItem>, index: Int ->
+                            val uris = videos.map { it.uri.toString() }
+                            val titles = videos.map { it.title }
                             navController.currentBackStackEntry
-                                ?.savedStateHandle?.set("videoUri", uri.toString())
+                                ?.savedStateHandle?.set("playlistUris", uris)
                             navController.currentBackStackEntry
-                                ?.savedStateHandle?.set("videoTitle", title)
+                                ?.savedStateHandle?.set("playlistTitles", titles)
+                            navController.currentBackStackEntry
+                                ?.savedStateHandle?.set("startIndex", index)
                             navController.navigate(Screen.Player.route)
                         }
                     )
                 }
 
                 composable(Screen.Player.route) { entry ->
-                    val uriString = navController.previousBackStackEntry
-                        ?.savedStateHandle?.get<String>("videoUri")
-                    val videoTitle = navController.previousBackStackEntry
-                        ?.savedStateHandle?.get<String>("videoTitle") ?: "Now Playing"
+                    val uris = navController.previousBackStackEntry
+                        ?.savedStateHandle?.get<List<String>>("playlistUris")
+                    val titles = navController.previousBackStackEntry
+                        ?.savedStateHandle?.get<List<String>>("playlistTitles")
+                    val startIndex = navController.previousBackStackEntry
+                        ?.savedStateHandle?.get<Int>("startIndex") ?: 0
 
-                    if (uriString != null) {
+                    if (uris != null && titles != null) {
                         PlayerScreen(
-                            videoUri   = Uri.parse(uriString),
-                            videoTitle = videoTitle,
-                            onBack     = { navController.popBackStack() }
+                            playlistUris   = uris.map { Uri.parse(it) },
+                            playlistTitles = titles,
+                            startIndex      = startIndex,
+                            onBack         = { navController.popBackStack() }
                         )
                     }
                 }

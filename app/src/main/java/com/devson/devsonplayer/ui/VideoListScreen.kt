@@ -17,6 +17,8 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.PlayCircle
@@ -47,6 +49,7 @@ import com.devson.devsonplayer.ui.viewsettings.FolderListItem
 import com.devson.devsonplayer.ui.viewsettings.LayoutStyle
 import com.devson.devsonplayer.ui.viewsettings.VideoGridItem
 import com.devson.devsonplayer.ui.viewsettings.VideoListItem
+import com.devson.devsonplayer.ui.viewsettings.VideoItem
 import com.devson.devsonplayer.ui.viewsettings.VideoListUiState
 import com.devson.devsonplayer.ui.viewsettings.VideoListViewModel
 import com.devson.devsonplayer.ui.viewsettings.ViewSettingsSheet
@@ -54,7 +57,7 @@ import com.devson.devsonplayer.ui.viewsettings.ViewSettingsSheet
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VideoListScreen(
-    onVideoSelected: (Uri, String) -> Unit,
+    onVideoSelected: (List<VideoItem>, Int) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: VideoListViewModel = viewModel()
 ) {
@@ -125,8 +128,11 @@ fun VideoListScreen(
                                         items(state.folders, key = { it.path }) { folder ->
                                             FolderListItem(folder, onClick = { viewModel.navigateToFolder(folder.path) })
                                         }
-                                        items(state.videos, key = { it.id }) { video ->
-                                            VideoListItem(video, settings, onClick = { onVideoSelected(video.uri, video.title) })
+                                        itemsIndexed(
+                                            items = state.videos,
+                                            key = { _: Int, video: VideoItem -> video.id }
+                                        ) { index: Int, video: VideoItem ->
+                                            VideoListItem(video, settings, onClick = { onVideoSelected(state.videos, index) })
                                         }
                                     }
                                 }
@@ -141,8 +147,11 @@ fun VideoListScreen(
                                         items(state.folders, key = { it.path }) { folder ->
                                             FolderGridItem(folder, onClick = { viewModel.navigateToFolder(folder.path) })
                                         }
-                                        items(state.videos, key = { it.id }) { video ->
-                                            VideoGridItem(video, settings, onClick = { onVideoSelected(video.uri, video.title) })
+                                        itemsIndexed(
+                                            items = state.videos,
+                                            key = { _: Int, video: VideoItem -> video.id }
+                                        ) { index: Int, video: VideoItem ->
+                                            VideoGridItem(video, settings, onClick = { onVideoSelected(state.videos, index) })
                                         }
                                     }
                                 }
@@ -162,8 +171,11 @@ fun VideoListScreen(
                                         verticalArrangement = Arrangement.spacedBy(4.dp),
                                         modifier = Modifier.fillMaxSize()
                                     ) {
-                                        items(state.videos, key = { it.id }) { video ->
-                                            VideoListItem(video, settings, onClick = { onVideoSelected(video.uri, video.title) })
+                                        itemsIndexed(
+                                            items = state.videos,
+                                            key = { _: Int, video: VideoItem -> video.id }
+                                        ) { index: Int, video: VideoItem ->
+                                            VideoListItem(video, settings, onClick = { onVideoSelected(state.videos, index) })
                                         }
                                     }
                                 }
@@ -175,8 +187,11 @@ fun VideoListScreen(
                                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                                         modifier = Modifier.fillMaxSize()
                                     ) {
-                                        items(state.videos, key = { it.id }) { video ->
-                                            VideoGridItem(video, settings, onClick = { onVideoSelected(video.uri, video.title) })
+                                        itemsIndexed(
+                                            items = state.videos,
+                                            key = { _: Int, video: VideoItem -> video.id }
+                                        ) { index: Int, video: VideoItem ->
+                                            VideoGridItem(video, settings, onClick = { onVideoSelected(state.videos, index) })
                                         }
                                     }
                                 }

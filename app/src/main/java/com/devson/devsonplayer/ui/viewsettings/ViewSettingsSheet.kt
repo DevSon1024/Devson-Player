@@ -44,7 +44,7 @@ fun ViewSettingsSheet(
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
-            Divider()
+            HorizontalDivider()
             Spacer(Modifier.height(16.dp))
 
             // 1. View Mode (Explorer vs Flat)
@@ -108,7 +108,7 @@ fun ViewSettingsSheet(
             }
 
             Spacer(Modifier.height(16.dp))
-            Divider()
+            HorizontalDivider()
             Spacer(Modifier.height(16.dp))
 
             // 3. Sort By
@@ -137,7 +137,7 @@ fun ViewSettingsSheet(
                 }
             }
 
-            Divider()
+            HorizontalDivider()
             Spacer(Modifier.height(16.dp))
 
             // 4. Meta Toggles

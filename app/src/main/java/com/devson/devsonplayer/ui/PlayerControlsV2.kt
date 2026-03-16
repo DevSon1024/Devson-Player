@@ -38,10 +38,10 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.filled.Subtitles
-import androidx.compose.material.icons.filled.VolumeUp
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -368,7 +368,7 @@ private fun TopRow(
         }
         // Audio tracks
         IconButton(onClick = onShowAudioSheet) {
-            Icon(Icons.Default.VolumeUp, "Audio Tracks", tint = Color.White, modifier = Modifier.size(iconDp))
+            Icon(Icons.AutoMirrored.Filled.VolumeUp, "Audio Tracks", tint = Color.White, modifier = Modifier.size(iconDp))
         }
         // Subtitles
         IconButton(onClick = onShowSubSheet) {
@@ -578,7 +578,7 @@ private fun AudioTracksBottomSheet(
                 .verticalScroll(rememberScrollState())
         ) {
             SheetTitle("Audio Tracks")
-            Divider()
+            HorizontalDivider()
 
             if (tracks.isEmpty()) {
                 // No tracks detected — show "Default"
@@ -591,7 +591,7 @@ private fun AudioTracksBottomSheet(
                         selected = track.index == selectedIndex,
                         onClick  = { onSelect(track.index) }
                     )
-                    Divider(modifier = Modifier.padding(horizontal = 20.dp))
+                    HorizontalDivider(modifier = Modifier.padding(horizontal = 20.dp))
                 }
             }
             Spacer(Modifier.height(16.dp))
@@ -624,7 +624,7 @@ private fun SubtitlesBottomSheet(
                 .verticalScroll(rememberScrollState())
         ) {
             SheetTitle("Subtitles")
-            Divider()
+            HorizontalDivider()
 
             if (tracks.isEmpty()) {
                 SheetDefaultRow(selected = false, label = "No subtitle tracks available")
@@ -660,7 +660,7 @@ private fun SubtitlesBottomSheet(
                             }
                         }
                     }
-                    Divider(modifier = Modifier.padding(horizontal = 20.dp))
+                    HorizontalDivider(modifier = Modifier.padding(horizontal = 20.dp))
                 }
             }
             Spacer(Modifier.height(16.dp))
@@ -698,7 +698,7 @@ private fun SettingsBottomSheet(
                 .verticalScroll(rememberScrollState())
         ) {
             SheetTitle("Settings")
-            Divider()
+            HorizontalDivider()
             Spacer(Modifier.height(12.dp))
 
             //  Seek Duration 
@@ -818,7 +818,7 @@ private fun SectionLabel(text: String) {
 @Composable
 private fun SheetDivider() {
     Spacer(Modifier.height(12.dp))
-    Divider()
+    HorizontalDivider()
     Spacer(Modifier.height(12.dp))
 }
 

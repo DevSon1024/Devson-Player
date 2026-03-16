@@ -43,8 +43,9 @@ import android.content.pm.ActivityInfo
  */
 @Composable
 fun PlayerScreen(
-    videoUri: Uri,
-    videoTitle: String,
+    playlistUris: List<Uri>,
+    playlistTitles: List<String>,
+    startIndex: Int,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: PlayerViewModel = viewModel(),
@@ -61,10 +62,20 @@ fun PlayerScreen(
     val scalingMode: ScalingMode                  by viewModel.scalingMode.collectAsStateWithLifecycle()
     val audioTracks    by viewModel.audioTracks.collectAsStateWithLifecycle()
     val subtitleTracks by viewModel.subtitleTracks.collectAsStateWithLifecycle()
+    val currentTitle   by viewModel.currentTitle.collectAsStateWithLifecycle()
+    val autoPlay       by prefsViewModel.autoPlay.collectAsStateWithLifecycle()
 
     var controlsVisible by remember { mutableStateOf(true) }
 
-    LaunchedEffect(videoUri) { viewModel.load(videoUri) }
+    LaunchedEffect(playlistUris, playlistTitles, startIndex) {
+        viewModel.setPlaylist(playlistUris, playlistTitles, startIndex)
+    }
+
+    LaunchedEffect(playerState, autoPlay) {
+        if (playerState is PlayerController.PlayerState.Ended && autoPlay) {
+            viewModel.playNext()
+        }
+    }
 
     LaunchedEffect(playerState) {
         if (playerState is PlayerController.PlayerState.Playing) {
@@ -148,7 +159,7 @@ fun PlayerScreen(
             playerState      = playerState,
             subtitleCue      = subtitle?.text,
             decoderLabel     = decoderType?.name,
-            videoTitle       = videoTitle,
+            videoTitle       = currentTitle,
             scalingMode      = scalingMode,
             preferences      = prefsViewModel,
             audioTracks      = audioTracks,
@@ -159,8 +170,8 @@ fun PlayerScreen(
             onSpeedChange    = { viewModel.setSpeed(it) },
             onScalingToggle  = { viewModel.toggleScalingMode() },
             onBack           = onBack,
-            onPrevious       = { /* TODO: playlist integration */ },
-            onNext           = { /* TODO: playlist integration */ },
+            onPrevious       = { viewModel.playPrevious() },
+            onNext           = { viewModel.playNext() },
             controlsVisible  = controlsVisible,
             onToggleControls = { controlsVisible = !controlsVisible },
             modifier         = Modifier.fillMaxSize()
