@@ -65,6 +65,8 @@ class PlayerController(private val context: Context) {
     private var currentDurationMs = 0L
     private var currentPositionMs = 0L
     private var isPlayingNative = false
+    private var probedDurationMs = 0L
+    private var positionJob: kotlinx.coroutines.Job? = null
 
     //  Current state 
 
@@ -125,6 +127,8 @@ class PlayerController(private val context: Context) {
             val mime  = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE) ?: "video/avc"
             val w     = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)?.toIntOrNull() ?: 1920
             val h     = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)?.toIntOrNull() ?: 1080
+            val durationStr = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+            probedDurationMs = durationStr?.toLongOrNull() ?: 0L
 
             // Detect 10-bit from filename/extension heuristic when probe is insufficient
             val is10bit = path.lowercase().let {
@@ -228,15 +232,25 @@ class PlayerController(private val context: Context) {
         }
 
         currentDurationMs = nativePlayer.getDurationUs() / 1000L
+        if (currentDurationMs <= 5000L) {
+            currentDurationMs = probedDurationMs
+        }
         isPlayingNative = true
         nativePlayer.startDecoding()
-        _state.value = PlayerState.Playing(0L, currentDurationMs)
+        currentPositionMs = 0L
+        _state.value = PlayerState.Playing(currentPositionMs, currentDurationMs)
 
         // Position simulation (FFmpeg decoder doesn't push position back; use elapsed time)
-        scope.launch {
-            val start = System.currentTimeMillis()
+        startPositionSimulation()
+    }
+
+    private fun startPositionSimulation() {
+        positionJob?.cancel()
+        positionJob = scope.launch {
+            val start = System.currentTimeMillis() - currentPositionMs
             while (isPlayingNative) {
-                currentPositionMs = System.currentTimeMillis() - start
+                val elapsedMs = System.currentTimeMillis() - start
+                currentPositionMs = if (currentDurationMs > 0L) elapsedMs.coerceAtMost(currentDurationMs) else elapsedMs
                 _state.value = PlayerState.Playing(currentPositionMs, currentDurationMs)
                 delay(250)
             }
@@ -251,6 +265,7 @@ class PlayerController(private val context: Context) {
             DecoderType.SOFTWARE -> {
                 nativePlayer.resume()
                 isPlayingNative = true
+                startPositionSimulation()
             }
         }
     }
@@ -261,6 +276,8 @@ class PlayerController(private val context: Context) {
             DecoderType.SOFTWARE -> {
                 nativePlayer.pause()
                 isPlayingNative = false
+                positionJob?.cancel()
+                _state.value = PlayerState.Paused(currentPositionMs, currentDurationMs)
             }
         }
     }
@@ -268,7 +285,15 @@ class PlayerController(private val context: Context) {
     fun seekTo(positionMs: Long) {
         when (activeDecoder) {
             DecoderType.HARDWARE -> exoPlayer?.seekTo(positionMs)
-            DecoderType.SOFTWARE -> nativePlayer.seekTo(positionMs * 1000L)
+            DecoderType.SOFTWARE -> {
+                nativePlayer.seekTo(positionMs * 1000L)
+                currentPositionMs = positionMs
+                if (isPlayingNative) {
+                    startPositionSimulation()
+                } else {
+                    _state.value = PlayerState.Paused(currentPositionMs, currentDurationMs)
+                }
+            }
         }
     }
 
@@ -357,6 +382,7 @@ class PlayerController(private val context: Context) {
 
     private fun releaseNative() {
         isPlayingNative = false
+        positionJob?.cancel()
         nativePlayer.release()
     }
 
