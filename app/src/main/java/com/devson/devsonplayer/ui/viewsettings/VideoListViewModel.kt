@@ -215,15 +215,23 @@ class VideoListViewModel(application: Application) : AndroidViewModel(applicatio
         _currentFolderPath.value = path
     }
 
-    /**
-     * Attempts to navigate back one logical step (e.g. from folder contents back to folder list).
-     * @return true if navigation occurred, false if already at root
-     */
     fun navigateBack(): Boolean {
         if (_viewSettings.value.viewMode == ViewMode.EXPLORER && _currentFolderPath.value != null) {
             _currentFolderPath.value = null
             return true
         }
         return false
+    }
+
+    private val scrollPositions = mutableMapOf<String, Pair<Int, Int>>()
+
+    fun saveScrollPosition(path: String?, index: Int, offset: Int) {
+        val key = path ?: "ROOT"
+        scrollPositions[key] = Pair(index, offset)
+    }
+
+    fun getScrollPosition(path: String?): Pair<Int, Int>? {
+        val key = path ?: "ROOT"
+        return scrollPositions[key]
     }
 }

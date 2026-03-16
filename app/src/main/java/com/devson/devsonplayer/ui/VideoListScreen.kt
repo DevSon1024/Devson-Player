@@ -45,6 +45,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.foundation.background
 
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -98,9 +99,41 @@ fun VideoListScreen(
 
     // Reset folder scroll position when entering a new folder
     LaunchedEffect(currentFolderPath) {
+        val saved = viewModel.getScrollPosition(currentFolderPath)
+        val index = saved?.first ?: 0
+        val offset = saved?.second ?: 0
+        
         if (currentFolderPath != null) {
-            explorerFolderListState.scrollToItem(0)
-            explorerFolderGridState.scrollToItem(0)
+            explorerFolderListState.scrollToItem(index, offset)
+            explorerFolderGridState.scrollToItem(index, offset)
+        } else {
+            explorerRootListState.scrollToItem(index, offset)
+            explorerRootGridState.scrollToItem(index, offset)
+        }
+    }
+
+    // Track scroll positions
+    LaunchedEffect(
+        explorerRootListState, explorerRootGridState,
+        explorerFolderListState, explorerFolderGridState,
+        currentFolderPath, settings.layoutStyle
+    ) {
+        if (currentFolderPath == null) {
+            if (settings.layoutStyle == LayoutStyle.LIST) {
+                snapshotFlow { explorerRootListState.firstVisibleItemIndex to explorerRootListState.firstVisibleItemScrollOffset }
+                    .collect { (index, offset) -> viewModel.saveScrollPosition(null, index, offset) }
+            } else {
+                snapshotFlow { explorerRootGridState.firstVisibleItemIndex to explorerRootGridState.firstVisibleItemScrollOffset }
+                    .collect { (index, offset) -> viewModel.saveScrollPosition(null, index, offset) }
+            }
+        } else {
+            if (settings.layoutStyle == LayoutStyle.LIST) {
+                snapshotFlow { explorerFolderListState.firstVisibleItemIndex to explorerFolderListState.firstVisibleItemScrollOffset }
+                    .collect { (index, offset) -> viewModel.saveScrollPosition(currentFolderPath, index, offset) }
+            } else {
+                snapshotFlow { explorerFolderGridState.firstVisibleItemIndex to explorerFolderGridState.firstVisibleItemScrollOffset }
+                    .collect { (index, offset) -> viewModel.saveScrollPosition(currentFolderPath, index, offset) }
+            }
         }
     }
 
