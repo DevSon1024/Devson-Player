@@ -90,9 +90,11 @@ fun DevsonPlayerApp() {
             ) {
                 composable(Screen.VideoList.route) {
                     VideoListScreen(
-                        onVideoSelected = { uri ->
+                        onVideoSelected = { uri, title ->
                             navController.currentBackStackEntry
                                 ?.savedStateHandle?.set("videoUri", uri.toString())
+                            navController.currentBackStackEntry
+                                ?.savedStateHandle?.set("videoTitle", title)
                             navController.navigate(Screen.Player.route)
                         }
                     )
@@ -101,11 +103,14 @@ fun DevsonPlayerApp() {
                 composable(Screen.Player.route) { entry ->
                     val uriString = navController.previousBackStackEntry
                         ?.savedStateHandle?.get<String>("videoUri")
+                    val videoTitle = navController.previousBackStackEntry
+                        ?.savedStateHandle?.get<String>("videoTitle") ?: "Now Playing"
 
                     if (uriString != null) {
                         PlayerScreen(
-                            videoUri = Uri.parse(uriString),
-                            onBack   = { navController.popBackStack() }
+                            videoUri   = Uri.parse(uriString),
+                            videoTitle = videoTitle,
+                            onBack     = { navController.popBackStack() }
                         )
                     }
                 }

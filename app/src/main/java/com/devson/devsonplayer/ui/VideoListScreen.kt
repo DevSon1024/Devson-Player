@@ -66,7 +66,7 @@ data class VideoItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VideoListScreen(
-    onVideoSelected: (Uri) -> Unit,
+    onVideoSelected: (Uri, String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -127,7 +127,7 @@ fun VideoListScreen(
                     .padding(inner)
             ) {
                 items(videos, key = { it.id }) { video ->
-                    VideoCard(video = video, onClick = { onVideoSelected(video.uri) })
+                    VideoCard(video = video, onClick = { onVideoSelected(video.uri, video.title) })
                 }
             }
         }

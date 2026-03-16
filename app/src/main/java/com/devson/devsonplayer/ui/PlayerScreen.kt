@@ -33,71 +33,62 @@ import com.devson.devsonplayer.player.PlayerViewModel
 import com.devson.devsonplayer.player.SubtitleManager
 import android.app.Activity
 import android.content.pm.ActivityInfo
-import com.devson.devsonplayer.ui.ScalingMode
 
 /**
  * PlayerScreen
  *
  * Top-level composable for video playback.
- * Embeds SurfaceView (hardware) or GLSurfaceView (software) based on active decoder.
- * Hosts PlayerControls overlay.
+ * Embeds SurfaceView (hardware) or SurfaceView (software) based on active decoder.
+ * Hosts PlayerControlsV2 overlay.
  */
 @Composable
 fun PlayerScreen(
     videoUri: Uri,
+    videoTitle: String,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: PlayerViewModel = viewModel(),
     prefsViewModel: PlayerPreferencesViewModel = viewModel()
 ) {
-    val context = LocalContext.current
+    val context  = LocalContext.current
+    val view     = LocalView.current
+    val activity = context as? Activity
+
     val playerState: PlayerController.PlayerState by viewModel.state.collectAsStateWithLifecycle()
     val decoderType: DecoderSelector.DecoderType? by viewModel.decoderType.collectAsStateWithLifecycle()
-    val subtitle: SubtitleManager.SubtitleCue? by viewModel.currentSubtitle.collectAsStateWithLifecycle()
+    val subtitle: SubtitleManager.SubtitleCue?    by viewModel.currentSubtitle.collectAsStateWithLifecycle()
+    val videoInfo: DecoderSelector.VideoInfo?     by viewModel.videoInfo.collectAsStateWithLifecycle()
+    val scalingMode: ScalingMode                  by viewModel.scalingMode.collectAsStateWithLifecycle()
+    val audioTracks    by viewModel.audioTracks.collectAsStateWithLifecycle()
+    val subtitleTracks by viewModel.subtitleTracks.collectAsStateWithLifecycle()
 
-    // Load the video once
-    LaunchedEffect(videoUri) {
-        viewModel.load(videoUri)
-    }
+    var controlsVisible by remember { mutableStateOf(true) }
 
-    // Update subtitle position whenever we have a Playing state
+    LaunchedEffect(videoUri) { viewModel.load(videoUri) }
+
     LaunchedEffect(playerState) {
         if (playerState is PlayerController.PlayerState.Playing) {
-            val pos = (playerState as PlayerController.PlayerState.Playing).positionMs
-            viewModel.onPositionUpdate(pos)
+            viewModel.onPositionUpdate((playerState as PlayerController.PlayerState.Playing).positionMs)
         }
     }
 
-    val videoInfo: DecoderSelector.VideoInfo? by viewModel.videoInfo.collectAsStateWithLifecycle()
-    val scalingMode: ScalingMode by viewModel.scalingMode.collectAsStateWithLifecycle()
-    var controlsVisible by remember { mutableStateOf(true) }
-    
-    val view = LocalView.current
-    val activity = context as? Activity
-    
-    // Auto-Orientation handling
+    // Auto-orientation based on video dimensions
     LaunchedEffect(videoInfo) {
         videoInfo?.let { info ->
-            activity?.let { act ->
-                if (info.width > info.height) {
-                    act.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
-                } else {
-                    act.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-                }
-            }
+            activity?.requestedOrientation = if (info.width > info.height)
+                ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+            else
+                ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         }
     }
 
-    // Immersive Mode
-    LaunchedEffect(controlsVisible) {
-        activity?.window?.let { window ->
-            val controller = WindowCompat.getInsetsController(window, view)
-            if (controlsVisible) {
-                controller.show(WindowInsetsCompat.Type.systemBars())
-            } else {
-                controller.hide(WindowInsetsCompat.Type.systemBars())
-                controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            }
+    // Always hide system bars (full immersive mode) so controls overlay isn't overlapping
+    // or hidden behind transparent system navigation. They swipe transiently to show.
+    LaunchedEffect(Unit) {
+        activity?.window?.let { win ->
+            val controller = WindowCompat.getInsetsController(win, view)
+            controller.hide(WindowInsetsCompat.Type.systemBars())
+            controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         }
     }
 
@@ -107,77 +98,44 @@ fun PlayerScreen(
             .background(Color.Black),
         contentAlignment = Alignment.Center
     ) {
-        // 1. Video surface — with scaling logic
+        // 1. Video surface with scaling
         val videoModifier = when (scalingMode) {
             ScalingMode.FIT -> {
-                if (videoInfo != null && videoInfo!!.width > 0 && videoInfo!!.height > 0) {
+                if (videoInfo != null && videoInfo!!.width > 0 && videoInfo!!.height > 0)
                     Modifier.aspectRatio(videoInfo!!.width.toFloat() / videoInfo!!.height.toFloat())
-                } else {
-                    Modifier.fillMaxSize()
-                }
+                else Modifier.fillMaxSize()
             }
-            ScalingMode.CROP -> {
-                if (videoInfo != null && videoInfo!!.width > 0 && videoInfo!!.height > 0) {
-                    val videoAspect = videoInfo!!.width.toFloat() / videoInfo!!.height.toFloat()
-                    // To fill, we want the shortest side to match parent, longest side overflow.
-                    // This can be done by using Modifier.layout or more simply with a custom scale.
-                    // However, Modifier.aspectRatio(ratio, matchHeightConstraintsFirst = true/false) 
-                    // doesn't directly support "Fill".
-                    // Let's use a simpler approach: wrap in a box that's very large? No.
-                    // Let's use a custom modifier for Crop.
-                    Modifier.fillMaxSize() // Default to fill, but need to maintain aspect
-                } else {
-                    Modifier.fillMaxSize()
-                }
-            }
+            ScalingMode.CROP     -> Modifier.fillMaxSize()
             ScalingMode.ORIGINAL -> {
-                if (videoInfo != null) {
-                    // Center at original aspect ratio but maybe not filling screen
+                if (videoInfo != null)
                     Modifier.aspectRatio(videoInfo!!.width.toFloat() / videoInfo!!.height.toFloat())
-                } else {
-                    Modifier.fillMaxSize()
-                }
+                else Modifier.fillMaxSize()
             }
             else -> Modifier.fillMaxSize()
         }
 
         Box(modifier = videoModifier, contentAlignment = Alignment.Center) {
             when (decoderType) {
-                DecoderSelector.DecoderType.SOFTWARE -> {
-                    SoftwareRenderSurface(
-                        context = context,
-                        viewModel = viewModel,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
-                DecoderSelector.DecoderType.HARDWARE -> {
-                    HardwareRenderSurface(
-                        context = context,
-                        viewModel = viewModel,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
-                else -> {
-                    // Default to hardware surface if null or unknown
-                    HardwareRenderSurface(
-                        context = context,
-                        viewModel = viewModel,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
+                DecoderSelector.DecoderType.SOFTWARE ->
+                    SoftwareRenderSurface(context, viewModel, Modifier.fillMaxSize())
+                else ->
+                    HardwareRenderSurface(context, viewModel, Modifier.fillMaxSize())
             }
         }
 
-        // 2. Gesture Overlay Layer
+        // 2. Gesture overlay
         AndroidView(
             factory = { ctx ->
                 com.devson.devsonplayer.ui.gestures.GestureOverlayView(ctx).apply {
                     onSingleTapAction = { controlsVisible = !controlsVisible }
-                    onToggleAction = { if (playerState is PlayerController.PlayerState.Playing) viewModel.pause() else viewModel.play() }
-                    onSeekAction = { delta -> 
-                        val current = viewModel.controller.getCurrentPositionMs()
-                        val duration = viewModel.controller.getDurationMs()
-                        viewModel.seekTo((current + delta).coerceIn(0, duration))
+                    onToggleAction    = {
+                        if (playerState is PlayerController.PlayerState.Playing) viewModel.pause()
+                        else viewModel.play()
+                    }
+                    onSeekAction = { delta ->
+                        val cur = viewModel.controller.getCurrentPositionMs()
+                        val dur = viewModel.controller.getDurationMs()
+                        viewModel.seekTo((cur + delta).coerceIn(0, dur))
                     }
                     onSpeedAction = { speed -> viewModel.setSpeed(speed) }
                 }
@@ -185,13 +143,16 @@ fun PlayerScreen(
             modifier = Modifier.fillMaxSize()
         )
 
-        // 3. Player controls overlay (V2)
+        // 3. Controls overlay (V2)
         PlayerControlsV2(
             playerState      = playerState,
             subtitleCue      = subtitle?.text,
             decoderLabel     = decoderType?.name,
+            videoTitle       = videoTitle,
             scalingMode      = scalingMode,
             preferences      = prefsViewModel,
+            audioTracks      = audioTracks,
+            subtitleTracks   = subtitleTracks,
             onPlay           = { viewModel.play() },
             onPause          = { viewModel.pause() },
             onSeek           = { viewModel.seekTo(it) },
@@ -209,14 +170,9 @@ fun PlayerScreen(
     DisposableEffect(activity) {
         onDispose {
             viewModel.controller.release()
-            activity?.let { act ->
-                // Reset orientation to UNSPECIFIED (respects user settings)
-                act.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-                
-                // Show system bars
-                val window = act.window
-                val insetsController = WindowCompat.getInsetsController(window, view)
-                insetsController.show(WindowInsetsCompat.Type.systemBars())
+            activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+            activity?.window?.let { win ->
+                WindowCompat.getInsetsController(win, view).show(WindowInsetsCompat.Type.systemBars())
             }
         }
     }
@@ -234,13 +190,9 @@ private fun HardwareRenderSurface(
         factory = {
             SurfaceView(context).apply {
                 holder.addCallback(object : SurfaceHolder.Callback {
-                    override fun surfaceCreated(h: SurfaceHolder) {
-                        viewModel.setHardwareSurface(h.surface)
-                    }
+                    override fun surfaceCreated(h: SurfaceHolder)              { viewModel.setHardwareSurface(h.surface) }
                     override fun surfaceChanged(h: SurfaceHolder, f: Int, w: Int, h2: Int) {}
-                    override fun surfaceDestroyed(h: SurfaceHolder) {
-                        viewModel.setHardwareSurface(null)
-                    }
+                    override fun surfaceDestroyed(h: SurfaceHolder)            { viewModel.setHardwareSurface(null) }
                 })
             }
         },
@@ -248,7 +200,7 @@ private fun HardwareRenderSurface(
     )
 }
 
-//  Software GLSurfaceView 
+//  Software SurfaceView 
 
 @Composable
 private fun SoftwareRenderSurface(
@@ -256,18 +208,13 @@ private fun SoftwareRenderSurface(
     viewModel: PlayerViewModel,
     modifier: Modifier = Modifier
 ) {
-    // We use a plain SurfaceView here; EGL/GL is managed in the native VideoRenderer.
     AndroidView(
         factory = {
             SurfaceView(context).apply {
                 holder.addCallback(object : SurfaceHolder.Callback {
-                    override fun surfaceCreated(h: SurfaceHolder) {
-                        viewModel.setSoftwareSurface(h.surface)
-                    }
+                    override fun surfaceCreated(h: SurfaceHolder)              { viewModel.setSoftwareSurface(h.surface) }
                     override fun surfaceChanged(h: SurfaceHolder, f: Int, w: Int, h2: Int) {}
-                    override fun surfaceDestroyed(h: SurfaceHolder) {
-                        viewModel.setSoftwareSurface(null)
-                    }
+                    override fun surfaceDestroyed(h: SurfaceHolder)            { viewModel.setSoftwareSurface(null) }
                 })
             }
         },

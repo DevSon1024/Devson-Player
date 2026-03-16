@@ -3,6 +3,8 @@ package com.devson.devsonplayer.ui
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -11,16 +13,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -31,6 +29,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AspectRatio
 import androidx.compose.material.icons.filled.FastForward
 import androidx.compose.material.icons.filled.FastRewind
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.Pause
@@ -50,13 +49,11 @@ import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -64,7 +61,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -76,7 +72,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -91,17 +87,18 @@ import com.devson.devsonplayer.player.SeekDuration
 import com.devson.devsonplayer.player.SubtitleTrack
 import kotlinx.coroutines.delay
 
-// ─────────────────────────────────────────────────────────────────────────────
 //  Root composable
-// ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
 fun PlayerControlsV2(
     playerState: PlayerController.PlayerState,
     subtitleCue: String?,
     decoderLabel: String?,
+    videoTitle: String,
     scalingMode: ScalingMode,
     preferences: PlayerPreferencesViewModel,
+    audioTracks: List<AudioTrack>,
+    subtitleTracks: List<SubtitleTrack>,
     onPlay: () -> Unit,
     onPause: () -> Unit,
     onSeek: (Long) -> Unit,
@@ -114,14 +111,14 @@ fun PlayerControlsV2(
     onToggleControls: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // ── Collect state ─────────────────────────────────────────────────────────
-    val isLocked by preferences.isScreenLocked.collectAsStateWithLifecycle()
-    val iconSize by preferences.iconSize.collectAsStateWithLifecycle()
+    val isLocked        by preferences.isScreenLocked.collectAsStateWithLifecycle()
+    val iconSize        by preferences.iconSize.collectAsStateWithLifecycle()
     val showSeekButtons by preferences.showSeekButtons.collectAsStateWithLifecycle()
-    val seekBarStyle by preferences.seekBarStyle.collectAsStateWithLifecycle()
-    val deviceStats by preferences.deviceStats.collectAsStateWithLifecycle()
-    val selectedAudioIdx by preferences.selectedAudioTrackIndex.collectAsStateWithLifecycle()
-    val selectedSubtitles by preferences.selectedSubtitleIndices.collectAsStateWithLifecycle()
+    val seekBarStyle    by preferences.seekBarStyle.collectAsStateWithLifecycle()
+    val statsVisible    by preferences.statsVisible.collectAsStateWithLifecycle()
+    val deviceStats     by preferences.deviceStats.collectAsStateWithLifecycle()
+    val selectedAudio   by preferences.selectedAudioTrackIndex.collectAsStateWithLifecycle()
+    val selectedSubs    by preferences.selectedSubtitleIndices.collectAsStateWithLifecycle()
 
     val iconDp: Dp = iconSize.dp.dp
 
@@ -146,7 +143,7 @@ fun PlayerControlsV2(
         }
     }
 
-    // Auto-hide controls after 3s
+    // Auto-hide controls after 3 seconds
     LaunchedEffect(controlsVisible, isPlaying) {
         if (controlsVisible && isPlaying && !isLocked) {
             delay(3_000)
@@ -154,21 +151,19 @@ fun PlayerControlsV2(
         }
     }
 
-    // Bottom sheet display flags
-    var showAudioSheet by remember { mutableStateOf(false) }
+    var showAudioSheet    by remember { mutableStateOf(false) }
     var showSubtitleSheet by remember { mutableStateOf(false) }
     var showSettingsSheet by remember { mutableStateOf(false) }
 
     Box(modifier = modifier.fillMaxSize()) {
 
-        // ── Subtitle overlay (always visible) ─────────────────────────────────
+        //  Subtitle overlay (always visible, above everything) 
         if (!subtitleCue.isNullOrBlank()) {
             Text(
                 text = subtitleCue,
                 color = Color.White,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
-                textAlign = TextAlign.Center,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
@@ -178,24 +173,22 @@ fun PlayerControlsV2(
             )
         }
 
-        // ── Lock mode: show only the lock button ──────────────────────────────
+        //  Lock mode: only show lock button 
         if (isLocked) {
-            AnimatedVisibility(
-                visible = true,
-                enter = fadeIn(),
-                exit = fadeOut(),
-                modifier = Modifier.align(Alignment.CenterStart)
+            Box(
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .padding(start = 16.dp)
             ) {
                 IconButton(
                     onClick = { preferences.toggleScreenLock() },
                     modifier = Modifier
-                        .padding(start = 16.dp)
                         .size(48.dp)
                         .background(Color(0x88000000), CircleShape)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Lock,
-                        contentDescription = "Unlock",
+                        Icons.Default.Lock,
+                        "Unlock",
                         tint = Color(0xFFFFD700),
                         modifier = Modifier.size(iconDp)
                     )
@@ -204,75 +197,74 @@ fun PlayerControlsV2(
             return@Box
         }
 
-        // ── Full controls overlay ─────────────────────────────────────────────
+        //  Corner Device Stats HUD (slides in from top-end corner) 
+        // Visible only when toggled AND controls are visible
+        AnimatedVisibility(
+            visible = statsVisible && controlsVisible,
+            enter = slideInHorizontally { it } + fadeIn(),
+            exit  = slideOutHorizontally { it } + fadeOut(),
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(top = 64.dp, end = 16.dp)   // sits just below the TopRow
+        ) {
+            DeviceStatsHud(stats = deviceStats)
+        }
+
+        //  Full controls overlay 
         AnimatedVisibility(
             visible = controlsVisible,
             enter = fadeIn(),
-            exit = fadeOut()
+            exit  = fadeOut()
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(
                         Brush.verticalGradient(
-                            0.0f to Color(0xBB000000),
-                            0.35f to Color.Transparent,
-                            0.65f to Color.Transparent,
-                            1.0f to Color(0xBB000000)
+                            0.0f  to Color(0xBB000000),
+                            0.30f to Color.Transparent,
+                            0.70f to Color.Transparent,
+                            1.0f  to Color(0xBB000000)
                         )
                     )
             ) {
                 // Top row
                 TopRow(
-                    decoderLabel = decoderLabel,
-                    deviceStats = deviceStats,
-                    iconDp = iconDp,
-                    onBack = onBack,
-                    onShowAudioSheet = { showAudioSheet = true },
-                    onShowSubtitleSheet = { showSubtitleSheet = true },
-                    onShowSettingsSheet = { showSettingsSheet = true },
+                    videoTitle        = videoTitle,
+                    iconDp            = iconDp,
+                    statsActive       = statsVisible,
+                    onBack            = onBack,
+                    onToggleStats     = { preferences.toggleStats() },
+                    onShowAudioSheet  = { showAudioSheet = true },
+                    onShowSubSheet    = { showSubtitleSheet = true },
+                    onShowSettings    = { showSettingsSheet = true },
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(Alignment.TopStart)
-                        .windowInsetsPadding(WindowInsets.statusBars)
+                        .padding(top = 16.dp, start = 8.dp, end = 8.dp)
                 )
 
-                // Seekbar + time + bottom row (pinned to bottom)
+                // Seekbar + time + bottom row (pinned to bottom with nav insets)
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(Alignment.BottomStart)
-                        .windowInsetsPadding(WindowInsets.navigationBars)
-                        .padding(horizontal = 12.dp, vertical = 4.dp)
+                        .padding(bottom = 24.dp, start = 12.dp, end = 12.dp)
                 ) {
-                    // Time row
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 4.dp),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(
-                            formatMs(positionMs),
-                            color = Color.White,
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Medium
-                        )
-                        Text(
-                            formatMs(durationMs),
-                            color = Color.White.copy(alpha = 0.7f),
-                            fontSize = 13.sp
-                        )
+                        Text(formatMs(positionMs), color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                        Text(formatMs(durationMs),  color = Color.White.copy(alpha = 0.7f), fontSize = 13.sp)
                     }
 
-                    // Seek bar
                     PlaybackSeekBar(
-                        value = seekBarValue,
-                        style = seekBarStyle,
-                        onValueChange = { v ->
-                            isUserSeeking = true
-                            seekBarValue = v
-                        },
+                        value               = seekBarValue,
+                        style               = seekBarStyle,
+                        onValueChange       = { v -> isUserSeeking = true; seekBarValue = v },
                         onValueChangeFinished = {
                             onSeek((seekBarValue * durationMs).toLong())
                             isUserSeeking = false
@@ -282,76 +274,67 @@ fun PlayerControlsV2(
 
                     Spacer(Modifier.height(2.dp))
 
-                    // Bottom row controls
                     BottomRow(
-                        isPlaying = isPlaying,
-                        isLocked = false,
-                        showSeekButtons = showSeekButtons,
-                        seekDurationLabel = preferences.effectiveSeekMs().let { ms ->
-                            if (ms % 1000L == 0L) "${ms / 1000}s" else "${ms / 1000}s"
+                        isPlaying         = isPlaying,
+                        showSeekButtons   = showSeekButtons,
+                        seekLabel         = let { ms ->
+                            val s = preferences.effectiveSeekMs() / 1000L
+                            "${s}s"
                         },
-                        scalingMode = scalingMode,
-                        iconDp = iconDp,
-                        onLock = { preferences.toggleScreenLock() },
-                        onPrevious = onPrevious,
-                        onRewind = {
-                            onSeek((positionMs - preferences.effectiveSeekMs()).coerceAtLeast(0L))
-                        },
-                        onPlayPause = { if (isPlaying) onPause() else onPlay() },
-                        onFastForward = {
-                            onSeek((positionMs + preferences.effectiveSeekMs()).coerceAtMost(durationMs))
-                        },
-                        onNext = onNext,
-                        onScalingToggle = onScalingToggle
+                        scalingMode       = scalingMode,
+                        iconDp            = iconDp,
+                        onLock            = { preferences.toggleScreenLock() },
+                        onPrevious        = onPrevious,
+                        onRewind          = { onSeek((positionMs - preferences.effectiveSeekMs()).coerceAtLeast(0L)) },
+                        onPlayPause       = { if (isPlaying) onPause() else onPlay() },
+                        onFastForward     = { onSeek((positionMs + preferences.effectiveSeekMs()).coerceAtMost(durationMs)) },
+                        onNext            = onNext,
+                        onScalingToggle   = onScalingToggle
                     )
                 }
             }
         }
 
-        // ── Bottom Sheets ─────────────────────────────────────────────────────
+        //  Bottom Sheets 
         if (showAudioSheet) {
             AudioTracksBottomSheet(
-                tracks = preferences.audioTracks,
-                selectedIndex = selectedAudioIdx,
-                onSelect = { idx ->
-                    preferences.selectAudioTrack(idx)
-                    showAudioSheet = false
-                },
-                onDismiss = { showAudioSheet = false }
+                tracks        = audioTracks,
+                selectedIndex = selectedAudio,
+                onSelect      = { preferences.selectAudioTrack(it); showAudioSheet = false },
+                onDismiss     = { showAudioSheet = false }
             )
         }
-
         if (showSubtitleSheet) {
             SubtitlesBottomSheet(
-                tracks = preferences.subtitleTracks,
-                selectedIndices = selectedSubtitles,
-                onToggle = { preferences.toggleSubtitleTrack(it) },
-                onDismiss = { showSubtitleSheet = false }
+                tracks          = subtitleTracks,
+                selectedIndices = selectedSubs,
+                onToggle        = { preferences.toggleSubtitleTrack(it) },
+                onDismiss       = { showSubtitleSheet = false }
             )
         }
-
         if (showSettingsSheet) {
             SettingsBottomSheet(
                 preferences = preferences,
-                onDismiss = { showSettingsSheet = false }
+                onDismiss   = { showSettingsSheet = false }
             )
         }
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// 
 //  Top Row
-// ─────────────────────────────────────────────────────────────────────────────
+// 
 
 @Composable
 private fun TopRow(
-    decoderLabel: String?,
-    deviceStats: DeviceStats,
+    videoTitle: String,
     iconDp: Dp,
+    statsActive: Boolean,
     onBack: () -> Unit,
+    onToggleStats: () -> Unit,
     onShowAudioSheet: () -> Unit,
-    onShowSubtitleSheet: () -> Unit,
-    onShowSettingsSheet: () -> Unit,
+    onShowSubSheet: () -> Unit,
+    onShowSettings: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -360,110 +343,94 @@ private fun TopRow(
     ) {
         // Back
         IconButton(onClick = onBack) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = "Back",
-                tint = Color.White,
-                modifier = Modifier.size(iconDp)
-            )
+            Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = Color.White, modifier = Modifier.size(iconDp))
         }
 
-        // Device stats HUD
-        DeviceStatsHud(
-            stats = deviceStats,
-            modifier = Modifier.padding(start = 4.dp)
+        // Video title
+        Text(
+            text = videoTitle,
+            color = Color.White,
+            fontSize = 15.sp,
+            fontWeight = FontWeight.SemiBold,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f).padding(horizontal = 8.dp)
         )
 
-        Spacer(Modifier.weight(1f))
-
+        // Stats toggle (Info icon)
+        IconButton(onClick = onToggleStats) {
+            Icon(
+                Icons.Default.Info,
+                "Device Stats",
+                tint = if (statsActive) MaterialTheme.colorScheme.primary else Color.White,
+                modifier = Modifier.size(iconDp)
+            )
+        }
         // Audio tracks
         IconButton(onClick = onShowAudioSheet) {
-            Icon(
-                imageVector = Icons.Default.VolumeUp,
-                contentDescription = "Audio Tracks",
-                tint = Color.White,
-                modifier = Modifier.size(iconDp)
-            )
+            Icon(Icons.Default.VolumeUp, "Audio Tracks", tint = Color.White, modifier = Modifier.size(iconDp))
         }
-
         // Subtitles
-        IconButton(onClick = onShowSubtitleSheet) {
-            Icon(
-                imageVector = Icons.Default.Subtitles,
-                contentDescription = "Subtitles",
-                tint = Color.White,
-                modifier = Modifier.size(iconDp)
-            )
+        IconButton(onClick = onShowSubSheet) {
+            Icon(Icons.Default.Subtitles, "Subtitles", tint = Color.White, modifier = Modifier.size(iconDp))
         }
-
         // Settings
-        IconButton(onClick = onShowSettingsSheet) {
-            Icon(
-                imageVector = Icons.Default.Settings,
-                contentDescription = "Settings",
-                tint = Color.White,
-                modifier = Modifier.size(iconDp)
-            )
+        IconButton(onClick = onShowSettings) {
+            Icon(Icons.Default.Settings, "Settings", tint = Color.White, modifier = Modifier.size(iconDp))
         }
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  Device Stats HUD
-// ─────────────────────────────────────────────────────────────────────────────
+// 
+//  Device Stats HUD  (corner overlay, not inside TopRow)
+// 
 
 @Composable
 private fun DeviceStatsHud(
     stats: DeviceStats,
     modifier: Modifier = Modifier
 ) {
-    Box(
+    Column(
         modifier = modifier
-            .background(Color(0x99000000), RoundedCornerShape(6.dp))
-            .padding(horizontal = 8.dp, vertical = 4.dp)
+            .background(
+                color = Color(0xCC000000),
+                shape = RoundedCornerShape(bottomStart = 10.dp, topStart = 10.dp)
+            )
+            .padding(horizontal = 10.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(3.dp)
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                HudChip(label = "⚙", value = stats.activeDecoder, valueColor = Color(0xFF4FC3F7))
-                HudChip(label = "CPU", value = "${stats.cpuPercent}%")
-                HudChip(label = "BAT", value = "${stats.batteryPercent}%",
-                    valueColor = if (stats.batteryPercent < 20) Color(0xFFFF5252) else Color(0xFF69F0AE))
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                HudChip(label = "FPS", value = "${stats.fps}", valueColor = Color(0xFFFFD740))
-                HudChip(label = "TEMP", value = "${"%.1f".format(stats.temperatureCelsius)}°C",
-                    valueColor = if (stats.temperatureCelsius > 45f) Color(0xFFFF5252) else Color.White)
-            }
-        }
+        HudRow("⚙  Decoder", stats.activeDecoder,   Color(0xFF4FC3F7))
+        HudRow("CPU",        "${stats.cpuPercent}%",  Color.White)
+        HudRow("BAT",        "${stats.batteryPercent}%",
+            if (stats.batteryPercent < 20) Color(0xFFFF5252) else Color(0xFF69F0AE))
+        HudRow("FPS",        "${stats.fps}",          Color(0xFFFFD740))
+        HudRow("TEMP",       "${"%.1f".format(stats.temperatureCelsius)}°C",
+            if (stats.temperatureCelsius > 45f) Color(0xFFFF5252) else Color.White)
     }
 }
 
 @Composable
-private fun HudChip(
-    label: String,
-    value: String,
-    valueColor: Color = Color.White
-) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
+private fun HudRow(label: String, value: String, valueColor: Color) {
+    Row {
         Text(
-            text = "$label ",
-            color = Color.White.copy(alpha = 0.6f),
-            fontSize = 9.sp,
+            "$label  ",
+            color = Color.White.copy(alpha = 0.55f),
+            fontSize = 10.sp,
             fontFamily = FontFamily.Monospace
         )
         Text(
-            text = value,
+            value,
             color = valueColor,
-            fontSize = 9.sp,
+            fontSize = 10.sp,
             fontWeight = FontWeight.Bold,
             fontFamily = FontFamily.Monospace
         )
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  Playback Seek Bar
-// ─────────────────────────────────────────────────────────────────────────────
+// 
+//  Playback Seekbar
+// 
 
 @Composable
 private fun PlaybackSeekBar(
@@ -473,48 +440,37 @@ private fun PlaybackSeekBar(
     onValueChangeFinished: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    when (style) {
-        SeekBarStyle.DEFAULT -> {
-            Slider(
-                value = value,
-                onValueChange = onValueChange,
-                onValueChangeFinished = onValueChangeFinished,
-                colors = SliderDefaults.colors(
-                    thumbColor = Color.White,
-                    activeTrackColor = MaterialTheme.colorScheme.primary,
-                    inactiveTrackColor = Color.White.copy(alpha = 0.3f)
-                ),
-                modifier = modifier
+    Slider(
+        value = value,
+        onValueChange = onValueChange,
+        onValueChangeFinished = onValueChangeFinished,
+        colors = when (style) {
+            SeekBarStyle.DEFAULT -> SliderDefaults.colors(
+                thumbColor         = Color.White,
+                activeTrackColor   = MaterialTheme.colorScheme.primary,
+                inactiveTrackColor = Color.White.copy(alpha = 0.3f)
             )
-        }
-        SeekBarStyle.FLAT -> {
-            Slider(
-                value = value,
-                onValueChange = onValueChange,
-                onValueChangeFinished = onValueChangeFinished,
-                colors = SliderDefaults.colors(
-                    thumbColor = Color.Transparent,   // invisible thumb → flat style
-                    activeTrackColor = MaterialTheme.colorScheme.primary,
-                    inactiveTrackColor = Color.White.copy(alpha = 0.25f),
-                    activeTickColor = Color.Transparent,
-                    inactiveTickColor = Color.Transparent
-                ),
-                modifier = modifier
+            SeekBarStyle.FLAT -> SliderDefaults.colors(
+                thumbColor         = Color.Transparent,
+                activeTrackColor   = MaterialTheme.colorScheme.primary,
+                inactiveTrackColor = Color.White.copy(alpha = 0.25f),
+                activeTickColor    = Color.Transparent,
+                inactiveTickColor  = Color.Transparent
             )
-        }
-    }
+        },
+        modifier = modifier
+    )
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// 
 //  Bottom Row
-// ─────────────────────────────────────────────────────────────────────────────
+// 
 
 @Composable
 private fun BottomRow(
     isPlaying: Boolean,
-    isLocked: Boolean,
     showSeekButtons: Boolean,
-    seekDurationLabel: String,
+    seekLabel: String,
     scalingMode: ScalingMode,
     iconDp: Dp,
     onLock: () -> Unit,
@@ -534,38 +490,27 @@ private fun BottomRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
         // Lock
-        ControlIconButton(
-            onClick = onLock,
-            contentDescription = "Lock",
-            iconDp = iconDp
-        ) {
-            Icon(
-                imageVector = if (isLocked) Icons.Default.Lock else Icons.Default.LockOpen,
-                contentDescription = null,
-                tint = if (isLocked) Color(0xFFFFD700) else Color.White,
-                modifier = Modifier.size(iconDp)
-            )
+        IconButton(onClick = onLock, modifier = Modifier.size(iconDp + 20.dp)) {
+            Icon(Icons.Default.LockOpen, "Lock", tint = Color.White, modifier = Modifier.size(iconDp))
         }
 
         // Previous
-        ControlIconButton(
-            onClick = onPrevious,
-            contentDescription = "Previous",
-            iconDp = iconDp
-        ) {
-            Icon(Icons.Default.SkipPrevious, null, tint = Color.White, modifier = Modifier.size(iconDp))
+        IconButton(onClick = onPrevious, modifier = Modifier.size(iconDp + 20.dp)) {
+            Icon(Icons.Default.SkipPrevious, "Previous", tint = Color.White, modifier = Modifier.size(iconDp))
         }
 
         // Rewind (conditional)
         if (showSeekButtons) {
-            SeekButton(
-                onClick = onRewind,
-                icon = { Icon(Icons.Default.FastRewind, null, tint = Color.White, modifier = Modifier.size(iconDp)) },
-                label = seekDurationLabel
-            )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.clickable(onClick = onRewind)
+            ) {
+                Icon(Icons.Default.FastRewind, null, tint = Color.White, modifier = Modifier.size(iconDp))
+                Text(seekLabel, color = Color.White.copy(alpha = 0.85f), fontSize = 9.sp, fontWeight = FontWeight.Bold)
+            }
         }
 
-        // Play / Pause (larger)
+        // Play / Pause (larger, highlighted)
         IconButton(
             onClick = onPlayPause,
             modifier = Modifier
@@ -580,82 +525,36 @@ private fun BottomRow(
             )
         }
 
-        // Fast Forward (conditional)
+        // Fast-Forward (conditional)
         if (showSeekButtons) {
-            SeekButton(
-                onClick = onFastForward,
-                icon = { Icon(Icons.Default.FastForward, null, tint = Color.White, modifier = Modifier.size(iconDp)) },
-                label = seekDurationLabel
-            )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.clickable(onClick = onFastForward)
+            ) {
+                Icon(Icons.Default.FastForward, null, tint = Color.White, modifier = Modifier.size(iconDp))
+                Text(seekLabel, color = Color.White.copy(alpha = 0.85f), fontSize = 9.sp, fontWeight = FontWeight.Bold)
+            }
         }
 
         // Next
-        ControlIconButton(
-            onClick = onNext,
-            contentDescription = "Next",
-            iconDp = iconDp
-        ) {
-            Icon(Icons.Default.SkipNext, null, tint = Color.White, modifier = Modifier.size(iconDp))
+        IconButton(onClick = onNext, modifier = Modifier.size(iconDp + 20.dp)) {
+            Icon(Icons.Default.SkipNext, "Next", tint = Color.White, modifier = Modifier.size(iconDp))
         }
 
-        // Scale Mode
+        // Scale mode
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.clickable(onClick = onScalingToggle)
         ) {
-            Icon(
-                imageVector = Icons.Default.AspectRatio,
-                contentDescription = "Scale Mode",
-                tint = Color.White,
-                modifier = Modifier.size(iconDp)
-            )
-            Text(
-                text = scalingMode.label,
-                color = Color.White.copy(alpha = 0.8f),
-                fontSize = 8.sp
-            )
+            Icon(Icons.Default.AspectRatio, "Scale Mode", tint = Color.White, modifier = Modifier.size(iconDp))
+            Text(scalingMode.label, color = Color.White.copy(alpha = 0.8f), fontSize = 8.sp)
         }
     }
 }
 
-@Composable
-private fun ControlIconButton(
-    onClick: () -> Unit,
-    contentDescription: String,
-    iconDp: Dp,
-    content: @Composable () -> Unit
-) {
-    IconButton(
-        onClick = onClick,
-        modifier = Modifier.size(iconDp + 20.dp)
-    ) {
-        content()
-    }
-}
-
-@Composable
-private fun SeekButton(
-    onClick: () -> Unit,
-    icon: @Composable () -> Unit,
-    label: String
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.clickable(onClick = onClick)
-    ) {
-        icon()
-        Text(
-            text = label,
-            color = Color.White.copy(alpha = 0.85f),
-            fontSize = 9.sp,
-            fontWeight = FontWeight.Bold
-        )
-    }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  Audio Tracks Bottom Sheet
-// ─────────────────────────────────────────────────────────────────────────────
+// 
+//  Audio Tracks Bottom Sheet  — uses app MaterialTheme (no hardcoded colors)
+// 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -669,9 +568,8 @@ private fun AudioTracksBottomSheet(
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        sheetState = sheetState,
-        containerColor = Color(0xFF1C1C1E),
-        contentColor = Color.White
+        sheetState = sheetState
+        // ← no containerColor / contentColor override → uses MaterialTheme defaults
     ) {
         Column(
             modifier = Modifier
@@ -679,54 +577,31 @@ private fun AudioTracksBottomSheet(
                 .padding(vertical = 8.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            BottomSheetTitle("Audio Tracks")
-            Divider(color = Color.White.copy(alpha = 0.1f))
-            tracks.forEach { track ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onSelect(track.index) }
-                        .padding(horizontal = 20.dp, vertical = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
-                        RadioButton(
-                            selected = track.index == selectedIndex,
-                            onClick = { onSelect(track.index) },
-                            colors = RadioButtonDefaults.colors(
-                                selectedColor = MaterialTheme.colorScheme.primary,
-                                unselectedColor = Color.White.copy(alpha = 0.5f)
-                            )
-                        )
-                    }
-                    Spacer(Modifier.width(12.dp))
-                    Column {
-                        Text(
-                            text = track.label,
-                            color = Color.White,
-                            fontSize = 15.sp,
-                            fontWeight = if (track.index == selectedIndex) FontWeight.SemiBold else FontWeight.Normal
-                        )
-                        Text(
-                            text = track.language,
-                            color = Color.White.copy(alpha = 0.5f),
-                            fontSize = 12.sp
-                        )
-                    }
+            SheetTitle("Audio Tracks")
+            Divider()
+
+            if (tracks.isEmpty()) {
+                // No tracks detected — show "Default"
+                SheetDefaultRow(selected = true, label = "Default")
+            } else {
+                tracks.forEach { track ->
+                    SheetRadioRow(
+                        label    = track.label,
+                        subLabel = track.language,
+                        selected = track.index == selectedIndex,
+                        onClick  = { onSelect(track.index) }
+                    )
+                    Divider(modifier = Modifier.padding(horizontal = 20.dp))
                 }
-                Divider(
-                    color = Color.White.copy(alpha = 0.05f),
-                    modifier = Modifier.padding(horizontal = 20.dp)
-                )
             }
             Spacer(Modifier.height(16.dp))
         }
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// 
 //  Subtitles Bottom Sheet
-// ─────────────────────────────────────────────────────────────────────────────
+// 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -740,9 +615,7 @@ private fun SubtitlesBottomSheet(
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        sheetState = sheetState,
-        containerColor = Color(0xFF1C1C1E),
-        contentColor = Color.White
+        sheetState = sheetState
     ) {
         Column(
             modifier = Modifier
@@ -750,55 +623,54 @@ private fun SubtitlesBottomSheet(
                 .padding(vertical = 8.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            BottomSheetTitle("Subtitles")
-            Divider(color = Color.White.copy(alpha = 0.1f))
-            tracks.forEach { track ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onToggle(track.index) }
-                        .padding(horizontal = 20.dp, vertical = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
-                        Checkbox(
-                            checked = track.index in selectedIndices,
-                            onCheckedChange = { onToggle(track.index) },
-                            colors = CheckboxDefaults.colors(
-                                checkedColor = MaterialTheme.colorScheme.primary,
-                                uncheckedColor = Color.White.copy(alpha = 0.5f),
-                                checkmarkColor = Color.White
+            SheetTitle("Subtitles")
+            Divider()
+
+            if (tracks.isEmpty()) {
+                SheetDefaultRow(selected = false, label = "No subtitle tracks available")
+            } else {
+                tracks.forEach { track ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onToggle(track.index) }
+                            .padding(horizontal = 20.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
+                            Checkbox(
+                                checked = track.index in selectedIndices,
+                                onCheckedChange = { onToggle(track.index) },
+                                colors = CheckboxDefaults.colors(
+                                    checkedColor   = MaterialTheme.colorScheme.primary,
+                                    checkmarkColor = MaterialTheme.colorScheme.onPrimary
+                                )
                             )
-                        )
+                        }
+                        Spacer(Modifier.width(12.dp))
+                        Column {
+                            Text(
+                                track.label,
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontWeight = if (track.index in selectedIndices) FontWeight.SemiBold else FontWeight.Normal
+                            )
+                            if (track.label != track.language) {
+                                Text(track.language, style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
+                            }
+                        }
                     }
-                    Spacer(Modifier.width(12.dp))
-                    Column {
-                        Text(
-                            text = track.label,
-                            color = Color.White,
-                            fontSize = 15.sp,
-                            fontWeight = if (track.index in selectedIndices) FontWeight.SemiBold else FontWeight.Normal
-                        )
-                        Text(
-                            text = track.language,
-                            color = Color.White.copy(alpha = 0.5f),
-                            fontSize = 12.sp
-                        )
-                    }
+                    Divider(modifier = Modifier.padding(horizontal = 20.dp))
                 }
-                Divider(
-                    color = Color.White.copy(alpha = 0.05f),
-                    modifier = Modifier.padding(horizontal = 20.dp)
-                )
             }
             Spacer(Modifier.height(16.dp))
         }
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// 
 //  Settings Bottom Sheet
-// ─────────────────────────────────────────────────────────────────────────────
+// 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -806,20 +678,18 @@ private fun SettingsBottomSheet(
     preferences: PlayerPreferencesViewModel,
     onDismiss: () -> Unit
 ) {
-    val seekDuration by preferences.seekDuration.collectAsStateWithLifecycle()
-    val customSeekMs by preferences.customSeekMs.collectAsStateWithLifecycle()
-    val seekBarStyle by preferences.seekBarStyle.collectAsStateWithLifecycle()
-    val iconSize by preferences.iconSize.collectAsStateWithLifecycle()
-    val autoPlay by preferences.autoPlay.collectAsStateWithLifecycle()
-    val showSeekButtons by preferences.showSeekButtons.collectAsStateWithLifecycle()
+    val seekDuration  by preferences.seekDuration.collectAsStateWithLifecycle()
+    val customSeekMs  by preferences.customSeekMs.collectAsStateWithLifecycle()
+    val seekBarStyle  by preferences.seekBarStyle.collectAsStateWithLifecycle()
+    val iconSize      by preferences.iconSize.collectAsStateWithLifecycle()
+    val autoPlay      by preferences.autoPlay.collectAsStateWithLifecycle()
+    val showSeekBtns  by preferences.showSeekButtons.collectAsStateWithLifecycle()
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        sheetState = sheetState,
-        containerColor = Color(0xFF1C1C1E),
-        contentColor = Color.White
+        sheetState = sheetState
     ) {
         Column(
             modifier = Modifier
@@ -827,47 +697,47 @@ private fun SettingsBottomSheet(
                 .padding(horizontal = 20.dp, vertical = 8.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            BottomSheetTitle("Settings")
-            Divider(color = Color.White.copy(alpha = 0.1f))
+            SheetTitle("Settings")
+            Divider()
             Spacer(Modifier.height(12.dp))
 
-            // ── Seek Duration ─────────────────────────────────────────────────
-            SettingsSectionLabel("Seek Duration")
+            //  Seek Duration 
+            SectionLabel("Seek Duration")
             Spacer(Modifier.height(8.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                SeekDuration.entries.forEach { option ->
-                    val isSelected = seekDuration == option
+                SeekDuration.entries.forEach { opt ->
+                    val sel = seekDuration == opt
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(8.dp))
                             .background(
-                                if (isSelected) MaterialTheme.colorScheme.primary
-                                else Color.White.copy(alpha = 0.1f)
+                                if (sel) MaterialTheme.colorScheme.primaryContainer
+                                else MaterialTheme.colorScheme.surfaceVariant
                             )
                             .border(
                                 1.dp,
-                                if (isSelected) MaterialTheme.colorScheme.primary
-                                else Color.White.copy(alpha = 0.2f),
+                                if (sel) MaterialTheme.colorScheme.primary
+                                else MaterialTheme.colorScheme.outline,
                                 RoundedCornerShape(8.dp)
                             )
-                            .clickable { preferences.setSeekDuration(option) }
-                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                            .clickable { preferences.setSeekDuration(opt) }
+                            .padding(horizontal = 10.dp, vertical = 8.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = option.label,
-                            color = Color.White,
-                            fontSize = 13.sp,
-                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                            opt.label,
+                            style = MaterialTheme.typography.labelMedium,
+                            color = if (sel) MaterialTheme.colorScheme.onPrimaryContainer
+                                    else MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontWeight = if (sel) FontWeight.Bold else FontWeight.Normal
                         )
                     }
                 }
             }
 
-            // Custom seek input
             if (seekDuration == SeekDuration.CUSTOM) {
                 Spacer(Modifier.height(8.dp))
                 var customText by remember { mutableStateOf((customSeekMs / 1000L).toString()) }
@@ -877,87 +747,57 @@ private fun SettingsBottomSheet(
                         customText = v
                         v.toLongOrNull()?.let { preferences.setCustomSeekMs(it * 1000L) }
                     },
-                    label = { Text("Custom seek (seconds)", color = Color.White.copy(alpha = 0.6f)) },
+                    label = { Text("Seek (seconds)") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = Color.White.copy(alpha = 0.3f)
-                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
             }
 
-            Spacer(Modifier.height(16.dp))
-            Divider(color = Color.White.copy(alpha = 0.08f))
-            Spacer(Modifier.height(12.dp))
+            SheetDivider()
 
-            // ── Seek Bar Style ────────────────────────────────────────────────
-            SettingsSectionLabel("Seek Bar Style")
-            SeekBarStyle.entries.forEach { option ->
-                RadioOptionRow(
-                    label = option.label,
-                    selected = seekBarStyle == option,
-                    onClick = { preferences.setSeekBarStyle(option) }
-                )
+            //  Seek Bar Style 
+            SectionLabel("Seek Bar Style")
+            SeekBarStyle.entries.forEach { opt ->
+                RadioRow(opt.label, seekBarStyle == opt) { preferences.setSeekBarStyle(opt) }
             }
 
-            Spacer(Modifier.height(12.dp))
-            Divider(color = Color.White.copy(alpha = 0.08f))
-            Spacer(Modifier.height(12.dp))
+            SheetDivider()
 
-            // ── Icon Size ─────────────────────────────────────────────────────
-            SettingsSectionLabel("Control Icon Size")
-            IconSize.entries.forEach { option ->
-                RadioOptionRow(
-                    label = option.label,
-                    selected = iconSize == option,
-                    onClick = { preferences.setIconSize(option) }
-                )
+            //  Icon Size 
+            SectionLabel("Control Icon Size")
+            IconSize.entries.forEach { opt ->
+                RadioRow(opt.label, iconSize == opt) { preferences.setIconSize(opt) }
             }
 
-            Spacer(Modifier.height(12.dp))
-            Divider(color = Color.White.copy(alpha = 0.08f))
-            Spacer(Modifier.height(12.dp))
+            SheetDivider()
 
-            // ── Auto Play ─────────────────────────────────────────────────────
-            SwitchRow(
-                label = "Auto Play",
-                subtitle = "Automatically play next video",
-                checked = autoPlay,
-                onCheckedChange = { preferences.setAutoPlay(it) }
-            )
+            //  Auto Play 
+            SettingsSwitchRow("Auto Play", "Automatically play next video", autoPlay) {
+                preferences.setAutoPlay(it)
+            }
 
-            Spacer(Modifier.height(8.dp))
-            Divider(color = Color.White.copy(alpha = 0.08f))
-            Spacer(Modifier.height(8.dp))
+            SheetDivider()
 
-            // ── Show Seek Buttons ─────────────────────────────────────────────
-            SwitchRow(
-                label = "Show Seek Buttons",
-                subtitle = "Show forward/backward seek buttons",
-                checked = showSeekButtons,
-                onCheckedChange = { preferences.setShowSeekButtons(it) }
-            )
+            //  Show Seek Buttons 
+            SettingsSwitchRow("Show Seek Buttons", "Forward/backward seek buttons", showSeekBtns) {
+                preferences.setShowSeekButtons(it)
+            }
 
             Spacer(Modifier.height(32.dp))
         }
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  Small helper composables
-// ─────────────────────────────────────────────────────────────────────────────
+// 
+//  Shared sheet helper composables (theme-aware)
+// 
 
 @Composable
-private fun BottomSheetTitle(text: String) {
+private fun SheetTitle(text: String) {
     Text(
-        text = text,
-        color = Color.White,
-        fontSize = 18.sp,
-        fontWeight = FontWeight.Bold,
+        text,
+        style = MaterialTheme.typography.titleLarge,
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp, vertical = 12.dp)
@@ -965,23 +805,81 @@ private fun BottomSheetTitle(text: String) {
 }
 
 @Composable
-private fun SettingsSectionLabel(text: String) {
+private fun SectionLabel(text: String) {
     Text(
-        text = text,
-        color = Color.White.copy(alpha = 0.5f),
-        fontSize = 11.sp,
-        fontWeight = FontWeight.SemiBold,
+        text.uppercase(),
+        style = MaterialTheme.typography.labelSmall,
+        color = MaterialTheme.colorScheme.primary,
         letterSpacing = 0.8.sp,
         modifier = Modifier.padding(bottom = 4.dp)
     )
 }
 
 @Composable
-private fun RadioOptionRow(
+private fun SheetDivider() {
+    Spacer(Modifier.height(12.dp))
+    Divider()
+    Spacer(Modifier.height(12.dp))
+}
+
+@Composable
+private fun SheetDefaultRow(selected: Boolean, label: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
+            RadioButton(
+                selected = selected,
+                onClick  = null,
+                colors   = RadioButtonDefaults.colors(selectedColor = MaterialTheme.colorScheme.primary)
+            )
+        }
+        Spacer(Modifier.width(12.dp))
+        Text(label, style = MaterialTheme.typography.bodyLarge)
+    }
+}
+
+@Composable
+private fun SheetRadioRow(
     label: String,
+    subLabel: String,
     selected: Boolean,
     onClick: () -> Unit
 ) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(horizontal = 20.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
+            RadioButton(
+                selected = selected,
+                onClick  = onClick,
+                colors   = RadioButtonDefaults.colors(selectedColor = MaterialTheme.colorScheme.primary)
+            )
+        }
+        Spacer(Modifier.width(12.dp))
+        Column {
+            Text(
+                label,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal
+            )
+            if (label != subLabel) {
+                Text(subLabel, style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
+            }
+        }
+    }
+}
+
+@Composable
+private fun RadioRow(label: String, selected: Boolean, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -992,25 +890,21 @@ private fun RadioOptionRow(
         CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
             RadioButton(
                 selected = selected,
-                onClick = onClick,
-                colors = RadioButtonDefaults.colors(
-                    selectedColor = MaterialTheme.colorScheme.primary,
-                    unselectedColor = Color.White.copy(alpha = 0.4f)
-                )
+                onClick  = onClick,
+                colors   = RadioButtonDefaults.colors(selectedColor = MaterialTheme.colorScheme.primary)
             )
         }
         Spacer(Modifier.width(12.dp))
         Text(
-            text = label,
-            color = Color.White,
-            fontSize = 15.sp,
+            label,
+            style = MaterialTheme.typography.bodyLarge,
             fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal
         )
     }
 }
 
 @Composable
-private fun SwitchRow(
+private fun SettingsSwitchRow(
     label: String,
     subtitle: String,
     checked: Boolean,
@@ -1024,35 +918,22 @@ private fun SwitchRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = label, color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Medium)
-            Text(
-                text = subtitle,
-                color = Color.White.copy(alpha = 0.5f),
-                fontSize = 12.sp
-            )
+            Text(label, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
+            Text(subtitle, style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
         }
-        Switch(
-            checked = checked,
-            onCheckedChange = onCheckedChange,
-            colors = SwitchDefaults.colors(
-                checkedThumbColor = Color.White,
-                checkedTrackColor = MaterialTheme.colorScheme.primary,
-                uncheckedThumbColor = Color.White.copy(alpha = 0.7f),
-                uncheckedTrackColor = Color.White.copy(alpha = 0.2f)
-            )
-        )
+        Switch(checked = checked, onCheckedChange = onCheckedChange)
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  Formatting utility (kept here for self-containment)
-// ─────────────────────────────────────────────────────────────────────────────
+// 
+//  Formatter
+// 
 
 internal fun formatMs(ms: Long): String {
-    val totalSec = ms / 1000
-    val h = totalSec / 3600
-    val m = (totalSec % 3600) / 60
-    val s = totalSec % 60
-    return if (h > 0) "%d:%02d:%02d".format(h, m, s)
-    else "%02d:%02d".format(m, s)
+    val s = ms / 1000
+    val h = s / 3600
+    val m = (s % 3600) / 60
+    val sec = s % 60
+    return if (h > 0) "%d:%02d:%02d".format(h, m, sec) else "%02d:%02d".format(m, sec)
 }

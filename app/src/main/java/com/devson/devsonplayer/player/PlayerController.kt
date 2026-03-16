@@ -75,6 +75,9 @@ class PlayerController(private val context: Context) {
 
     private var activeDecoder: DecoderType = DecoderType.HARDWARE
 
+    /** Called when ExoPlayer resolves available tracks. Set by PlayerViewModel. */
+    var onTracksChanged: ((androidx.media3.common.Tracks) -> Unit)? = null
+
     //  Surface binding 
 
     /** Bind the SurfaceView surface (used for hardware decode). */
@@ -114,13 +117,13 @@ class PlayerController(private val context: Context) {
     }
 
     private fun probeVideoInfo(path: String, uri: Uri): DecoderSelector.VideoInfo {
+        var mmr: MediaMetadataRetriever? = null
         return try {
-            val mmr = MediaMetadataRetriever()
+            mmr = MediaMetadataRetriever()
             mmr.setDataSource(context, uri)
             val mime  = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE) ?: "video/avc"
             val w     = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)?.toIntOrNull() ?: 1920
             val h     = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)?.toIntOrNull() ?: 1080
-            mmr.release()
 
             // Detect 10-bit from filename/extension heuristic when probe is insufficient
             val is10bit = path.lowercase().let {
@@ -136,6 +139,10 @@ class PlayerController(private val context: Context) {
         } catch (e: Exception) {
             Log.w(TAG, "MediaMetadataRetriever failed, using defaults: ${e.message}")
             DecoderSelector.VideoInfo("video/avc", 1920, 1080)
+        } finally {
+            try {
+                mmr?.release()
+            } catch (ignored: Exception) {}
         }
     }
 
@@ -158,10 +165,12 @@ class PlayerController(private val context: Context) {
                     override fun onIsPlayingChanged(isPlaying: Boolean) {
                         updateStateFromExo(player)
                     }
+                    override fun onTracksChanged(tracks: androidx.media3.common.Tracks) {
+                        onTracksChanged?.invoke(tracks)
+                    }
                     override fun onPlayerError(error: PlaybackException) {
                         Log.e(TAG, "ExoPlayer error: ${error.message}, falling back to SOFTWARE")
                         _state.value = PlayerState.Error(error.message ?: "Playback error")
-                        // Auto-fallback to FFmpeg
                         uri.path?.let { loadWithFFmpeg(it) }
                     }
                 })
