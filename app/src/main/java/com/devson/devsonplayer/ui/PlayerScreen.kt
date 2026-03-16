@@ -28,6 +28,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.devson.devsonplayer.player.DecoderSelector
 import com.devson.devsonplayer.player.PlayerController
+import com.devson.devsonplayer.player.PlayerPreferencesViewModel
 import com.devson.devsonplayer.player.PlayerViewModel
 import com.devson.devsonplayer.player.SubtitleManager
 import android.app.Activity
@@ -46,7 +47,8 @@ fun PlayerScreen(
     videoUri: Uri,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: PlayerViewModel = viewModel()
+    viewModel: PlayerViewModel = viewModel(),
+    prefsViewModel: PlayerPreferencesViewModel = viewModel()
 ) {
     val context = LocalContext.current
     val playerState: PlayerController.PlayerState by viewModel.state.collectAsStateWithLifecycle()
@@ -183,21 +185,24 @@ fun PlayerScreen(
             modifier = Modifier.fillMaxSize()
         )
 
-        // 3. Player controls overlay
-        PlayerControls(
-            playerState   = playerState,
-            subtitleCue   = subtitle?.text,
-            decoderLabel  = decoderType?.name,
-            scalingMode   = scalingMode,
-            onPlay        = { viewModel.play() },
-            onPause       = { viewModel.pause() },
-            onSeek        = { viewModel.seekTo(it) },
-            onSpeedChange = { viewModel.setSpeed(it) },
-            onScalingToggle = { viewModel.toggleScalingMode() },
-            onBack        = onBack,
-            controlsVisible = controlsVisible,
+        // 3. Player controls overlay (V2)
+        PlayerControlsV2(
+            playerState      = playerState,
+            subtitleCue      = subtitle?.text,
+            decoderLabel     = decoderType?.name,
+            scalingMode      = scalingMode,
+            preferences      = prefsViewModel,
+            onPlay           = { viewModel.play() },
+            onPause          = { viewModel.pause() },
+            onSeek           = { viewModel.seekTo(it) },
+            onSpeedChange    = { viewModel.setSpeed(it) },
+            onScalingToggle  = { viewModel.toggleScalingMode() },
+            onBack           = onBack,
+            onPrevious       = { /* TODO: playlist integration */ },
+            onNext           = { /* TODO: playlist integration */ },
+            controlsVisible  = controlsVisible,
             onToggleControls = { controlsVisible = !controlsVisible },
-            modifier      = Modifier.fillMaxSize()
+            modifier         = Modifier.fillMaxSize()
         )
     }
 
