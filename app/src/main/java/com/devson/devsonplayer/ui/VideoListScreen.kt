@@ -13,12 +13,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.PlayCircle
@@ -33,6 +37,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -66,6 +71,24 @@ fun VideoListScreen(
     val currentFolderPath by viewModel.currentFolderPath.collectAsStateWithLifecycle()
     
     var showSettingsSheet by rememberSaveable { mutableStateOf(false) }
+
+    // Scroll states for Explorer Mode
+    val explorerRootListState = rememberLazyListState()
+    val explorerRootGridState = rememberLazyGridState()
+    val explorerFolderListState = rememberLazyListState()
+    val explorerFolderGridState = rememberLazyGridState()
+
+    // Scroll states for Flat Mode
+    val flatListState = rememberLazyListState()
+    val flatGridState = rememberLazyGridState()
+
+    // Reset folder scroll position when entering a new folder
+    LaunchedEffect(currentFolderPath) {
+        if (currentFolderPath != null) {
+            explorerFolderListState.scrollToItem(0)
+            explorerFolderGridState.scrollToItem(0)
+        }
+    }
 
     // Handle system back button for folder navigation
     BackHandler(enabled = currentFolderPath != null) {
@@ -120,38 +143,62 @@ fun VideoListScreen(
                         AnimatedContent(targetState = settings.layoutStyle, label = "layout_anim") { layout ->
                             when (layout) {
                                 LayoutStyle.LIST -> {
-                                    LazyColumn(
-                                        contentPadding = PaddingValues(8.dp),
-                                        verticalArrangement = Arrangement.spacedBy(4.dp),
-                                        modifier = Modifier.fillMaxSize()
-                                    ) {
-                                        items(state.folders, key = { it.path }) { folder ->
-                                            FolderListItem(folder, onClick = { viewModel.navigateToFolder(folder.path) })
+                                    if (currentFolderPath == null) {
+                                        LazyColumn(
+                                            state = explorerRootListState,
+                                            contentPadding = PaddingValues(8.dp),
+                                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                                            modifier = Modifier.fillMaxSize()
+                                        ) {
+                                            items(state.folders, key = { it.path }) { folder ->
+                                                FolderListItem(folder, onClick = { viewModel.navigateToFolder(folder.path) })
+                                            }
                                         }
-                                        itemsIndexed(
-                                            items = state.videos,
-                                            key = { _: Int, video: VideoItem -> video.id }
-                                        ) { index: Int, video: VideoItem ->
-                                            VideoListItem(video, settings, onClick = { onVideoSelected(state.videos, index) })
+                                    } else {
+                                        LazyColumn(
+                                            state = explorerFolderListState,
+                                            contentPadding = PaddingValues(8.dp),
+                                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                                            modifier = Modifier.fillMaxSize()
+                                        ) {
+                                            itemsIndexed(
+                                                items = state.videos,
+                                                key = { _: Int, video: VideoItem -> video.id }
+                                            ) { index: Int, video: VideoItem ->
+                                                VideoListItem(video, settings, onClick = { onVideoSelected(state.videos, index) })
+                                            }
                                         }
                                     }
                                 }
                                 LayoutStyle.GRID -> {
-                                    LazyVerticalGrid(
-                                        columns = GridCells.Fixed(settings.gridColumnCount),
-                                        contentPadding = PaddingValues(8.dp),
-                                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                        modifier = Modifier.fillMaxSize()
-                                    ) {
-                                        items(state.folders, key = { it.path }) { folder ->
-                                            FolderGridItem(folder, onClick = { viewModel.navigateToFolder(folder.path) })
+                                    if (currentFolderPath == null) {
+                                        LazyVerticalGrid(
+                                            state = explorerRootGridState,
+                                            columns = GridCells.Fixed(settings.gridColumnCount),
+                                            contentPadding = PaddingValues(8.dp),
+                                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                            modifier = Modifier.fillMaxSize()
+                                        ) {
+                                            items(state.folders, key = { it.path }) { folder ->
+                                                FolderGridItem(folder, onClick = { viewModel.navigateToFolder(folder.path) })
+                                            }
                                         }
-                                        itemsIndexed(
-                                            items = state.videos,
-                                            key = { _: Int, video: VideoItem -> video.id }
-                                        ) { index: Int, video: VideoItem ->
-                                            VideoGridItem(video, settings, onClick = { onVideoSelected(state.videos, index) })
+                                    } else {
+                                        LazyVerticalGrid(
+                                            state = explorerFolderGridState,
+                                            columns = GridCells.Fixed(settings.gridColumnCount),
+                                            contentPadding = PaddingValues(8.dp),
+                                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                            modifier = Modifier.fillMaxSize()
+                                        ) {
+                                            itemsIndexed(
+                                                items = state.videos,
+                                                key = { _: Int, video: VideoItem -> video.id }
+                                            ) { index: Int, video: VideoItem ->
+                                                VideoGridItem(video, settings, onClick = { onVideoSelected(state.videos, index) })
+                                            }
                                         }
                                     }
                                 }
@@ -167,6 +214,7 @@ fun VideoListScreen(
                             when (layout) {
                                 LayoutStyle.LIST -> {
                                     LazyColumn(
+                                        state = flatListState,
                                         contentPadding = PaddingValues(8.dp),
                                         verticalArrangement = Arrangement.spacedBy(4.dp),
                                         modifier = Modifier.fillMaxSize()
@@ -181,6 +229,7 @@ fun VideoListScreen(
                                 }
                                 LayoutStyle.GRID -> {
                                     LazyVerticalGrid(
+                                        state = flatGridState,
                                         columns = GridCells.Fixed(settings.gridColumnCount),
                                         contentPadding = PaddingValues(8.dp),
                                         verticalArrangement = Arrangement.spacedBy(8.dp),

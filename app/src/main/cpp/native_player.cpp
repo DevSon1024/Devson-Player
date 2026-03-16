@@ -1,46 +1,31 @@
-/**
- * native_player.cpp
- *
- * JNI bridge between Kotlin PlayerController and the native C++ player.
- * Manages one FFmpegDecoder + VideoRenderer per player session.
- *
- * JNI functions exposed to Kotlin:
- *   nativeInitPlayer(path, surface, width, height) -> Long (handle)
- *   nativeStartDecoding(handle)
- *   nativeDecodeFrame(handle) -> Boolean
- *   nativePause(handle)
- *   nativeResume(handle)
- *   nativeSeek(handle, positionUs)
- *   nativeSetSpeed(handle, speed)
- *   nativeRelease(handle)
- */
-
 #include <jni.h>
 #include <android/log.h>
 #include <android/native_window_jni.h>
 
 #include "ffmpeg_decoder.h"
 #include "video_renderer.h"
+#include "audio_renderer.h"
 
 #define LOG_TAG "NativePlayer"
 #define LOGI(...)  __android_log_print(ANDROID_LOG_INFO,  LOG_TAG, __VA_ARGS__)
 #define LOGE(...)  __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
-//  Player session context 
+//  Player session context
 
 struct PlayerContext {
     FFmpegDecoder  decoder;
     VideoRenderer  renderer;
+    AudioRenderer  audio_renderer;
     ANativeWindow* window = nullptr;
     bool           renderer_ready = false;
 };
 
-//  Helper: pointer ↔ jlong 
+//  Helper: pointer ↔ jlong
 static PlayerContext* toCtx(jlong handle) {
     return reinterpret_cast<PlayerContext*>(handle);
 }
 
-//  JNI Functions 
+//  JNI Functions
 
 extern "C" {
 
@@ -80,29 +65,46 @@ Java_com_devson_devsonplayer_player_NativePlayer_nativeInitPlayer(
     }
     ctx->renderer_ready = true;
 
-    // Init FFmpeg decoder with frame callback
-    PlayerContext* ctx_ptr = ctx;   // capture raw ptr for lambda
-    bool init_ok = ctx->decoder.init(path, [ctx_ptr](AVFrame* frame, int64_t /*pts_us*/, int width, int height) {
+    // Init Audio Renderer (Oboe, 44.1kHz, 2 Channels)
+    if (!ctx->audio_renderer.init(44100, 2)) {
+        LOGE("AudioRenderer init failed");
+    }
+
+    // Capture raw ptr for lambdas
+    PlayerContext* ctx_ptr = ctx;
+
+    // Video Frame Callback
+    auto video_cb = [ctx_ptr](AVFrame* frame, int64_t /*pts_us*/, int w, int h) {
         if (!frame) return;  // EOF signal
         if (!ctx_ptr->renderer_ready) return;
 
         // If the dimensions changed mid-stream (e.g., after probing), update OpenGL
-        if (width > 0 && height > 0 && (width != ctx_ptr->renderer.getFrameWidth() || height != ctx_ptr->renderer.getFrameHeight())) {
-             ctx_ptr->renderer.updateSize(width, height);
+        if (w > 0 && h > 0 && (w != ctx_ptr->renderer.getFrameWidth() || h != ctx_ptr->renderer.getFrameHeight())) {
+            ctx_ptr->renderer.updateSize(w, h);
         }
 
         // Deliver YUV planes to renderer
         ctx_ptr->renderer.renderFrame(
-            frame->data[0], frame->linesize[0],
-            frame->data[1], frame->linesize[1],
-            frame->data[2], frame->linesize[2]
+                frame->data[0], frame->linesize[0],
+                frame->data[1], frame->linesize[1],
+                frame->data[2], frame->linesize[2]
         );
-    });
+    };
+
+    // Audio Frame Callback (PCM Data)
+    auto audio_cb = [ctx_ptr](uint8_t* pcm_data, int num_frames, int64_t /*pts_us*/) {
+        // Send PCM data directly to Oboe stream. This blocks if buffer is full!
+        ctx_ptr->audio_renderer.write(pcm_data, num_frames);
+    };
+
+    // Init FFmpeg decoder with both callbacks
+    bool init_ok = ctx->decoder.init(path, video_cb, audio_cb);
 
     env->ReleaseStringUTFChars(path_jstr, path);
 
     if (!init_ok) {
         LOGE("FFmpegDecoder init failed");
+        ctx->audio_renderer.release();
         ctx->renderer.release();
         ANativeWindow_release(ctx->window);
         delete ctx;
@@ -120,8 +122,9 @@ JNIEXPORT void JNICALL
 Java_com_devson_devsonplayer_player_NativePlayer_nativeStartDecoding(
         JNIEnv* /*env*/, jobject /*this*/, jlong handle)
 {
-    if (!handle) return;
-    toCtx(handle)->decoder.startDecoding();
+if (!handle) return;
+toCtx(handle)->audio_renderer.start();
+toCtx(handle)->decoder.startDecoding();
 }
 
 /**
@@ -131,8 +134,9 @@ JNIEXPORT void JNICALL
 Java_com_devson_devsonplayer_player_NativePlayer_nativePause(
         JNIEnv* /*env*/, jobject /*this*/, jlong handle)
 {
-    if (!handle) return;
-    toCtx(handle)->decoder.pause();
+if (!handle) return;
+toCtx(handle)->audio_renderer.pause();
+toCtx(handle)->decoder.pause();
 }
 
 /**
@@ -142,20 +146,22 @@ JNIEXPORT void JNICALL
 Java_com_devson_devsonplayer_player_NativePlayer_nativeResume(
         JNIEnv* /*env*/, jobject /*this*/, jlong handle)
 {
-    if (!handle) return;
-    toCtx(handle)->decoder.resume();
+if (!handle) return;
+toCtx(handle)->audio_renderer.start();
+toCtx(handle)->decoder.resume();
 }
 
 /**
  * Seek to position.
- * @param positionUs position in microseconds
+ * @param position_us position in microseconds
  */
 JNIEXPORT void JNICALL
 Java_com_devson_devsonplayer_player_NativePlayer_nativeSeek(
         JNIEnv* /*env*/, jobject /*this*/, jlong handle, jlong position_us)
 {
-    if (!handle) return;
-    toCtx(handle)->decoder.seekTo(static_cast<int64_t>(position_us));
+if (!handle) return;
+toCtx(handle)->audio_renderer.flush(); // Clear stale audio from buffers
+toCtx(handle)->decoder.seekTo(static_cast<int64_t>(position_us));
 }
 
 /**
@@ -165,41 +171,52 @@ JNIEXPORT void JNICALL
 Java_com_devson_devsonplayer_player_NativePlayer_nativeSetSpeed(
         JNIEnv* /*env*/, jobject /*this*/, jlong handle, jfloat speed)
 {
-    if (!handle) return;
-    toCtx(handle)->decoder.setSpeed(speed);
+if (!handle) return;
+toCtx(handle)->decoder.setSpeed(speed);
 }
 
 /**
  * Query video width.
  */
 JNIEXPORT jint JNICALL
-Java_com_devson_devsonplayer_player_NativePlayer_nativeGetWidth(
+        Java_com_devson_devsonplayer_player_NativePlayer_nativeGetWidth(
         JNIEnv* /*env*/, jobject /*this*/, jlong handle)
 {
-    if (!handle) return 0;
-    return toCtx(handle)->decoder.getWidth();
+if (!handle) return 0;
+return toCtx(handle)->decoder.getWidth();
 }
 
 /**
  * Query video height.
  */
 JNIEXPORT jint JNICALL
-Java_com_devson_devsonplayer_player_NativePlayer_nativeGetHeight(
+        Java_com_devson_devsonplayer_player_NativePlayer_nativeGetHeight(
         JNIEnv* /*env*/, jobject /*this*/, jlong handle)
 {
-    if (!handle) return 0;
-    return toCtx(handle)->decoder.getHeight();
+if (!handle) return 0;
+return toCtx(handle)->decoder.getHeight();
 }
 
 /**
  * Query duration in microseconds.
  */
 JNIEXPORT jlong JNICALL
-Java_com_devson_devsonplayer_player_NativePlayer_nativeGetDurationUs(
+        Java_com_devson_devsonplayer_player_NativePlayer_nativeGetDurationUs(
         JNIEnv* /*env*/, jobject /*this*/, jlong handle)
 {
-    if (!handle) return 0;
-    return static_cast<jlong>(toCtx(handle)->decoder.getDurationUs());
+if (!handle) return 0;
+return static_cast<jlong>(toCtx(handle)->decoder.getDurationUs());
+}
+
+/**
+ * Set the active audio stream index.
+ */
+JNIEXPORT void JNICALL
+Java_com_devson_devsonplayer_player_NativePlayer_nativeSetAudioStream(
+        JNIEnv* /*env*/, jobject /*this*/, jlong handle, jint stream_index)
+{
+if (!handle) return;
+toCtx(handle)->decoder.setAudioStream(stream_index);
 }
 
 /**
@@ -209,21 +226,22 @@ JNIEXPORT void JNICALL
 Java_com_devson_devsonplayer_player_NativePlayer_nativeRelease(
         JNIEnv* /*env*/, jobject /*this*/, jlong handle)
 {
-    if (!handle) return;
+if (!handle) return;
 
-    auto* ctx = toCtx(handle);
-    ctx->renderer_ready = false;
+auto* ctx = toCtx(handle);
+ctx->renderer_ready = false;
 
-    ctx->decoder.release();
-    ctx->renderer.release();
+ctx->decoder.release();
+ctx->audio_renderer.release();
+ctx->renderer.release();
 
-    if (ctx->window) {
-        ANativeWindow_release(ctx->window);
-        ctx->window = nullptr;
-    }
+if (ctx->window) {
+ANativeWindow_release(ctx->window);
+ctx->window = nullptr;
+}
 
-    delete ctx;
-    LOGI("NativePlayer released");
+delete ctx;
+LOGI("NativePlayer released");
 }
 
 } // extern "C"

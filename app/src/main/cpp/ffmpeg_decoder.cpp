@@ -26,6 +26,7 @@ extern "C" {
 #include <libavutil/avutil.h>
 #include <libavutil/imgutils.h>
 #include <libavutil/pixdesc.h>
+#include <libavutil/opt.h>
 #include <libswscale/swscale.h>
 #include <libswresample/swresample.h>
 }
@@ -38,17 +39,19 @@ FFmpegDecoder::FFmpegDecoder()
       frame_(nullptr), sw_frame_(nullptr), packet_(nullptr),
       width_(0), height_(0), duration_us_(0),
       eof_(false), seek_requested_(false), seek_target_us_(0),
-      playing_(false), playback_speed_(1.0f) {
+      playing_(false), playback_speed_(1.0f){
     LOGI("FFmpegDecoder created");
 }
 
 FFmpegDecoder::~FFmpegDecoder() {
     release();
+    delete[] audio_out_buffer_;
 }
 
-bool FFmpegDecoder::init(const char* path, DecoderCallback callback) {
+bool FFmpegDecoder::init(const char* path, DecoderCallback callback, AudioCallback audio_callback) {
     std::lock_guard<std::mutex> lock(mutex_);
     callback_ = callback;
+    audio_callback_ = audio_callback;
 
     // Allocate packet and frames
     packet_ = av_packet_alloc();
@@ -90,6 +93,7 @@ bool FFmpegDecoder::init(const char* path, DecoderCallback callback) {
     LOGI("Video stream idx=%d  Audio stream idx=%d", video_stream_idx_, audio_stream_idx_);
 
     if (!openVideoCodec()) return false;
+    openAudioCodec();
 
     LOGI("Decoder initialized: %dx%d  duration=%.2fs  codec=%s",
          width_, height_,
@@ -143,6 +147,35 @@ bool FFmpegDecoder::openVideoCodec() {
 
     // Build SwsContext: converts any input pixel format → YUV420P for OpenGL
     setupSwsContext();
+    return true;
+}
+
+bool FFmpegDecoder::openAudioCodec() {
+    if (audio_stream_idx_ < 0) return false;
+
+    AVStream* stream = fmt_ctx_->streams[audio_stream_idx_];
+    const AVCodec* codec = avcodec_find_decoder(stream->codecpar->codec_id);
+    if (!codec) return false;
+
+    audio_codec_ctx_ = avcodec_alloc_context3(codec);
+    avcodec_parameters_to_context(audio_codec_ctx_, stream->codecpar);
+
+    if (avcodec_open2(audio_codec_ctx_, codec, nullptr) < 0) return false;
+
+    // Setup Resampler to standard PCM 16-bit, 44.1kHz, Stereo
+    swr_ctx_ = swr_alloc();
+    av_opt_set_chlayout(swr_ctx_, "in_chlayout", &audio_codec_ctx_->ch_layout, 0);
+    av_opt_set_int(swr_ctx_, "in_sample_rate", audio_codec_ctx_->sample_rate, 0);
+    av_opt_set_sample_fmt(swr_ctx_, "in_sample_fmt", audio_codec_ctx_->sample_fmt, 0);
+
+    AVChannelLayout out_ch_layout;
+    av_channel_layout_default(&out_ch_layout, 2); // Stereo
+    av_opt_set_chlayout(swr_ctx_, "out_chlayout", &out_ch_layout, 0);
+    av_opt_set_int(swr_ctx_, "out_sample_rate", 44100, 0);
+    av_opt_set_sample_fmt(swr_ctx_, "out_sample_fmt", AV_SAMPLE_FMT_S16, 0);
+
+    swr_init(swr_ctx_);
+    audio_frame_ = av_frame_alloc();
     return true;
 }
 
@@ -227,6 +260,8 @@ void FFmpegDecoder::release() {
     }
 
     if (sws_ctx_) { sws_freeContext(sws_ctx_); sws_ctx_ = nullptr; }
+    if (audio_frame_) { av_frame_free(&audio_frame_); }
+    if (audio_codec_ctx_) { avcodec_free_context(&audio_codec_ctx_); }
     if (packet_)  { av_packet_free(&packet_); }
     if (frame_)   { av_frame_free(&frame_); }
     if (sw_frame_){ av_frame_free(&sw_frame_); }
@@ -272,14 +307,76 @@ void FFmpegDecoder::decodeLoop() {
             break;
         }
 
-        // Only process video packets
         if (packet_->stream_index == video_stream_idx_) {
             processVideoPacket();
+        } else if (packet_->stream_index == audio_stream_idx_) {
+            processAudioPacket();
         }
         av_packet_unref(packet_);
     }
 
     LOGI("Decode thread finished");
+}
+
+void FFmpegDecoder::setAudioStream(int relative_audio_index) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    
+    // Find the N-th audio stream in the file that matches the UI click
+    int current_audio_count = 0;
+    int absolute_stream_idx = -1;
+    
+    for (unsigned int i = 0; i < fmt_ctx_->nb_streams; i++) {
+        if (fmt_ctx_->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
+            if (current_audio_count == relative_audio_index) {
+                absolute_stream_idx = i;
+                break;
+            }
+            current_audio_count++;
+        }
+    }
+
+    if (absolute_stream_idx == -1 || absolute_stream_idx == audio_stream_idx_) return;
+
+    LOGI("Seamless Fallback: Switching audio stream to absolute index %d", absolute_stream_idx);
+    audio_stream_idx_ = absolute_stream_idx;
+    
+    // Close the old codec and open the new one
+    if (audio_codec_ctx_) { avcodec_free_context(&audio_codec_ctx_); }
+    if (swr_ctx_) { swr_free(&swr_ctx_); }
+    if (audio_frame_) { av_frame_free(&audio_frame_); }
+    
+    openAudioCodec();
+}
+
+void FFmpegDecoder::processAudioPacket() {
+    int ret = avcodec_send_packet(audio_codec_ctx_, packet_);
+    if (ret < 0) return;
+
+    while (ret >= 0) {
+        ret = avcodec_receive_frame(audio_codec_ctx_, audio_frame_);
+        if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) break;
+        if (ret < 0) break;
+
+        // Convert format to 16-bit PCM (Returns number of frames per channel)
+        int out_frames = swr_convert(swr_ctx_,
+                                     &audio_out_buffer_, 192000 / 4,
+                (const uint8_t**)audio_frame_->data,
+                audio_frame_->nb_samples);
+
+        if (out_frames > 0) {
+            int64_t pts_us = 0;
+            if (audio_frame_->pts != AV_NOPTS_VALUE) {
+                pts_us = av_rescale_q(audio_frame_->pts,
+                                      fmt_ctx_->streams[audio_stream_idx_]->time_base,
+                                      AV_TIME_BASE_Q);
+            }
+            if (audio_callback_) {
+                // Pass frames (out_frames) to Oboe, not bytes!
+                audio_callback_(audio_out_buffer_, out_frames, pts_us);
+            }
+        }
+        av_frame_unref(audio_frame_);
+    }
 }
 
 void FFmpegDecoder::processVideoPacket() {

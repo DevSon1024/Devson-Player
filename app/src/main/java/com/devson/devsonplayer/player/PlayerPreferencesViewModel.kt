@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 import android.content.Context
+import androidx.media3.common.Tracks
 
 enum class SeekDuration(val label: String, val ms: Long) {
     SEC_5("5s",   5_000L),
@@ -32,7 +33,13 @@ enum class IconSize(val label: String, val dp: Int) {
 
 //  Data models (shared between ViewModel and UI)
 
-data class AudioTrack(val index: Int, val language: String, val label: String = language)
+data class AudioTrack(
+    val index: Int,
+    val language: String,
+    val label: String,
+    val group: Tracks.Group,
+    val trackIndex: Int
+)
 data class SubtitleTrack(val index: Int, val language: String, val label: String = language)
 
 data class DeviceStats(

@@ -44,6 +44,10 @@ class NativePlayer {
         if (!checkHandle("resume")) return
         nativeResume(handle)
     }
+    fun setAudioStream(streamIndex: Int) {
+        if (!checkHandle("setAudioStream")) return
+        nativeSetAudioStream(handle, streamIndex)
+    }
 
     fun seekTo(positionUs: Long) {
         if (!checkHandle("seekTo")) return
@@ -85,4 +89,5 @@ class NativePlayer {
     private external fun nativeGetHeight(handle: Long): Int
     private external fun nativeGetDurationUs(handle: Long): Long
     private external fun nativeRelease(handle: Long)
+    private external fun nativeSetAudioStream(handle: Long, streamIndex: Int)
 }

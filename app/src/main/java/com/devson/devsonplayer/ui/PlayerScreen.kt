@@ -172,6 +172,7 @@ fun PlayerScreen(
             onBack           = onBack,
             onPrevious       = { viewModel.playPrevious() },
             onNext           = { viewModel.playNext() },
+            onAudioTrackSelect = { viewModel.selectAudioTrack(it) },
             controlsVisible  = controlsVisible,
             onToggleControls = { controlsVisible = !controlsVisible },
             modifier         = Modifier.fillMaxSize()

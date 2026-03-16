@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.22.1)
 project(devson_player CXX)
 
+find_package(oboe REQUIRED CONFIG)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -41,6 +43,7 @@ add_library(
     ffmpeg_decoder.cpp
     video_renderer.cpp
     native_player.cpp
+    audio_renderer.cpp
 )
 
 #  Android system libraries 
@@ -53,17 +56,18 @@ find_library(media-lib  mediandk)
 target_link_libraries(
     devson_player
     PRIVATE
-        avcodec
-        avformat
-        avutil
-        avfilter
-        swscale
-        swresample
-        ${log-lib}
-        ${android-lib}
-        ${gles2-lib}
-        ${egl-lib}
-        ${media-lib}
+    avcodec
+    avformat
+    avutil
+    avfilter
+    swscale
+    swresample
+    ${log-lib}
+    ${android-lib}
+    ${gles2-lib}
+    ${egl-lib}
+    ${media-lib}
+    oboe::oboe
 )
 
 target_compile_options(devson_player PRIVATE

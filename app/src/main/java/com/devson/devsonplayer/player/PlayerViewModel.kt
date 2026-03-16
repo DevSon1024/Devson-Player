@@ -1,7 +1,5 @@
 package com.devson.devsonplayer.player
 
-import com.devson.devsonplayer.player.SubtitleManager
-
 import android.app.Application
 import android.net.Uri
 import android.view.Surface
@@ -9,7 +7,6 @@ import androidx.annotation.OptIn
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.C
-import androidx.media3.common.TrackGroup
 import androidx.media3.common.Tracks
 import androidx.media3.common.util.UnstableApi
 import com.devson.devsonplayer.ui.ScalingMode
@@ -19,7 +16,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-
 /**
  * PlayerViewModel
  *
@@ -107,7 +103,13 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
                                 append(" · ${mime.substringAfter('/')}")
                             }
                         }
-                        audio += AudioTrack(index = audio.size, language = langName, label = label)
+                        audio += AudioTrack(
+                            index = audio.size, 
+                            language = langName, 
+                            label = label,
+                            group = group, 
+                            trackIndex = i
+                        )
                     }
                     C.TRACK_TYPE_TEXT -> {
                         subs += SubtitleTrack(index = subs.size, language = langName, label = langName)
@@ -171,6 +173,15 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
     fun setHardwareSurface(s: Surface?) = controller.setHardwareSurface(s)
     fun setSoftwareSurface(s: Surface?) = controller.setSoftwareSurface(s)
     fun onPositionUpdate(posMs: Long)   = subtitleManager.onPositionChanged(posMs)
+    
+    // Audio Track Selection Delegation
+    fun selectAudioTrack(audioTrack: AudioTrack) {
+        controller.selectAudioTrack(audioTrack.group, audioTrack.trackIndex, audioTrack.index)
+    }
+
+    fun clearAudioTrackSelection() {
+        controller.clearAudioTrackSelection()
+    }
 
     override fun onCleared() {
         super.onCleared()

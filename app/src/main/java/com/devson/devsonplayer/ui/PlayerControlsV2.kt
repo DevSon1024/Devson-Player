@@ -107,6 +107,7 @@ fun PlayerControlsV2(
     onBack: () -> Unit,
     onPrevious: () -> Unit,
     onNext: () -> Unit,
+    onAudioTrackSelect: (AudioTrack) -> Unit,
     controlsVisible: Boolean,
     onToggleControls: () -> Unit,
     modifier: Modifier = Modifier
@@ -300,7 +301,11 @@ fun PlayerControlsV2(
             AudioTracksBottomSheet(
                 tracks        = audioTracks,
                 selectedIndex = selectedAudio,
-                onSelect      = { preferences.selectAudioTrack(it); showAudioSheet = false },
+                onSelect      = { 
+                    onAudioTrackSelect(it)
+                    preferences.selectAudioTrack(it.index)
+                    showAudioSheet = false 
+                },
                 onDismiss     = { showAudioSheet = false }
             )
         }
@@ -561,7 +566,7 @@ private fun BottomRow(
 private fun AudioTracksBottomSheet(
     tracks: List<AudioTrack>,
     selectedIndex: Int,
-    onSelect: (Int) -> Unit,
+    onSelect: (AudioTrack) -> Unit,
     onDismiss: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -589,7 +594,7 @@ private fun AudioTracksBottomSheet(
                         label    = track.label,
                         subLabel = track.language,
                         selected = track.index == selectedIndex,
-                        onClick  = { onSelect(track.index) }
+                        onClick  = { onSelect(track) }
                     )
                     HorizontalDivider(modifier = Modifier.padding(horizontal = 20.dp))
                 }

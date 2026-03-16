@@ -11,18 +11,21 @@ extern "C" {
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
 #include <libswscale/swscale.h>
+#include <libswresample/swresample.h>
 }
 
 // Callback: delivers a decoded YUV420P AVFrame and its PTS in microseconds.
 // Frame is nullptr to signal EOF.
 using DecoderCallback = std::function<void(AVFrame*, int64_t pts_us, int width, int height)>;
+using AudioCallback = std::function<void(uint8_t* pcm_data, int num_frames, int64_t pts_us)>;
 
 class FFmpegDecoder {
 public:
     FFmpegDecoder();
     ~FFmpegDecoder();
 
-    bool  init(const char* path, DecoderCallback callback);
+    bool init(const char* path, DecoderCallback video_callback, AudioCallback audio_callback);
+    void setAudioStream(int stream_index);
     void  startDecoding();
     void  pause();
     void  resume();
@@ -48,6 +51,16 @@ private:
 
     int video_stream_idx_;
     int audio_stream_idx_;
+
+    bool openAudioCodec();
+    void processAudioPacket();
+
+    AVCodecContext* audio_codec_ctx_ = nullptr;
+    SwrContext* swr_ctx_ = nullptr;
+    AVFrame* audio_frame_ = nullptr;
+    uint8_t* audio_out_buffer_ = nullptr;
+
+    AudioCallback   audio_callback_;
 
     AVFrame*    frame_;
     AVFrame*    sw_frame_;

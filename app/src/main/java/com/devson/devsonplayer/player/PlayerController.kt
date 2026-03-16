@@ -10,6 +10,8 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.PlaybackParameters
 import androidx.media3.common.Player
+import androidx.media3.common.TrackSelectionOverride
+import androidx.media3.common.Tracks
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
@@ -27,8 +29,8 @@ import kotlinx.coroutines.launch
  * PlayerController
  *
  * Unified player API that transparently switches between:
- *  - Hardware path: Media3 ExoPlayer (MediaCodec) → SurfaceView
- *  - Software path: FFmpeg via NativePlayer → GLSurfaceView
+ * - Hardware path: Media3 ExoPlayer (MediaCodec) → SurfaceView
+ * - Software path: FFmpeg via NativePlayer → GLSurfaceView
  *
  * Exposes [PlayerState] as a StateFlow for UI observation.
  */
@@ -62,6 +64,9 @@ class PlayerController(private val context: Context) {
 
     private var exoPlayer: ExoPlayer? = null
     private var hardwareSurface: Surface? = null
+
+    // Surface binding 
+    private var currentRealPath: String? = null
 
     //  Software player (FFmpeg / NativePlayer) 
 
@@ -101,6 +106,8 @@ class PlayerController(private val context: Context) {
             _state.value = PlayerState.Error("Invalid URI: $uri")
             return
         }
+
+        currentRealPath = realPath
 
         // Probe for video info via MediaMetadataRetriever
         val videoInfo = probeVideoInfo(realPath, uri) // Use realPath here for better 10-bit detection
@@ -281,6 +288,55 @@ class PlayerController(private val context: Context) {
         }
     }
 
+    fun selectAudioTrack(trackGroup: Tracks.Group, trackIndex: Int, relativeUiIndex: Int) {
+        when (activeDecoder) {
+            DecoderType.HARDWARE -> {
+                exoPlayer?.let { player ->
+                    if (trackGroup.isTrackSupported(trackIndex)) {
+                        // Hardware supports it! Standard ExoPlayer track switch.
+                        val freshGroup = player.currentTracks.groups.find {
+                            it.mediaTrackGroup == trackGroup.mediaTrackGroup
+                        }?.mediaTrackGroup ?: trackGroup.mediaTrackGroup
+
+                        player.trackSelectionParameters = player.trackSelectionParameters
+                            .buildUpon()
+                            .clearOverridesOfType(androidx.media3.common.C.TRACK_TYPE_AUDIO)
+                            .setTrackTypeDisabled(androidx.media3.common.C.TRACK_TYPE_AUDIO, false)
+                            .setOverrideForType(TrackSelectionOverride(freshGroup, trackIndex))
+                            .build()
+                    } else {
+                        // HARDWARE LIMITATION REACHED -> SEAMLESS FALLBACK TO C++
+                        Log.w(TAG, "Hardware unsupported! Seamless fallback to C++ Oboe/FFmpeg player.")
+                        val currentPos = player.currentPosition
+
+                        activeDecoder = DecoderType.SOFTWARE
+                        _decoderType.value = DecoderType.SOFTWARE
+                        releaseExoPlayer()
+
+                        currentRealPath?.let { path ->
+                            loadWithFFmpeg(path)       // Open C++ Player
+                            seekTo(currentPos)         // Jump to current timestamp
+                            nativePlayer.setAudioStream(relativeUiIndex) // Apply the audio track
+                        }
+                    }
+                }
+            }
+            DecoderType.SOFTWARE -> {
+                // Already in software mode, just tell C++ to switch the track
+                nativePlayer.setAudioStream(relativeUiIndex)
+            }
+        }
+    }
+
+    fun clearAudioTrackSelection() {
+        exoPlayer?.let { player ->
+            player.trackSelectionParameters = player.trackSelectionParameters
+                .buildUpon()
+                .clearOverridesOfType(androidx.media3.common.C.TRACK_TYPE_AUDIO)
+                .build()
+        }
+    }
+
     fun getDurationMs(): Long {
         return when (activeDecoder) {
             DecoderType.HARDWARE -> exoPlayer?.duration?.coerceAtLeast(0L) ?: 0L
@@ -325,7 +381,7 @@ class PlayerController(private val context: Context) {
             else                                                         -> "video/avc"
         }
     }
-    // --- addedthis helper method at the end of the class ---
+    
     private fun getRealPathFromUri(context: Context, uri: Uri): String? {
         if (uri.scheme == "content") {
             val projection = arrayOf(android.provider.MediaStore.Video.Media.DATA)

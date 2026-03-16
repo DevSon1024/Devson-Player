@@ -66,6 +66,7 @@ android {
 
     buildFeatures {
         compose = true
+        prefab = true
     }
 
     kotlinOptions {
@@ -113,6 +114,8 @@ dependencies {
 
     // A configuration strictly for extracting FFmpeg JNI libs
     val ffmpegConfig by configurations.creating
+
+    implementation("com.google.oboe:oboe:1.8.0")
 
     // Media3 / ExoPlayer (hardware decode path)
     implementation(libs.androidx.media3.exoplayer)
