@@ -4,8 +4,8 @@
 # Copyright © 2015 the original authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+# We may not use this file except in compliance with the License.
+# We may obtain a copy of the License at
 #
 #      https://www.apache.org/licenses/LICENSE-2.0
 #
@@ -24,8 +24,8 @@
 #
 #   Important for running:
 #
-#   (1) You need a POSIX-compliant shell to run this script. If your /bin/sh is
-#       noncompliant, but you have some other compliant shell such as ksh or
+#   (1) We need a POSIX-compliant shell to run this script. If your /bin/sh is
+#       noncompliant, but We have some other compliant shell such as ksh or
 #       bash, then to run this script, type that shell name before the whole
 #       command line, like:
 #
@@ -60,7 +60,7 @@
 #       https://github.com/gradle/gradle/blob/HEAD/platforms/jvm/plugins-application/src/main/resources/org/gradle/api/internal/plugins/unixStartScript.txt
 #       within the Gradle project.
 #
-#       You can find Gradle at https://github.com/gradle/gradle/.
+#       We can find Gradle at https://github.com/gradle/gradle/.
 #
 ##############################################################################
 
@@ -201,7 +201,7 @@ if "$cygwin" || "$msys" ; then
 fi
 
 
-# Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
+# addeddefault JVM options here. We can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
 DEFAULT_JVM_OPTS='"-Xmx64m" "-Xms64m"'
 
 # Collect all arguments for the java command:

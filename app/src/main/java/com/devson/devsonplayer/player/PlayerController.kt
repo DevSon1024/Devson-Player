@@ -95,13 +95,15 @@ class PlayerController(private val context: Context) {
 
     fun load(uri: Uri) {
         _state.value = PlayerState.Buffering
-        val path = uri.path ?: run {
+        
+        // Use the new helper to get the real absolute path for FFmpeg
+        val realPath = getRealPathFromUri(context, uri) ?: uri.path ?: run {
             _state.value = PlayerState.Error("Invalid URI: $uri")
             return
         }
 
         // Probe for video info via MediaMetadataRetriever
-        val videoInfo = probeVideoInfo(path, uri)
+        val videoInfo = probeVideoInfo(realPath, uri) // Use realPath here for better 10-bit detection
         _videoInfo.value = videoInfo
         Log.i(TAG, "VideoInfo: $videoInfo")
 
@@ -111,8 +113,9 @@ class PlayerController(private val context: Context) {
         Log.i(TAG, "Selected decoder: $decoder")
 
         when (decoder) {
-            DecoderType.HARDWARE -> loadWithExoPlayer(uri)
-            DecoderType.SOFTWARE -> loadWithFFmpeg(path)
+            // Pass the realPath along to ExoPlayer so it can use it for the fallback
+            DecoderType.HARDWARE -> loadWithExoPlayer(uri, realPath) 
+            DecoderType.SOFTWARE -> loadWithFFmpeg(realPath) // FFmpeg now gets the real path
         }
     }
 
@@ -147,8 +150,7 @@ class PlayerController(private val context: Context) {
     }
 
     //  Hardware path 
-
-    private fun loadWithExoPlayer(uri: Uri) {
+    private fun loadWithExoPlayer(uri: Uri, realPath: String) {
         releaseExoPlayer()
 
         val trackSelector = DefaultTrackSelector(context)
@@ -170,8 +172,16 @@ class PlayerController(private val context: Context) {
                     }
                     override fun onPlayerError(error: PlaybackException) {
                         Log.e(TAG, "ExoPlayer error: ${error.message}, falling back to SOFTWARE")
-                        _state.value = PlayerState.Error(error.message ?: "Playback error")
-                        uri.path?.let { loadWithFFmpeg(it) }
+                        
+                        _state.value = PlayerState.Buffering
+                        
+                        _decoderType.value = DecoderType.SOFTWARE
+                        activeDecoder = DecoderType.SOFTWARE
+                        
+                        releaseExoPlayer()
+                        
+                        // Use the real absolute path for the FFmpeg fallback
+                        loadWithFFmpeg(realPath)
                     }
                 })
 
@@ -314,5 +324,24 @@ class PlayerController(private val context: Context) {
             name.contains("vp8",  true)                                 -> "video/x-vnd.on2.vp8"
             else                                                         -> "video/avc"
         }
+    }
+    // --- addedthis helper method at the end of the class ---
+    private fun getRealPathFromUri(context: Context, uri: Uri): String? {
+        if (uri.scheme == "content") {
+            val projection = arrayOf(android.provider.MediaStore.Video.Media.DATA)
+            try {
+                context.contentResolver.query(uri, projection, null, null, null)?.use { cursor ->
+                    val columnIndex = cursor.getColumnIndexOrThrow(android.provider.MediaStore.Video.Media.DATA)
+                    if (cursor.moveToFirst()) {
+                        return cursor.getString(columnIndex)
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to get real path", e)
+            }
+        } else if (uri.scheme == "file") {
+            return uri.path
+        }
+        return uri.path // Fallback
     }
 }

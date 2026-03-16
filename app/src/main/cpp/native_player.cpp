@@ -82,11 +82,16 @@ Java_com_devson_devsonplayer_player_NativePlayer_nativeInitPlayer(
 
     // Init FFmpeg decoder with frame callback
     PlayerContext* ctx_ptr = ctx;   // capture raw ptr for lambda
-    bool init_ok = ctx->decoder.init(path, [ctx_ptr](AVFrame* frame, int64_t /*pts_us*/) {
+    bool init_ok = ctx->decoder.init(path, [ctx_ptr](AVFrame* frame, int64_t /*pts_us*/, int width, int height) {
         if (!frame) return;  // EOF signal
         if (!ctx_ptr->renderer_ready) return;
 
-        // Deliver YUV planes to renderer (YUV420P guaranteed after SWS)
+        // If the dimensions changed mid-stream (e.g., after probing), update OpenGL
+        if (width > 0 && height > 0 && (width != ctx_ptr->renderer.getFrameWidth() || height != ctx_ptr->renderer.getFrameHeight())) {
+             ctx_ptr->renderer.updateSize(width, height);
+        }
+
+        // Deliver YUV planes to renderer
         ctx_ptr->renderer.renderFrame(
             frame->data[0], frame->linesize[0],
             frame->data[1], frame->linesize[1],

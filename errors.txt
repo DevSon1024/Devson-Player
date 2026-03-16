@@ -1,262 +1,716 @@
-> Task :prepareKotlinBuildScriptModel UP-TO-DATE
-C/C++: CMake Error at CMakeLists.txt:9:
-C/C++:   Parse error.  Expected a command name, got unquoted argument with text
-C/C++:   "avconfig.h".
-[CXX1429] error when building with cmake using C:\Android\DevsonPlayer\app\src\main\cpp\CMakeLists.txt: -- Configuring incomplete, errors occurred!
-See also "C:/Android/DevsonPlayer/app/.cxx/Debug/m4c96o45/arm64-v8a/CMakeFiles/CMakeOutput.log".
-
-C++ build system [configure] failed while executing:
-    @echo off
-    "C:\\Users\\DEVENDRA\\AppData\\Local\\Android\\Sdk\\cmake\\3.22.1\\bin\\cmake.exe" ^
-      "-HC:\\Android\\DevsonPlayer\\app\\src\\main\\cpp" ^
-      "-DCMAKE_SYSTEM_NAME=Android" ^
-      "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON" ^
-      "-DCMAKE_SYSTEM_VERSION=26" ^
-      "-DANDROID_ABI=arm64-v8a" ^
-      "-DCMAKE_ANDROID_ARCH_ABI=arm64-v8a" ^
-      "-DANDROID_NDK=C:\\Users\\DEVENDRA\\AppData\\Local\\Android\\Sdk\\ndk\\27.0.12077973" ^
-      "-DCMAKE_ANDROID_NDK=C:\\Users\\DEVENDRA\\AppData\\Local\\Android\\Sdk\\ndk\\27.0.12077973" ^
-      "-DCMAKE_TOOLCHAIN_FILE=C:\\Users\\DEVENDRA\\AppData\\Local\\Android\\Sdk\\ndk\\27.0.12077973\\build\\cmake\\android.toolchain.cmake" ^
-      "-DCMAKE_MAKE_PROGRAM=C:\\Users\\DEVENDRA\\AppData\\Local\\Android\\Sdk\\cmake\\3.22.1\\bin\\ninja.exe" ^
-      "-DCMAKE_CXX_FLAGS=-std=c++17 -ffast-math -O2 -DANDROID -DNDEBUG" ^
-      "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=C:\\Android\\DevsonPlayer\\app\\build\\intermediates\\cxx\\Debug\\m4c96o45\\obj\\arm64-v8a" ^
-      "-DCMAKE_RUNTIME_OUTPUT_DIRECTORY=C:\\Android\\DevsonPlayer\\app\\build\\intermediates\\cxx\\Debug\\m4c96o45\\obj\\arm64-v8a" ^
-      "-DCMAKE_BUILD_TYPE=Debug" ^
-      "-BC:\\Android\\DevsonPlayer\\app\\.cxx\\Debug\\m4c96o45\\arm64-v8a" ^
-      -GNinja ^
-      "-DANDROID_STL=c++_shared" ^
-      "-DANDROID_PLATFORM=android-26" ^
-      "-DFFMPEG_JNI_DIR=C:\\Android\\DevsonPlayer\\app\\build/ffmpeg-jni"
-  from C:\Android\DevsonPlayer\app
-CMake Error at CMakeLists.txt:9:
-  Parse error.  Expected a command name, got unquoted argument with text
-  "avconfig.h". : com.android.ide.common.process.ProcessException: -- Configuring incomplete, errors occurred!
-See also "C:/Android/DevsonPlayer/app/.cxx/Debug/m4c96o45/arm64-v8a/CMakeFiles/CMakeOutput.log".
-
-C++ build system [configure] failed while executing:
-    @echo off
-    "C:\\Users\\DEVENDRA\\AppData\\Local\\Android\\Sdk\\cmake\\3.22.1\\bin\\cmake.exe" ^
-      "-HC:\\Android\\DevsonPlayer\\app\\src\\main\\cpp" ^
-      "-DCMAKE_SYSTEM_NAME=Android" ^
-      "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON" ^
-      "-DCMAKE_SYSTEM_VERSION=26" ^
-      "-DANDROID_ABI=arm64-v8a" ^
-      "-DCMAKE_ANDROID_ARCH_ABI=arm64-v8a" ^
-      "-DANDROID_NDK=C:\\Users\\DEVENDRA\\AppData\\Local\\Android\\Sdk\\ndk\\27.0.12077973" ^
-      "-DCMAKE_ANDROID_NDK=C:\\Users\\DEVENDRA\\AppData\\Local\\Android\\Sdk\\ndk\\27.0.12077973" ^
-      "-DCMAKE_TOOLCHAIN_FILE=C:\\Users\\DEVENDRA\\AppData\\Local\\Android\\Sdk\\ndk\\27.0.12077973\\build\\cmake\\android.toolchain.cmake" ^
-      "-DCMAKE_MAKE_PROGRAM=C:\\Users\\DEVENDRA\\AppData\\Local\\Android\\Sdk\\cmake\\3.22.1\\bin\\ninja.exe" ^
-      "-DCMAKE_CXX_FLAGS=-std=c++17 -ffast-math -O2 -DANDROID -DNDEBUG" ^
-      "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=C:\\Android\\DevsonPlayer\\app\\build\\intermediates\\cxx\\Debug\\m4c96o45\\obj\\arm64-v8a" ^
-      "-DCMAKE_RUNTIME_OUTPUT_DIRECTORY=C:\\Android\\DevsonPlayer\\app\\build\\intermediates\\cxx\\Debug\\m4c96o45\\obj\\arm64-v8a" ^
-      "-DCMAKE_BUILD_TYPE=Debug" ^
-      "-BC:\\Android\\DevsonPlayer\\app\\.cxx\\Debug\\m4c96o45\\arm64-v8a" ^
-      -GNinja ^
-      "-DANDROID_STL=c++_shared" ^
-      "-DANDROID_PLATFORM=android-26" ^
-      "-DFFMPEG_JNI_DIR=C:\\Android\\DevsonPlayer\\app\\build/ffmpeg-jni"
-  from C:\Android\DevsonPlayer\app
-CMake Error at CMakeLists.txt:9:
-  Parse error.  Expected a command name, got unquoted argument with text
-  "avconfig.h".
-	at com.android.build.gradle.internal.cxx.process.ExecuteProcessKt.execute(ExecuteProcess.kt:288)
-	at com.android.build.gradle.internal.cxx.process.ExecuteProcessKt$executeProcess$1.invoke(ExecuteProcess.kt:108)
-	at com.android.build.gradle.internal.cxx.process.ExecuteProcessKt$executeProcess$1.invoke(ExecuteProcess.kt:106)
-	at com.android.build.gradle.internal.cxx.timing.TimingEnvironmentKt.time(TimingEnvironment.kt:32)
-	at com.android.build.gradle.internal.cxx.process.ExecuteProcessKt.executeProcess(ExecuteProcess.kt:106)
-	at com.android.build.gradle.internal.cxx.process.ExecuteProcessKt.executeProcess$default(ExecuteProcess.kt:85)
-	at com.android.build.gradle.tasks.CmakeQueryMetadataGenerator.executeProcess(CmakeFileApiMetadataGenerator.kt:59)
-	at com.android.build.gradle.tasks.ExternalNativeJsonGenerator$configureOneAbi$1$1$3.invoke(ExternalNativeJsonGenerator.kt:247)
-	at com.android.build.gradle.tasks.ExternalNativeJsonGenerator$configureOneAbi$1$1$3.invoke(ExternalNativeJsonGenerator.kt:247)
-	at com.android.build.gradle.internal.cxx.timing.TimingEnvironmentKt.time(TimingEnvironment.kt:32)
-	at com.android.build.gradle.tasks.ExternalNativeJsonGenerator.configureOneAbi(ExternalNativeJsonGenerator.kt:247)
-	at com.android.build.gradle.tasks.ExternalNativeJsonGenerator.configure(ExternalNativeJsonGenerator.kt:113)
-	at com.android.build.gradle.internal.ide.v2.NativeModelBuilder.generateBuildFilesAndCompileCommandsJson(NativeModelBuilder.kt:204)
-	at com.android.build.gradle.internal.ide.v2.NativeModelBuilder.buildAll(NativeModelBuilder.kt:169)
-	at com.android.build.gradle.internal.ide.v2.NativeModelBuilder.buildAll(NativeModelBuilder.kt:56)
-	at org.gradle.tooling.provider.model.internal.DefaultToolingModelBuilderRegistry$BuilderWithParameter.build(DefaultToolingModelBuilderRegistry.java:293)
-	at org.gradle.tooling.provider.model.internal.DefaultToolingModelBuilderRegistry$UserCodeAssigningBuilder.lambda$build$0(DefaultToolingModelBuilderRegistry.java:378)
-	at org.gradle.internal.code.DefaultUserCodeApplicationContext$CurrentApplication.reapply(DefaultUserCodeApplicationContext.java:110)
-	at org.gradle.tooling.provider.model.internal.DefaultToolingModelBuilderRegistry$UserCodeAssigningBuilder.build(DefaultToolingModelBuilderRegistry.java:378)
-	at org.gradle.tooling.provider.model.internal.DefaultToolingModelBuilderRegistry$LockSingleProjectBuilder.lambda$build$0(DefaultToolingModelBuilderRegistry.java:308)
-	at org.gradle.api.internal.project.DefaultProjectStateRegistry$ProjectStateImpl.lambda$fromMutableState$2(DefaultProjectStateRegistry.java:458)
-	at org.gradle.internal.work.DefaultWorkerLeaseService.withReplacedLocks(DefaultWorkerLeaseService.java:359)
-	at org.gradle.api.internal.project.DefaultProjectStateRegistry$ProjectStateImpl.fromMutableState(DefaultProjectStateRegistry.java:458)
-	at org.gradle.tooling.provider.model.internal.DefaultToolingModelBuilderRegistry$LockSingleProjectBuilder.build(DefaultToolingModelBuilderRegistry.java:308)
-	at org.gradle.tooling.provider.model.internal.DefaultToolingModelBuilderRegistry$BuildOperationWrappingBuilder$1.call(DefaultToolingModelBuilderRegistry.java:341)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:210)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:205)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:67)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:60)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:167)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:60)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner.call(DefaultBuildOperationRunner.java:54)
-	at org.gradle.tooling.provider.model.internal.DefaultToolingModelBuilderRegistry$BuildOperationWrappingBuilder.build(DefaultToolingModelBuilderRegistry.java:338)
-	at org.gradle.internal.build.DefaultBuildToolingModelController$AbstractToolingScope.getModel(DefaultBuildToolingModelController.java:87)
-	at org.gradle.internal.buildtree.DefaultBuildTreeModelCreator$DefaultBuildTreeModelController.getModelForScope(DefaultBuildTreeModelCreator.java:148)
-	at org.gradle.internal.buildtree.DefaultBuildTreeModelCreator$DefaultBuildTreeModelController.access$300(DefaultBuildTreeModelCreator.java:70)
-	at org.gradle.internal.buildtree.DefaultBuildTreeModelCreator$DefaultBuildTreeModelController$1.call(DefaultBuildTreeModelCreator.java:86)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:210)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:205)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:67)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:60)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:167)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:60)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner.call(DefaultBuildOperationRunner.java:54)
-	at org.gradle.internal.buildtree.DefaultBuildTreeModelCreator$DefaultBuildTreeModelController.getModel(DefaultBuildTreeModelCreator.java:81)
-	at org.gradle.tooling.internal.provider.runner.DefaultBuildController.getModel(DefaultBuildController.java:104)
-	at org.gradle.tooling.internal.consumer.connection.ParameterAwareBuildControllerAdapter.getModel(ParameterAwareBuildControllerAdapter.java:40)
-	at org.gradle.tooling.internal.consumer.connection.UnparameterizedBuildController.getModel(UnparameterizedBuildController.java:116)
-	at org.gradle.tooling.internal.consumer.connection.NestedActionAwareBuildControllerAdapter.getModel(NestedActionAwareBuildControllerAdapter.java:32)
-	at org.gradle.tooling.internal.consumer.connection.UnparameterizedBuildController.findModel(UnparameterizedBuildController.java:100)
-	at org.gradle.tooling.internal.consumer.connection.NestedActionAwareBuildControllerAdapter.findModel(NestedActionAwareBuildControllerAdapter.java:32)
-	at org.jetbrains.plugins.gradle.model.DefaultBuildController.findModel(DefaultBuildController.java:122)
-	at com.android.tools.idea.gradle.project.sync.SyncActionRunnerKt$toMeasuringController$1.findModel$lambda$7(SyncActionRunner.kt:288)
-	at com.android.tools.idea.projectsystem.gradle.sync.Counter.invoke(PerformanceMeasurementUtil.kt:121)
-	at com.android.tools.idea.gradle.project.sync.SyncActionRunnerKt.measure(SyncActionRunner.kt:329)
-	at com.android.tools.idea.gradle.project.sync.SyncActionRunnerKt.access$measure(SyncActionRunner.kt:1)
-	at com.android.tools.idea.gradle.project.sync.SyncActionRunnerKt$toMeasuringController$1.findModel(SyncActionRunner.kt:288)
-	at com.android.tools.idea.gradle.project.sync.ActionToRun$toSafeController$1.findModel(SyncActionRunner.kt:156)
-	at com.android.tools.idea.gradle.project.sync.ModelFetchersKt.findNativeVariantAbiModel(ModelFetchers.kt:127)
-	at com.android.tools.idea.gradle.project.sync.VariantDiscovery.toFetchVariantDependenciesAction$lambda$1$0(VariantDiscovery.kt:223)
-	at com.android.tools.idea.gradle.project.sync.ModelResult$Companion.create(ModelResult.kt:30)
-	at com.android.tools.idea.gradle.project.sync.VariantDiscovery.toFetchVariantDependenciesAction$lambda$1(VariantDiscovery.kt:214)
-	at com.android.tools.idea.gradle.project.sync.ActionToRun.map$lambda$0(SyncActionRunner.kt:63)
-	at com.android.tools.idea.gradle.project.sync.ActionToRun.run$intellij_android_projectSystem_gradle_sync(SyncActionRunner.kt:72)
-	at com.android.tools.idea.gradle.project.sync.SyncActionRunner.runActions$lambda$0(SyncActionRunner.kt:221)
-	at com.android.tools.idea.gradle.project.sync.SyncActionRunner.runAction(SyncActionRunner.kt:251)
-	at com.android.tools.idea.gradle.project.sync.SyncActionRunner.runActions(SyncActionRunner.kt:221)
-	at com.android.tools.idea.gradle.project.sync.VariantDiscovery.discoverVariantsAndSync(VariantDiscovery.kt:142)
-	at com.android.tools.idea.gradle.project.sync.SyncProjectActionWorker.populateAndroidModels$lambda$3(SyncProjectActionWorker.kt:70)
-	at com.android.tools.idea.projectsystem.gradle.sync.Counter.invoke(PerformanceMeasurementUtil.kt:121)
-	at com.android.tools.idea.gradle.project.sync.SyncProjectActionWorker.populateAndroidModels(SyncProjectActionWorker.kt:61)
-	at com.android.tools.idea.gradle.project.sync.AndroidExtraModelProviderWorker.populateBuildModels(AndroidExtraModelProviderWorker.kt:98)
-	at com.android.tools.idea.gradle.project.sync.AndroidExtraModelProviderImpl.populateBuildModels(AndroidExtraModelProvider.kt:110)
-	at com.android.tools.idea.gradle.project.sync.AndroidExtraModelProvider.populateModels(AndroidExtraModelProvider.kt:60)
-	at com.intellij.gradle.toolingExtension.impl.modelAction.GradleModelFetchAction.lambda$populateModels$13(GradleModelFetchAction.java:247)
-	at com.intellij.gradle.toolingExtension.impl.telemetry.GradleOpenTelemetry.lambda$runWithSpan$1(GradleOpenTelemetry.java:37)
-	at com.intellij.gradle.toolingExtension.impl.telemetry.GradleOpenTelemetry.callWithSpan(GradleOpenTelemetry.java:55)
-	at com.intellij.gradle.toolingExtension.impl.telemetry.GradleOpenTelemetry.callWithSpan(GradleOpenTelemetry.java:31)
-	at com.intellij.gradle.toolingExtension.impl.telemetry.GradleOpenTelemetry.runWithSpan(GradleOpenTelemetry.java:36)
-	at com.intellij.gradle.toolingExtension.impl.modelAction.GradleModelFetchAction.populateModels(GradleModelFetchAction.java:246)
-	at com.intellij.gradle.toolingExtension.impl.modelAction.GradleModelFetchAction.lambda$executeAction$11(GradleModelFetchAction.java:228)
-	at com.intellij.gradle.toolingExtension.impl.telemetry.GradleOpenTelemetry.lambda$runWithSpan$1(GradleOpenTelemetry.java:37)
-	at com.intellij.gradle.toolingExtension.impl.telemetry.GradleOpenTelemetry.callWithSpan(GradleOpenTelemetry.java:55)
-	at com.intellij.gradle.toolingExtension.impl.telemetry.GradleOpenTelemetry.callWithSpan(GradleOpenTelemetry.java:31)
-	at com.intellij.gradle.toolingExtension.impl.telemetry.GradleOpenTelemetry.runWithSpan(GradleOpenTelemetry.java:36)
-	at com.intellij.gradle.toolingExtension.impl.modelAction.GradleModelFetchAction.lambda$executeAction$12(GradleModelFetchAction.java:226)
-	at java.base/java.util.ArrayList.forEach(Unknown Source)
-	at com.intellij.gradle.toolingExtension.impl.modelAction.GradleModelFetchAction.executeAction(GradleModelFetchAction.java:225)
-	at com.intellij.gradle.toolingExtension.impl.modelAction.GradleModelFetchAction.lambda$doExecute$5(GradleModelFetchAction.java:125)
-	at com.intellij.gradle.toolingExtension.impl.telemetry.GradleOpenTelemetry.lambda$runWithSpan$1(GradleOpenTelemetry.java:37)
-	at com.intellij.gradle.toolingExtension.impl.telemetry.GradleOpenTelemetry.callWithSpan(GradleOpenTelemetry.java:55)
-	at com.intellij.gradle.toolingExtension.impl.telemetry.GradleOpenTelemetry.callWithSpan(GradleOpenTelemetry.java:31)
-	at com.intellij.gradle.toolingExtension.impl.telemetry.GradleOpenTelemetry.runWithSpan(GradleOpenTelemetry.java:36)
-	at com.intellij.gradle.toolingExtension.impl.modelAction.GradleModelFetchAction.doExecute(GradleModelFetchAction.java:124)
-	at com.intellij.gradle.toolingExtension.impl.modelAction.GradleModelFetchAction.lambda$execute$1(GradleModelFetchAction.java:103)
-	at com.intellij.gradle.toolingExtension.impl.telemetry.GradleOpenTelemetry.callWithSpan(GradleOpenTelemetry.java:55)
-	at com.intellij.gradle.toolingExtension.impl.telemetry.GradleOpenTelemetry.callWithSpan(GradleOpenTelemetry.java:31)
-	at com.intellij.gradle.toolingExtension.impl.modelAction.GradleModelFetchAction.lambda$execute$2(GradleModelFetchAction.java:102)
-	at com.intellij.gradle.toolingExtension.impl.modelAction.GradleModelFetchAction.withOpenTelemetry(GradleModelFetchAction.java:291)
-	at com.intellij.gradle.toolingExtension.impl.modelAction.GradleModelFetchAction.lambda$execute$3(GradleModelFetchAction.java:101)
-	at com.intellij.gradle.toolingExtension.impl.util.GradleExecutorServiceUtil.withSingleThreadExecutor(GradleExecutorServiceUtil.java:18)
-	at com.intellij.gradle.toolingExtension.impl.modelAction.GradleModelFetchAction.execute(GradleModelFetchAction.java:100)
-	at com.intellij.gradle.toolingExtension.impl.modelAction.GradleModelFetchAction.execute(GradleModelFetchAction.java:34)
-	at org.gradle.tooling.internal.consumer.connection.InternalBuildActionAdapter.execute(InternalBuildActionAdapter.java:65)
-	at org.gradle.tooling.internal.provider.runner.AbstractClientProvidedBuildActionRunner$ActionAdapter.executeAction(AbstractClientProvidedBuildActionRunner.java:109)
-	at org.gradle.tooling.internal.provider.runner.AbstractClientProvidedBuildActionRunner$ActionAdapter.runAction(AbstractClientProvidedBuildActionRunner.java:97)
-	at org.gradle.tooling.internal.provider.runner.AbstractClientProvidedBuildActionRunner$ActionAdapter.fromBuildModel(AbstractClientProvidedBuildActionRunner.java:86)
-	at org.gradle.tooling.internal.provider.runner.AbstractClientProvidedBuildActionRunner$ActionAdapter.fromBuildModel(AbstractClientProvidedBuildActionRunner.java:69)
-	at org.gradle.internal.buildtree.DefaultBuildTreeModelCreator.fromBuildModel(DefaultBuildTreeModelCreator.java:67)
-	at org.gradle.internal.buildtree.DefaultBuildTreeLifecycleController.lambda$fromBuildModel$2(DefaultBuildTreeLifecycleController.java:90)
-	at org.gradle.internal.buildtree.DefaultBuildTreeLifecycleController.lambda$runBuild$4(DefaultBuildTreeLifecycleController.java:120)
-	at org.gradle.internal.model.StateTransitionController.lambda$transition$6(StateTransitionController.java:169)
-	at org.gradle.internal.model.StateTransitionController.doTransition(StateTransitionController.java:266)
-	at org.gradle.internal.model.StateTransitionController.lambda$transition$7(StateTransitionController.java:169)
-	at org.gradle.internal.work.DefaultSynchronizer.withLock(DefaultSynchronizer.java:46)
-	at org.gradle.internal.model.StateTransitionController.transition(StateTransitionController.java:169)
-	at org.gradle.internal.buildtree.DefaultBuildTreeLifecycleController.runBuild(DefaultBuildTreeLifecycleController.java:117)
-	at org.gradle.internal.buildtree.DefaultBuildTreeLifecycleController.fromBuildModel(DefaultBuildTreeLifecycleController.java:82)
-	at org.gradle.tooling.internal.provider.runner.AbstractClientProvidedBuildActionRunner.runClientAction(AbstractClientProvidedBuildActionRunner.java:43)
-	at org.gradle.tooling.internal.provider.runner.ClientProvidedPhasedActionRunner.run(ClientProvidedPhasedActionRunner.java:59)
-	at org.gradle.launcher.exec.ChainingBuildActionRunner.run(ChainingBuildActionRunner.java:35)
-	at org.gradle.internal.buildtree.ProblemReportingBuildActionRunner.run(ProblemReportingBuildActionRunner.java:49)
-	at org.gradle.launcher.exec.BuildOutcomeReportingBuildActionRunner.run(BuildOutcomeReportingBuildActionRunner.java:71)
-	at org.gradle.tooling.internal.provider.FileSystemWatchingBuildActionRunner.run(FileSystemWatchingBuildActionRunner.java:135)
-	at org.gradle.launcher.exec.BuildCompletionNotifyingBuildActionRunner.run(BuildCompletionNotifyingBuildActionRunner.java:41)
-	at org.gradle.launcher.exec.RootBuildLifecycleBuildActionExecutor.lambda$execute$0(RootBuildLifecycleBuildActionExecutor.java:54)
-	at org.gradle.composite.internal.DefaultRootBuildState.run(DefaultRootBuildState.java:130)
-	at org.gradle.launcher.exec.RootBuildLifecycleBuildActionExecutor.execute(RootBuildLifecycleBuildActionExecutor.java:54)
-	at org.gradle.internal.buildtree.InitDeprecationLoggingActionExecutor.execute(InitDeprecationLoggingActionExecutor.java:62)
-	at org.gradle.internal.buildtree.InitProblems.execute(InitProblems.java:36)
-	at org.gradle.internal.buildtree.DefaultBuildTreeContext.execute(DefaultBuildTreeContext.java:40)
-	at org.gradle.launcher.exec.BuildTreeLifecycleBuildActionExecutor.lambda$execute$0(BuildTreeLifecycleBuildActionExecutor.java:71)
-	at org.gradle.internal.buildtree.BuildTreeState.run(BuildTreeState.java:60)
-	at org.gradle.launcher.exec.BuildTreeLifecycleBuildActionExecutor.execute(BuildTreeLifecycleBuildActionExecutor.java:71)
-	at org.gradle.launcher.exec.RunAsBuildOperationBuildActionExecutor$2.call(RunAsBuildOperationBuildActionExecutor.java:67)
-	at org.gradle.launcher.exec.RunAsBuildOperationBuildActionExecutor$2.call(RunAsBuildOperationBuildActionExecutor.java:63)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:210)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:205)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:67)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:60)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:167)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:60)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner.call(DefaultBuildOperationRunner.java:54)
-	at org.gradle.launcher.exec.RunAsBuildOperationBuildActionExecutor.execute(RunAsBuildOperationBuildActionExecutor.java:63)
-	at org.gradle.launcher.exec.RunAsWorkerThreadBuildActionExecutor.lambda$execute$0(RunAsWorkerThreadBuildActionExecutor.java:36)
-	at org.gradle.internal.work.DefaultWorkerLeaseService.withLocks(DefaultWorkerLeaseService.java:263)
-	at org.gradle.internal.work.DefaultWorkerLeaseService.runAsWorkerThread(DefaultWorkerLeaseService.java:127)
-	at org.gradle.launcher.exec.RunAsWorkerThreadBuildActionExecutor.execute(RunAsWorkerThreadBuildActionExecutor.java:36)
-	at org.gradle.tooling.internal.provider.continuous.ContinuousBuildActionExecutor.execute(ContinuousBuildActionExecutor.java:110)
-	at org.gradle.tooling.internal.provider.SubscribableBuildActionExecutor.execute(SubscribableBuildActionExecutor.java:64)
-	at org.gradle.internal.session.DefaultBuildSessionContext.execute(DefaultBuildSessionContext.java:46)
-	at org.gradle.internal.buildprocess.execution.BuildSessionLifecycleBuildActionExecutor$ActionImpl.apply(BuildSessionLifecycleBuildActionExecutor.java:92)
-	at org.gradle.internal.buildprocess.execution.BuildSessionLifecycleBuildActionExecutor$ActionImpl.apply(BuildSessionLifecycleBuildActionExecutor.java:80)
-	at org.gradle.internal.session.BuildSessionState.run(BuildSessionState.java:73)
-	at org.gradle.internal.buildprocess.execution.BuildSessionLifecycleBuildActionExecutor.execute(BuildSessionLifecycleBuildActionExecutor.java:62)
-	at org.gradle.internal.buildprocess.execution.BuildSessionLifecycleBuildActionExecutor.execute(BuildSessionLifecycleBuildActionExecutor.java:41)
-	at org.gradle.internal.buildprocess.execution.StartParamsValidatingActionExecutor.execute(StartParamsValidatingActionExecutor.java:64)
-	at org.gradle.internal.buildprocess.execution.StartParamsValidatingActionExecutor.execute(StartParamsValidatingActionExecutor.java:32)
-	at org.gradle.internal.buildprocess.execution.SessionFailureReportingActionExecutor.execute(SessionFailureReportingActionExecutor.java:51)
-	at org.gradle.internal.buildprocess.execution.SessionFailureReportingActionExecutor.execute(SessionFailureReportingActionExecutor.java:39)
-	at org.gradle.internal.buildprocess.execution.SetupLoggingActionExecutor.execute(SetupLoggingActionExecutor.java:47)
-	at org.gradle.internal.buildprocess.execution.SetupLoggingActionExecutor.execute(SetupLoggingActionExecutor.java:31)
-	at org.gradle.launcher.daemon.server.exec.ExecuteBuild.doBuild(ExecuteBuild.java:70)
-	at org.gradle.launcher.daemon.server.exec.BuildCommandOnly.execute(BuildCommandOnly.java:37)
-	at org.gradle.launcher.daemon.server.api.DaemonCommandExecution.proceed(DaemonCommandExecution.java:104)
-	at org.gradle.launcher.daemon.server.exec.WatchForDisconnection.execute(WatchForDisconnection.java:39)
-	at org.gradle.launcher.daemon.server.api.DaemonCommandExecution.proceed(DaemonCommandExecution.java:104)
-	at org.gradle.launcher.daemon.server.exec.ResetDeprecationLogger.execute(ResetDeprecationLogger.java:29)
-	at org.gradle.launcher.daemon.server.api.DaemonCommandExecution.proceed(DaemonCommandExecution.java:104)
-	at org.gradle.launcher.daemon.server.exec.RequestStopIfSingleUsedDaemon.execute(RequestStopIfSingleUsedDaemon.java:35)
-	at org.gradle.launcher.daemon.server.api.DaemonCommandExecution.proceed(DaemonCommandExecution.java:104)
-	at org.gradle.launcher.daemon.server.exec.ForwardClientInput.lambda$execute$0(ForwardClientInput.java:40)
-	at org.gradle.internal.daemon.clientinput.ClientInputForwarder.forwardInput(ClientInputForwarder.java:80)
-	at org.gradle.launcher.daemon.server.exec.ForwardClientInput.execute(ForwardClientInput.java:37)
-	at org.gradle.launcher.daemon.server.api.DaemonCommandExecution.proceed(DaemonCommandExecution.java:104)
-	at org.gradle.launcher.daemon.server.exec.LogAndCheckHealth.execute(LogAndCheckHealth.java:64)
-	at org.gradle.launcher.daemon.server.api.DaemonCommandExecution.proceed(DaemonCommandExecution.java:104)
-	at org.gradle.launcher.daemon.server.exec.LogToClient.doBuild(LogToClient.java:63)
-	at org.gradle.launcher.daemon.server.exec.BuildCommandOnly.execute(BuildCommandOnly.java:37)
-	at org.gradle.launcher.daemon.server.api.DaemonCommandExecution.proceed(DaemonCommandExecution.java:104)
-	at org.gradle.launcher.daemon.server.exec.EstablishBuildEnvironment.doBuild(EstablishBuildEnvironment.java:84)
-	at org.gradle.launcher.daemon.server.exec.BuildCommandOnly.execute(BuildCommandOnly.java:37)
-	at org.gradle.launcher.daemon.server.api.DaemonCommandExecution.proceed(DaemonCommandExecution.java:104)
-	at org.gradle.launcher.daemon.server.exec.StartBuildOrRespondWithBusy$1.run(StartBuildOrRespondWithBusy.java:52)
-	at org.gradle.launcher.daemon.server.DaemonStateCoordinator.lambda$runCommand$0(DaemonStateCoordinator.java:321)
-	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)
-	at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:48)
-	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
-	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
-	at java.base/java.lang.Thread.run(Unknown Source)
-Caused by: com.android.ide.common.process.ProcessException: Error while executing process C:\Users\DEVENDRA\AppData\Local\Android\Sdk\cmake\3.22.1\bin\cmake.exe with arguments {-HC:\Android\DevsonPlayer\app\src\main\cpp -DCMAKE_SYSTEM_NAME=Android -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_SYSTEM_VERSION=26 -DANDROID_ABI=arm64-v8a -DCMAKE_ANDROID_ARCH_ABI=arm64-v8a -DANDROID_NDK=C:\Users\DEVENDRA\AppData\Local\Android\Sdk\ndk\27.0.12077973 -DCMAKE_ANDROID_NDK=C:\Users\DEVENDRA\AppData\Local\Android\Sdk\ndk\27.0.12077973 -DCMAKE_TOOLCHAIN_FILE=C:\Users\DEVENDRA\AppData\Local\Android\Sdk\ndk\27.0.12077973\build\cmake\android.toolchain.cmake -DCMAKE_MAKE_PROGRAM=C:\Users\DEVENDRA\AppData\Local\Android\Sdk\cmake\3.22.1\bin\ninja.exe -DCMAKE_CXX_FLAGS=-std=c++17 -ffast-math -O2 -DANDROID -DNDEBUG -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=C:\Android\DevsonPlayer\app\build\intermediates\cxx\Debug\m4c96o45\obj\arm64-v8a -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=C:\Android\DevsonPlayer\app\build\intermediates\cxx\Debug\m4c96o45\obj\arm64-v8a -DCMAKE_BUILD_TYPE=Debug -BC:\Android\DevsonPlayer\app\.cxx\Debug\m4c96o45\arm64-v8a -GNinja -DANDROID_STL=c++_shared -DANDROID_PLATFORM=android-26 -DFFMPEG_JNI_DIR=C:\Android\DevsonPlayer\app\build/ffmpeg-jni}
-	at com.android.build.gradle.internal.process.GradleProcessResult.buildProcessException(GradleProcessResult.java:73)
-	at com.android.build.gradle.internal.process.GradleProcessResult.assertNormalExitValue(GradleProcessResult.java:48)
-	at com.android.build.gradle.internal.cxx.process.ExecuteProcessKt.execute(ExecuteProcess.kt:277)
-	... 189 more
-Caused by: org.gradle.process.internal.ExecException: Process 'command 'C:\Users\DEVENDRA\AppData\Local\Android\Sdk\cmake\3.22.1\bin\cmake.exe'' finished with non-zero exit value 1
-	at org.gradle.process.internal.DefaultExecHandle$ExecResultImpl.assertNormalExitValue(DefaultExecHandle.java:442)
-	at com.android.build.gradle.internal.process.GradleProcessResult.assertNormalExitValue(GradleProcessResult.java:46)
-	... 190 more
-
-
+--------- beginning of system
+2026-03-16 14:24:28.436 21099-21099 Quality                 com.devson.devsonplayer              I  ActivityThread: createClassLoader delay 4085 /data/app/~~uHnxiDhS0VQPSEEqt6g4ZQ==/com.devson.devsonplayer-rcle62koJoy6oK1duXrYsQ==/base.apk 21099
+2026-03-16 14:24:28.441 21099-21099 Quality                 com.devson.devsonplayer              I  ActivityThread: createOrUpdateClassLoaderLocked delay 4093 com.devson.devsonplayer 21099
+2026-03-16 14:24:28.625 21099-21099 Quality                 com.devson.devsonplayer              I  ActivityThread: bindApplication delay 4428 com.devson.devsonplayer 21099
+2026-03-16 14:24:28.647 21099-21696 Quality                 com.devson.devsonplayer              I  Blocked msg = Package name: com.devson.devsonplayer [ schedGroup: 5 schedPolicy: 0 ] process the message: { when=-4s574ms what=110 target=android.app.ActivityThread$H obj=AppBindData{appInfo=ApplicationInfo{7ed0134 com.devson.devsonplayer}} } took 4428 ms
+2026-03-16 14:24:28.963 21099-21099 Quality                 com.devson.devsonplayer              I  ActivityThread: activityStart delay 320 com.devson.devsonplayer 21099
+2026-03-16 14:24:28.980 21099-21099 OplusInputMethodUtil    com.devson.devsonplayer              D  init sDebug to false, init sDebugIme to false, init sAlwaysOn to false
+2026-03-16 14:24:28.980 21099-21099 OplusInputMethodUtil    com.devson.devsonplayer              D  updateDebugToClass InputMethodManager.DEBUG = false
+2026-03-16 14:24:28.980 21099-21099 OplusInputMethodUtil    com.devson.devsonplayer              D  updateDebugToClass ImeFocusController.DEBUG = false
+2026-03-16 14:24:28.980 21099-21099 OplusInputMethodUtil    com.devson.devsonplayer              D  updateDebugToClass BaseInputConnection.DEBUG = false
+2026-03-16 14:24:28.980 21099-21099 OplusInputMethodUtil    com.devson.devsonplayer              D  updateDebugToClass ImeFocusController.sDebugIme = false
+2026-03-16 14:24:29.095 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: false 0 cost 4.9568458 refreshRate 16742907 bit true processName com.devson.devsonplayer
+--------- beginning of main
+2026-03-16 14:24:29.643 21099-21099 on.devsonplayer         com.devson.devsonplayer              I  hiddenapi: Accessing hidden method Landroid/os/SystemProperties;->addChangeCallback(Ljava/lang/Runnable;)V (runtime_flags=0, domain=platform, api=unsupported) from Landroidx/compose/ui/platform/AndroidComposeView$Companion; (domain=app, TargetSdkVersion=36) using reflection: allowed
+2026-03-16 14:24:29.665 21099-21099 Vibrator                com.devson.devsonplayer              D  SystemVibrator Created
+2026-03-16 14:24:30.126 21099-21099 BufferQueueConsumer     com.devson.devsonplayer              D  [](id:526b00000000,api:0,p:-1,c:21099) connect: controlledByApp=false
+2026-03-16 14:24:30.133 21099-21099 ExtensionsLoader        com.devson.devsonplayer              D  createInstance(64bit) : createExtendedFactory
+2026-03-16 14:24:30.133 21099-21099 ExtensionsLoader        com.devson.devsonplayer              D  Opened libSchedAssistExtImpl.so
+2026-03-16 14:24:30.147 21099-21099 ZoomWindowDecorView     com.devson.devsonplayer              V  setLastReportedMergedConfiguration mZoomDisplayHeight: 1600 getDecorView.242388431
+2026-03-16 14:24:30.161 21099-21721 libMEOW                 com.devson.devsonplayer              D  meow new tls: 0xb400006f11a60280
+2026-03-16 14:24:30.161 21099-21721 libMEOW                 com.devson.devsonplayer              D  applied 1 plugins for [com.devson.devsonplayer]:
+2026-03-16 14:24:30.161 21099-21721 libMEOW                 com.devson.devsonplayer              D    plugin 1: [libMEOW_gift.so]: 0xb400006f761ebb80
+2026-03-16 14:24:30.161 21099-21721 libMEOW                 com.devson.devsonplayer              D  rebuild call chain: 0xb400006f11a6fb40
+2026-03-16 14:24:30.230 21099-21099 VRI[MainActivity]       com.devson.devsonplayer              D  registerCallbacksForSync syncBuffer=false
+2026-03-16 14:24:30.237 21099-21721 OpenGLRenderer          com.devson.devsonplayer              E  Device claims wide gamut support, cannot find matching config, error = EGL_SUCCESS
+2026-03-16 14:24:30.238 21099-21721 OpenGLRenderer          com.devson.devsonplayer              W  Failed to initialize 101010-2 format, error = EGL_SUCCESS
+2026-03-16 14:24:30.249 21099-21721 skia                    com.devson.devsonplayer              D  GrGLMakeAssembledInterface verStr OpenGL ES 3.2 v1.r32p1-01eac0.2a893c04ca0026c2e6802dbe7d7af5c5
+2026-03-16 14:24:30.252 21099-21721 skia                    com.devson.devsonplayer              D  GrGLMakeAssembledGLESInterface verStr OpenGL ES 3.2 v1.r32p1-01eac0.2a893c04ca0026c2e6802dbe7d7af5c5
+2026-03-16 14:24:30.252 21099-21721 skia                    com.devson.devsonplayer              D  extensions init verString=OpenGL ES 3.2 v1.r32p1-01eac0.2a893c04ca0026c2e6802dbe7d7af5c5
+2026-03-16 14:24:30.276 21099-21721 Quality                 com.devson.devsonplayer              I  ActivityThread: setSurface delay 126 com.devson.devsonplayer 21099
+2026-03-16 14:24:30.331 21099-21721 hw-ProcessState         com.devson.devsonplayer              D  Binder ioctl to enable oneway spam detection failed: Invalid argument
+2026-03-16 14:24:30.359 21099-21721 mali                    com.devson.devsonplayer              I  [DebugProp] GPU Debug-Mechanism Disable !
+2026-03-16 14:24:30.653 21099-21768 Quality                 com.devson.devsonplayer              I  stackInfo :----- pid 21099 at 2026-03-16 14:24:30.596 -----;Cmd line: com.devson.devsonplayer;"main" prio=5 tid=2 RUNNABLE sysTid=21099;  at android.graphics.HardwareRenderer.nSetStopped(Native Method);  at android.graphics.HardwareRenderer.setStopped(HardwareRenderer.java:517);  at android.view.ViewRootImpl.performDraw(ViewRootImpl.java:4629);  at android.view.ViewRootImpl.performTraversals(ViewRootImpl.java:3774);  at android.view.ViewRootImpl.doTraversal(ViewRootImpl.java:2474);  at android.view.ViewRootImpl$TraversalRunnable.run(ViewRootImpl.java:9482);  at android.view.Choreographer$CallbackRecord.run(Choreographer.java:1412);  at android.view.Choreographer$CallbackRecord.run(Choreographer.java:1420);  at android.view.Choreographer.doCallbacks(Choreographer.java:1047);  at android.view.ChoreographerExtImpl.checkScrollOptSceneEnable(ChoreographerExtImpl.java:450);  at android.view.Choreographer.doFrame(Choreographer.java:918);  at android.view.Choreographer$FrameDisplayEventReceiver.run(Choreographer.java:1395);  at android.os.Handler.handleCallback(Handler.java:942);  at android.os.Handler.dispatchMessage(Handler.java:99);  at android.os.Looper.loopOnce(Looper.java:240);  at android.os.Looper.loop(Looper.java:351);  at android.app.ActivityThread.main(ActivityThread.java:8370);  at java.lang.reflect.Method.invoke(Native Method);  at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:568);  at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:1013);
+2026-03-16 14:24:30.732 21099-21721 BLASTBufferQueue        com.devson.devsonplayer              D  [VRI[MainActivity]#0](f:0,a:1) acquireNextBufferLocked size=720x1600 mFrameNumber=1 applyTransaction=true mTimestamp=280193299815623(auto) mPendingTransactions.size=0 graphicBufferId=90619514978304 transform=0
+2026-03-16 14:24:30.733 21099-21721 VRI[MainActivity]       com.devson.devsonplayer              D  Received frameCommittedCallback lastAttemptedDrawFrameNum=1 didProduceBuffer=true syncBuffer=false
+2026-03-16 14:24:30.739 21099-21721 Parcel                  com.devson.devsonplayer              W  Expecting binder but got null!
+2026-03-16 14:24:30.741 21099-21099 VRI[MainActivity]       com.devson.devsonplayer              D  draw finished.
+2026-03-16 14:24:30.747 21099-21099 DynamicFra...igManager] com.devson.devsonplayer              I  initFrameRateConfig: 
+                                                                                                    	levels: [120, 60, 40, 30]
+                                                                                                    	thresholds: [400, 80, 30]
+                                                                                                    	scrollbar fade frame rate: 0
+2026-03-16 14:24:30.748 21099-21099 DynamicFra...igManager] com.devson.devsonplayer              I  FRTCConfigManager: FRTC_CAPABILITY = 120, package name = com.devson.devsonplayer, PACKAGE_ENABLE = false
+2026-03-16 14:24:30.748 21099-21099 DynamicFra...ontroller] com.devson.devsonplayer              I  init info: mPackageName = com.devson.devsonplayer, mIsEnabled = false
+2026-03-16 14:24:30.749 21099-21099 ANR_LOG                 com.devson.devsonplayer              E  Blocked msg = { when=+1s654ms what=0 target=android.view.Choreographer$FrameHandler callback=android.view.Choreographer$FrameDisplayEventReceiver } , cost  = 1654 ms
+2026-03-16 14:24:30.749 21099-21099 Quality                 com.devson.devsonplayer              I  ActivityThread: doFrame delay 1654 com.devson.devsonplayer 21099
+2026-03-16 14:24:30.752 21099-21194 OpenGLRenderer          com.devson.devsonplayer              I  Davey! duration=2130ms; Flags=1, FrameTimelineVsyncId=51943343, IntendedVsync=280191171367796, Vsync=280191656912099, InputEventId=0, HandleInputStart=280191664563315, AnimationStart=280191664582930, PerformTraversalsStart=280191664917699, DrawStart=280192845773084, FrameDeadline=280191191367796, FrameInterval=280191663778622, FrameStartTime=16742907, SyncQueued=280192865416161, SyncStart=280192865595930, IssueDrawCommandsStart=280192873500161, SwapBuffers=280193296178007, FrameCompleted=280193301821084, DequeueBufferDuration=23676615, QueueBufferDuration=1758461, GpuCompleted=280193301821084, SwapBuffersCompleted=280193301812469, DisplayPresentTime=0, CommandSubmissionCompleted=280193296178007, 
+2026-03-16 14:24:30.752 21099-21696 Quality                 com.devson.devsonplayer              I  Blocked msg = Package name: com.devson.devsonplayer [ schedGroup: 5 schedPolicy: 0 ] process the message: { when=-2s146ms what=0 target=android.view.Choreographer$FrameHandler callback=android.view.Choreographer$FrameDisplayEventReceiver } took 1654 ms
+2026-03-16 14:24:30.774 21099-21099 Choreographer           com.devson.devsonplayer              I  Skipped 90 frames!  The application may be doing too much work on its main thread.
+2026-03-16 14:24:30.775 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: true 90 cost 1519.2544 refreshRate 16736357 bit true processName com.devson.devsonplayer
+2026-03-16 14:24:31.328 21099-21099 Quality                 com.devson.devsonplayer              I  ActivityThread: doFrame delay 555 com.devson.devsonplayer 21099
+2026-03-16 14:24:31.329 21099-21099 VRI[MainActivity]       com.devson.devsonplayer              D  onFocusEvent true
+2026-03-16 14:24:31.339 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: false 18 cost 315.81152 refreshRate 16705306 bit true processName com.devson.devsonplayer
+2026-03-16 14:24:31.386 21099-21099 VRI[MainActivity]       com.devson.devsonplayer              D  registerCallbacksForSync syncBuffer=false
+2026-03-16 14:24:31.400 21099-21721 VRI[MainActivity]       com.devson.devsonplayer              D  Received frameCommittedCallback lastAttemptedDrawFrameNum=3 didProduceBuffer=false syncBuffer=false
+2026-03-16 14:24:31.401 21099-21099 VRI[MainActivity]       com.devson.devsonplayer              D  draw finished.
+2026-03-16 14:24:31.416 21099-21194 OpenGLRenderer          com.devson.devsonplayer              I  Davey! duration=2145ms; Flags=0, FrameTimelineVsyncId=51943429, IntendedVsync=280191823851087, Vsync=280193330123217, InputEventId=0, HandleInputStart=280193344673699, AnimationStart=280193344709469, PerformTraversalsStart=280193611076238, DrawStart=280193867053699, FrameDeadline=280191860587444, FrameInterval=280193343105469, FrameStartTime=16736357, SyncQueued=280193895963623, SyncStart=280193896342007, IssueDrawCommandsStart=280193896545084, SwapBuffers=280193964574084, FrameCompleted=280193970121392, DequeueBufferDuration=39154, QueueBufferDuration=727692, GpuCompleted=280193970121392, SwapBuffersCompleted=280193968566084, DisplayPresentTime=0, CommandSubmissionCompleted=280193964574084, 
+2026-03-16 14:24:31.443 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: true 3 cost 52.097668 refreshRate 16711668 bit true processName com.devson.devsonplayer
+2026-03-16 14:24:31.730 21099-21114 on.devsonplayer         com.devson.devsonplayer              I  Compiler allocated 4797KB to compile void android.view.ViewRootImpl.performTraversals()
+2026-03-16 14:24:31.744 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: true 1 cost 20.57198 refreshRate 16650935 bit true processName com.devson.devsonplayer
+2026-03-16 14:24:32.574 21099-21099 Quality                 com.devson.devsonplayer              I  ActivityThread: doFrame delay 829 com.devson.devsonplayer 21099
+2026-03-16 14:24:32.578 21099-21099 Choreographer           com.devson.devsonplayer              I  Skipped 49 frames!  The application may be doing too much work on its main thread.
+2026-03-16 14:24:32.578 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: false 49 cost 821.1864 refreshRate 16672298 bit true processName com.devson.devsonplayer
+2026-03-16 14:24:32.612 21099-21099 OplusScrollToTopManager com.devson.devsonplayer              D  com.devson.devsonplayer/com.devson.devsonplayer.MainActivity,This DecorView@e728dcf[MainActivity] change focus to true
+2026-03-16 14:24:32.616 21099-21134 OpenGLRenderer          com.devson.devsonplayer              I  Davey! duration=890ms; Flags=0, FrameTimelineVsyncId=51944751, IntendedVsync=280194292752872, Vsync=280194309403807, InputEventId=0, HandleInputStart=280194313443623, AnimationStart=280194313446930, PerformTraversalsStart=280194464766930, DrawStart=280194464974392, FrameDeadline=280194329403807, FrameInterval=280194313324853, FrameStartTime=16650935, SyncQueued=280195142255623, SyncStart=280195142565700, IssueDrawCommandsStart=280195142696546, SwapBuffers=280195177141084, FrameCompleted=280195183934007, DequeueBufferDuration=47000, QueueBufferDuration=411384, GpuCompleted=280195183934007, SwapBuffersCompleted=280195180364546, DisplayPresentTime=0, CommandSubmissionCompleted=280195177141084, 
+2026-03-16 14:24:32.632 21099-21134 OpenGLRenderer          com.devson.devsonplayer              I  Davey! duration=830ms; Flags=0, FrameTimelineVsyncId=51944767, IntendedVsync=280194326074029, Vsync=280195143016631, InputEventId=0, HandleInputStart=280195147448853, AnimationStart=280195147451853, PerformTraversalsStart=280195147453161, DrawStart=280195147592546, FrameDeadline=280194362746327, FrameInterval=280195147260469, FrameStartTime=16672298, SyncQueued=280195148121161, SyncStart=280195180474392, IssueDrawCommandsStart=280195180589392, SwapBuffers=280195182402315, FrameCompleted=280195189424546, DequeueBufferDuration=29308, QueueBufferDuration=833231, GpuCompleted=280195189424546, SwapBuffersCompleted=280195184253469, DisplayPresentTime=0, CommandSubmissionCompleted=280195182402315, 
+2026-03-16 14:24:32.711 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: false 4 cost 68.81845 refreshRate 16696271 bit true processName com.devson.devsonplayer
+2026-03-16 14:24:33.670 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: false 1 cost 25.23412 refreshRate 16703530 bit true processName com.devson.devsonplayer
+2026-03-16 14:24:34.778 21099-22010 ProfileInstaller        com.devson.devsonplayer              D  Installing profile for com.devson.devsonplayer
+2026-03-16 14:24:37.304 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: false 4 cost 68.9143 refreshRate 16701030 bit true processName com.devson.devsonplayer
+2026-03-16 14:24:37.339 21099-21099 OplusInput...erInternal com.devson.devsonplayer              D  get inputMethodManager extension: com.android.internal.view.IInputMethodManager$Stub$Proxy@5dab5a1
+2026-03-16 14:24:37.352 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: true 1 cost 32.921333 refreshRate 16700703 bit true processName com.devson.devsonplayer
+2026-03-16 14:24:37.443 21099-21099 OnBackInvokedCallback   com.devson.devsonplayer              W  OnBackInvokedCallback is not enabled for the application.
+                                                                                                    Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+2026-03-16 14:24:37.447 21099-21099 WindowManager           com.devson.devsonplayer              D  Add to mViews: DecorView@4523080[MainActivity],pkg= com.devson.devsonplayer
+2026-03-16 14:24:37.479 21099-21099 ViewRootImplExtImpl     com.devson.devsonplayer              D  onDisplayChanged -1 for VRI android.view.ViewRootImpl@8e9d4ac
+2026-03-16 14:24:37.481 21099-21099 InputEventReceiver      com.devson.devsonplayer              D  Input log is disabled
+2026-03-16 14:24:37.486 21099-21099 OplusBracketLog         com.devson.devsonplayer              E  [OplusViewMirrorManager] updateHostViewRootIfNeeded, not support android.view.ViewRootImpl@8e9d4ac
+2026-03-16 14:24:37.487 21099-21099 OnBackInvokedCallback   com.devson.devsonplayer              W  OnBackInvokedCallback is not enabled for the application.
+                                                                                                    Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+2026-03-16 14:24:37.789 21099-21099 BufferQueueConsumer     com.devson.devsonplayer              D  [](id:526b00000001,api:0,p:-1,c:21099) connect: controlledByApp=false
+2026-03-16 14:24:37.791 21099-21099 ZoomWindowDecorView     com.devson.devsonplayer              V  setLastReportedMergedConfiguration mZoomDisplayHeight: 1600 getDecorView.72495232
+2026-03-16 14:24:37.851 21099-21099 VRI[MainActivity]       com.devson.devsonplayer              D  registerCallbacksForSync syncBuffer=false
+2026-03-16 14:24:37.910 21099-21721 BLASTBufferQueue        com.devson.devsonplayer              D  [VRI[MainActivity]#1](f:0,a:1) acquireNextBufferLocked size=720x1600 mFrameNumber=1 applyTransaction=true mTimestamp=280200478005700(auto) mPendingTransactions.size=0 graphicBufferId=90619514978311 transform=0
+2026-03-16 14:24:37.910 21099-21721 VRI[MainActivity]       com.devson.devsonplayer              D  Received frameCommittedCallback lastAttemptedDrawFrameNum=1 didProduceBuffer=true syncBuffer=false
+2026-03-16 14:24:37.910 21099-21721 Quality                 com.devson.devsonplayer              I  TaskTrackInfo {"Pkg":com.devson.devsonplayer,"Window":com.devson.devsonplayer.MainActivity,"Type":1,"Action":1,"Cost":590,"FV":16,"JC":16-0-16-16-0-130-368-0-1-3-0-0-0-28-106-57-1-0-2-2-280199904-280199904-280199904-26,"UITid":21099,"RTid":21721,"PreCount":1}
+2026-03-16 14:24:37.911 21099-21721 Parcel                  com.devson.devsonplayer              W  Expecting binder but got null!
+2026-03-16 14:24:37.912 21099-21099 VRI[MainActivity]       com.devson.devsonplayer              D  draw finished.
+2026-03-16 14:24:37.912 21099-21099 Quality                 com.devson.devsonplayer              I  ActivityThread: doFrame delay 560 com.devson.devsonplayer 21099
+2026-03-16 14:24:37.912 21099-21099 VRI[MainActivity]       com.devson.devsonplayer              D  onFocusEvent false
+2026-03-16 14:24:37.913 21099-21099 Choreographer           com.devson.devsonplayer              I  Skipped 32 frames!  The application may be doing too much work on its main thread.
+2026-03-16 14:24:37.913 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: false 32 cost 544.3182 refreshRate 16700703 bit true processName com.devson.devsonplayer
+2026-03-16 14:24:37.953 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: false 1 cost 32.7185 refreshRate 16701771 bit true processName com.devson.devsonplayer
+2026-03-16 14:24:37.981 21099-21099 VRI[MainActivity]       com.devson.devsonplayer              D  registerCallbacksForSync syncBuffer=false
+2026-03-16 14:24:37.988 21099-21721 VRI[MainActivity]       com.devson.devsonplayer              D  Received frameCommittedCallback lastAttemptedDrawFrameNum=3 didProduceBuffer=true syncBuffer=false
+2026-03-16 14:24:37.988 21099-21099 VRI[MainActivity]       com.devson.devsonplayer              D  draw finished.
+2026-03-16 14:24:37.989 21099-21099 VRI[MainActivity]       com.devson.devsonplayer              D  onFocusEvent true
+2026-03-16 14:24:37.997 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: false 1 cost 26.33168 refreshRate 16696977 bit true processName com.devson.devsonplayer
+2026-03-16 14:24:38.021 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: false 1 cost 17.04644 refreshRate 16686360 bit true processName com.devson.devsonplayer
+2026-03-16 14:24:38.234 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: true 11 cost 197.45012 refreshRate 16678965 bit true processName com.devson.devsonplayer
+2026-03-16 14:24:38.337 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: true 4 cost 83.24242 refreshRate 16699200 bit true processName com.devson.devsonplayer
+2026-03-16 14:24:38.952 21099-21099 OplusScrollToTopManager com.devson.devsonplayer              D  com.devson.devsonplayer/com.devson.devsonplayer.MainActivity,This DecorView@e728dcf[MainActivity] change focus to false
+2026-03-16 14:24:39.013 21099-21099 OplusScrollToTopManager com.devson.devsonplayer              D  com.devson.devsonplayer/com.devson.devsonplayer.MainActivity,This DecorView@4523080[MainActivity] change focus to true
+2026-03-16 14:24:39.691 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: false 25 cost 433.61206 refreshRate 16732211 bit true processName com.devson.devsonplayer
+2026-03-16 14:24:39.713 21099-21115 on.devsonplayer         com.devson.devsonplayer              I  Background concurrent copying GC freed 6014KB AllocSpace bytes, 0(0B) LOS objects, 64% free, 6659KB/18MB, paused 154us,57us total 287.222ms
+2026-03-16 14:24:39.771 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: false 2 cost 46.78809 refreshRate 16703878 bit true processName com.devson.devsonplayer
+2026-03-16 14:24:39.796 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: false 1 cost 21.41682 refreshRate 16703093 bit true processName com.devson.devsonplayer
+2026-03-16 14:24:40.078 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: false 1 cost 20.3015 refreshRate 16691429 bit true processName com.devson.devsonplayer
+2026-03-16 14:24:47.150 21099-21099 OplusScrollToTopManager com.devson.devsonplayer              D  com.devson.devsonplayer/com.devson.devsonplayer.MainActivity,window dying
+2026-03-16 14:24:47.150 21099-21099 OplusScrollToTopManager com.devson.devsonplayer              D  com.devson.devsonplayer/com.devson.devsonplayer.MainActivity,unregisterSystemUIBroadcastReceiver 
+2026-03-16 14:24:47.150 21099-21099 OplusScrollToTopManager com.devson.devsonplayer              D  com.devson.devsonplayer/com.devson.devsonplayer.MainActivity, unregisterSystemUIBroadcastReceiver failed java.lang.IllegalArgumentException: Receiver not registered: android.view.OplusScrollToTopManager$2@467dab4
+2026-03-16 14:24:47.192 21099-21099 ZoomWindowDecorView     com.devson.devsonplayer              V  removeZoomView
+2026-03-16 14:24:47.193 21099-21099 OpenGLRenderer          com.devson.devsonplayer              D  RenderProxy::destroy: this=0xb400006f11f35200, mContext=0xb400006ef190af40
+2026-03-16 14:24:47.193 21099-21721 OpenGLRenderer          com.devson.devsonplayer              D  SkiaOpenGLPipeline::setSurface: this=0xb400006f7617c700, surface=NULL
+2026-03-16 14:24:47.196 21099-21099 BLASTBufferQueue        com.devson.devsonplayer              D  [VRI[MainActivity]#1](f:0,a:1) destructor()
+2026-03-16 14:24:47.196 21099-21099 BufferQueueConsumer     com.devson.devsonplayer              D  [VRI[MainActivity]#1(BLAST Consumer)1](id:526b00000001,api:0,p:-1,c:21099) disconnect
+2026-03-16 14:24:47.237 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: false 4 cost 79.980675 refreshRate 16744198 bit true processName com.devson.devsonplayer
+2026-03-16 14:24:47.248 21099-21099 VRI[MainActivity]       com.devson.devsonplayer              D  onFocusEvent true
+2026-03-16 14:24:47.458 21099-21099 on.devsonplayer         com.devson.devsonplayer              I  hiddenapi: Accessing hidden method Landroid/view/ViewTreeObserver;->dispatchOnScrollChanged()V (runtime_flags=0, domain=platform, api=unsupported) from Landroidx/compose/ui/platform/AndroidComposeView$Companion; (domain=app, TargetSdkVersion=36) using reflection: allowed
+2026-03-16 14:24:47.527 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: true 2 cost 36.357296 refreshRate 16703746 bit true processName com.devson.devsonplayer
+2026-03-16 14:24:47.596 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: true 2 cost 39.07867 refreshRate 16698680 bit true processName com.devson.devsonplayer
+2026-03-16 14:24:47.669 21099-21099 ScrollIdentify          com.devson.devsonplayer              I  on fling
+2026-03-16 14:24:47.716 21099-21708 libPerfCtl              com.devson.devsonplayer              I  fbcNotifySbeRescue ret=-1
+2026-03-16 14:24:47.730 21099-21708 libPerfCtl              com.devson.devsonplayer              I  fbcNotifySbeRescue ret=-1
+2026-03-16 14:24:47.731 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: true 2 cost 40.91881 refreshRate 16691669 bit true processName com.devson.devsonplayer
+2026-03-16 14:24:47.748 21099-21708 libPerfCtl              com.devson.devsonplayer              I  fbcNotifySbeRescue ret=-1
+2026-03-16 14:24:47.751 21099-21708 libPerfCtl              com.devson.devsonplayer              I  fbcNotifySbeRescue ret=-1
+2026-03-16 14:24:47.781 21099-21708 libPerfCtl              com.devson.devsonplayer              I  fbcNotifySbeRescue ret=-1
+2026-03-16 14:24:47.784 21099-21708 libPerfCtl              com.devson.devsonplayer              I  fbcNotifySbeRescue ret=-1
+2026-03-16 14:24:47.933 21099-21708 libPerfCtl              com.devson.devsonplayer              I  fbcNotifySbeRescue ret=-1
+2026-03-16 14:24:47.937 21099-21708 libPerfCtl              com.devson.devsonplayer              I  fbcNotifySbeRescue ret=-1
+2026-03-16 14:24:47.950 21099-21708 libPerfCtl              com.devson.devsonplayer              I  fbcNotifySbeRescue ret=-1
+2026-03-16 14:24:47.961 21099-21708 libPerfCtl              com.devson.devsonplayer              I  fbcNotifySbeRescue ret=-1
+2026-03-16 14:24:48.090 21099-21708 libPerfCtl              com.devson.devsonplayer              I  fbcNotifySbeRescue ret=-1
+2026-03-16 14:24:48.097 21099-21708 libPerfCtl              com.devson.devsonplayer              I  fbcNotifySbeRescue ret=-1
+2026-03-16 14:24:48.104 21099-21708 libPerfCtl              com.devson.devsonplayer              I  fbcNotifySbeRescue ret=-1
+2026-03-16 14:24:48.115 21099-21708 libPerfCtl              com.devson.devsonplayer              I  fbcNotifySbeRescue ret=-1
+2026-03-16 14:24:48.123 21099-21708 libPerfCtl              com.devson.devsonplayer              I  fbcNotifySbeRescue ret=-1
+2026-03-16 14:24:48.130 21099-21708 libPerfCtl              com.devson.devsonplayer              I  fbcNotifySbeRescue ret=-1
+2026-03-16 14:24:48.139 21099-21708 libPerfCtl              com.devson.devsonplayer              I  fbcNotifySbeRescue ret=-1
+2026-03-16 14:24:48.143 21099-21708 libPerfCtl              com.devson.devsonplayer              I  fbcNotifySbeRescue ret=-1
+2026-03-16 14:24:48.199 21099-21708 libPerfCtl              com.devson.devsonplayer              I  fbcNotifySbeRescue ret=-1
+2026-03-16 14:24:48.205 21099-21708 libPerfCtl              com.devson.devsonplayer              I  fbcNotifySbeRescue ret=-1
+2026-03-16 14:24:48.253 21099-21099 OplusScrollToTopManager com.devson.devsonplayer              D  com.devson.devsonplayer/com.devson.devsonplayer.MainActivity,This DecorView@e728dcf[MainActivity] change focus to true
+2026-03-16 14:24:48.267 21099-21708 libPerfCtl              com.devson.devsonplayer              I  fbcNotifySbeRescue ret=-1
+2026-03-16 14:24:48.281 21099-21708 libPerfCtl              com.devson.devsonplayer              I  fbcNotifySbeRescue ret=-1
+2026-03-16 14:24:48.594 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: false 1 cost 18.209587 refreshRate 16703820 bit true processName com.devson.devsonplayer
+2026-03-16 14:24:48.602 21099-21708 libPerfCtl              com.devson.devsonplayer              I  fbcNotifySbeRescue ret=-1
+2026-03-16 14:24:48.624 21099-21099 OnBackInvokedCallback   com.devson.devsonplayer              W  OnBackInvokedCallback is not enabled for the application.
+                                                                                                    Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+2026-03-16 14:24:49.064 21099-21708 libPerfCtl              com.devson.devsonplayer              I  fbcNotifySbeRescue ret=-1
+2026-03-16 14:24:49.070 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: false 24 cost 410.50095 refreshRate 16703820 bit true processName com.devson.devsonplayer
+2026-03-16 14:24:49.073 21099-21708 libPerfCtl              com.devson.devsonplayer              I  fbcNotifySbeRescue ret=-1
+2026-03-16 14:24:49.078 21099-21708 libPerfCtl              com.devson.devsonplayer              I  fbcNotifySbeRescue ret=-1
+2026-03-16 14:24:49.135 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: false 1 cost 24.796803 refreshRate 16711415 bit true processName com.devson.devsonplayer
+2026-03-16 14:24:54.802 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: false 1 cost 30.477383 refreshRate 16701063 bit true processName com.devson.devsonplayer
+2026-03-16 14:24:54.835 21099-21099 OnBackInvokedCallback   com.devson.devsonplayer              W  OnBackInvokedCallback is not enabled for the application.
+                                                                                                    Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+2026-03-16 14:24:54.912 21099-21099 nativeloader            com.devson.devsonplayer              D  Load /data/app/~~uHnxiDhS0VQPSEEqt6g4ZQ==/com.devson.devsonplayer-rcle62koJoy6oK1duXrYsQ==/base.apk!/lib/arm64-v8a/libdevson_player.so using class loader ns clns-4 (caller=/data/app/~~uHnxiDhS0VQPSEEqt6g4ZQ==/com.devson.devsonplayer-rcle62koJoy6oK1duXrYsQ==/base.apk!classes4.dex): ok
+2026-03-16 14:24:55.043 21099-21099 SurfaceView             com.devson.devsonplayer              I  11216180 onAttachedToWindow
+2026-03-16 14:24:55.149 21099-21099 BufferQueueConsumer     com.devson.devsonplayer              D  [](id:526b00000002,api:0,p:-1,c:21099) connect: controlledByApp=false
+2026-03-16 14:24:55.149 21099-21099 IPCThreadState          com.devson.devsonplayer              E  attemptIncStrongHandle(82): Not supported
+2026-03-16 14:24:55.151 21099-21099 SurfaceView             com.devson.devsonplayer              I  11216180 visibleChanged -- surfaceCreated 
+2026-03-16 14:24:55.151 21099-21099 SurfaceView             com.devson.devsonplayer              I  11216180 surfaceChanged -- format=4 w=720 h=1600
+2026-03-16 14:24:55.321 21099-21099 PlayerController        com.devson.devsonplayer              I  VideoInfo: VideoInfo(mimeType=video/avc, width=1280, height=720, bitDepth=8, profile=-1, level=-1, frameRate=30.0)
+2026-03-16 14:24:55.323 21099-21099 DecoderSelector         com.devson.devsonplayer              I  selectDecoder: mime=video/avc 1280x720 8bit
+2026-03-16 14:24:55.364 21099-21099 AudioCapabilities       com.devson.devsonplayer              W  Unsupported mime audio/x-adpcm-dvi-ima
+2026-03-16 14:24:55.364 21099-21099 AudioCapabilities       com.devson.devsonplayer              W  Unsupported mime audio/x-adpcm-dvi-ima
+2026-03-16 14:24:55.365 21099-21099 AudioCapabilities       com.devson.devsonplayer              W  Unsupported mime audio/x-adpcm-ms
+2026-03-16 14:24:55.365 21099-21099 AudioCapabilities       com.devson.devsonplayer              W  Unsupported mime audio/x-adpcm-ms
+2026-03-16 14:24:55.365 21099-21099 AudioCapabilities       com.devson.devsonplayer              W  Unsupported mime audio/alac
+2026-03-16 14:24:55.365 21099-21099 AudioCapabilities       com.devson.devsonplayer              W  Unsupported mime audio/alac
+2026-03-16 14:24:55.366 21099-21099 AudioCapabilities       com.devson.devsonplayer              W  Unsupported mime audio/ape
+2026-03-16 14:24:55.366 21099-21099 AudioCapabilities       com.devson.devsonplayer              W  Unsupported mime audio/ape
+2026-03-16 14:24:55.385 21099-21099 AudioCapabilities       com.devson.devsonplayer              W  Unsupported mime audio/ffmpeg
+2026-03-16 14:24:55.410 21099-21099 VideoCapabilities       com.devson.devsonplayer              W  Unrecognized profile/level 32768/256 for video/mp4v-es
+2026-03-16 14:24:55.411 21099-21099 VideoCapabilities       com.devson.devsonplayer              W  Unrecognized profile/level 32768/256 for video/mp4v-es
+2026-03-16 14:24:55.414 21099-21099 VideoCapabilities       com.devson.devsonplayer              W  Unsupported mime video/x-ms-wmv
+2026-03-16 14:24:55.414 21099-21099 VideoCapabilities       com.devson.devsonplayer              W  Unsupported mime video/x-ms-wmv
+2026-03-16 14:24:55.435 21099-21099 VideoCapabilities       com.devson.devsonplayer              W  Unsupported mime video/ffmpeg
+2026-03-16 14:24:55.437 21099-21099 CodecDetector           com.devson.devsonplayer              I  [H264] hwDecoder=c2.mtk.avc.decoder 10bit=false maxRes=3840x2160
+2026-03-16 14:24:55.438 21099-21099 DecoderSelector         com.devson.devsonplayer              I  Selected HARDWARE decoder: c2.mtk.avc.decoder
+2026-03-16 14:24:55.438 21099-21099 PlayerController        com.devson.devsonplayer              I  Selected decoder: HARDWARE
+2026-03-16 14:24:55.524 21099-21099 ExoPlayerImpl           com.devson.devsonplayer              I  Init 72d8dc [AndroidXMedia3/1.5.1] [RED8AF, RMX3430, realme, 33]
+2026-03-16 14:24:55.635 21099-21099 on.devsonplayer         com.devson.devsonplayer              I  hiddenapi: Accessing hidden method Landroid/media/AudioTrack;->getLatency()I (runtime_flags=0, domain=platform, api=unsupported) from Landroidx/media3/exoplayer/audio/AudioTrackPositionTracker; (domain=app, TargetSdkVersion=36) using reflection: allowed
+2026-03-16 14:24:55.764 21099-21099 Choreographer           com.devson.devsonplayer              I  Skipped 54 frames!  The application may be doing too much work on its main thread.
+2026-03-16 14:24:55.764 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: false 54 cost 908.4892 refreshRate 16700012 bit true processName com.devson.devsonplayer
+2026-03-16 14:24:55.813 21099-21099 SurfaceView             com.devson.devsonplayer              I  11216180 surfaceChanged -- format=4 w=720 h=405
+2026-03-16 14:24:55.899 21099-21194 OpenGLRenderer          com.devson.devsonplayer              I  Davey! duration=1042ms; Flags=0, FrameTimelineVsyncId=51947686, IntendedVsync=280217424430421, Vsync=280218326231069, InputEventId=0, HandleInputStart=280218333312470, AnimationStart=280218333316162, PerformTraversalsStart=280218356775855, DrawStart=280218374597162, FrameDeadline=280217461036815, FrameInterval=280218332919624, FrameStartTime=16606394, SyncQueued=280218390376855, SyncStart=280218390561778, IssueDrawCommandsStart=280218391267239, SwapBuffers=280218460380547, FrameCompleted=280218467037162, DequeueBufferDuration=70692, QueueBufferDuration=805846, GpuCompleted=280218467037162, SwapBuffersCompleted=280218462962932, DisplayPresentTime=280210407270700, CommandSubmissionCompleted=280218460380547, 
+2026-03-16 14:24:56.068 21099-21099 Quality                 com.devson.devsonplayer              I  SlowBinder: com.devson.devsonplayer to android.app.IActivityClientController cost= 226 code= 26
+2026-03-16 14:24:56.071 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: false 17 cost 298.1094 refreshRate 16629481 bit true processName com.devson.devsonplayer
+2026-03-16 14:24:56.097 21099-22233 MediaCodecInfo          com.devson.devsonplayer              D  NoSupport [codec.profileLevel, hvc1.2.4.L93.90, video/hevc] [c2.mtk.hevc.decoder, video/hevc] [RED8AF, RMX3430, realme, 33]
+2026-03-16 14:24:56.097 21099-22233 MediaCodecInfo          com.devson.devsonplayer              D  NoSupport [codec.profileLevel, hvc1.2.4.L93.90, video/hevc] [c2.android.hevc.decoder, video/hevc] [RED8AF, RMX3430, realme, 33]
+2026-03-16 14:24:56.098 21099-22233 MediaCodecInfo          com.devson.devsonplayer              D  NoSupport [codec.profileLevel, hvc1.2.4.L93.90, video/hevc] [c2.mtk.hevc.decoder, video/hevc] [RED8AF, RMX3430, realme, 33]
+2026-03-16 14:24:56.098 21099-22233 MediaCodecInfo          com.devson.devsonplayer              D  NoSupport [codec.profileLevel, hvc1.2.4.L93.90, video/hevc] [c2.android.hevc.decoder, video/hevc] [RED8AF, RMX3430, realme, 33]
+2026-03-16 14:24:56.193 21099-21099 ViewRootImplExtImpl     com.devson.devsonplayer              D  onDisplayChanged 0 for VRI android.view.ViewRootImpl@bbf4506
+2026-03-16 14:24:56.214 21099-21099 ZoomWindowDecorView     com.devson.devsonplayer              V  setLastReportedMergedConfiguration mZoomDisplayHeight: 720 getDecorView.242388431
+2026-03-16 14:24:56.218 21099-22233 MediaCodecInfo          com.devson.devsonplayer              D  NoSupport [codec.profileLevel, hvc1.2.4.L93.90, video/hevc] [c2.mtk.hevc.decoder, video/hevc] [RED8AF, RMX3430, realme, 33]
+2026-03-16 14:24:56.218 21099-22233 MediaCodecInfo          com.devson.devsonplayer              D  NoSupport [codec.profileLevel, hvc1.2.4.L93.90, video/hevc] [c2.android.hevc.decoder, video/hevc] [RED8AF, RMX3430, realme, 33]
+2026-03-16 14:24:56.219 21099-22233 DMCodecAdapterFactory   com.devson.devsonplayer              I  Creating an asynchronous MediaCodec adapter for track type video
+2026-03-16 14:24:56.221 21099-22233 MediaCodec              com.devson.devsonplayer              D  CreateByComponentName: name c2.mtk.hevc.decoder
+2026-03-16 14:24:56.238 21099-22233 CCodecBufferChannel     com.devson.devsonplayer              D  mBufferCountDebug=0 mIsUserLoad=1
+2026-03-16 14:24:56.238 21099-22233 OplusCCodec             com.devson.devsonplayer              D  OplusCCodec [164]: (0xb400006ef0988200)
+2026-03-16 14:24:56.240 21099-22233 libc                    com.devson.devsonplayer              W  Access denied finding property "vendor.oplus.media.vpp.stutter"
+2026-03-16 14:24:56.240 21099-22233 ListServiceUtils        com.devson.devsonplayer              D  mListServiceUtils::init CallingPid 21099
+2026-03-16 14:24:56.240 21099-22233 ListServiceUtils        com.devson.devsonplayer              D  mListServiceUtils::init this 0xb400006ef96b6c80
+2026-03-16 14:24:56.241 21099-22233 ListServiceUtils        com.devson.devsonplayer              V  checkInListByUid module:sr-osie-whitelist uid:10464 cost 690us return 0
+2026-03-16 14:24:56.241 21099-22233 ListServiceUtils        com.devson.devsonplayer              V  checkInListByUid start module:video-setsurface-error uid:10464  time 280218810302us
+2026-03-16 14:24:56.241 21099-22233 ListServiceUtils        com.devson.devsonplayer              V  checkInListByUid end module:video-setsurface-error uid:10464  time 280218810564us
+2026-03-16 14:24:56.241 21099-22233 ListServiceUtils        com.devson.devsonplayer              D  checkInListByUid module:video-setsurface-error uid:10464 cost 262us return 0
+2026-03-16 14:24:56.242 21099-22233 CCodecBufferChannel     com.devson.devsonplayer              D  mBufferCountDebug=0 mIsUserLoad=1
+2026-03-16 14:24:56.242 21099-22233 MediaCodec              com.devson.devsonplayer              D  [0xb400006ef9749000] init: CCodec 0xb400006ef0988200, CCodecBufferChannel 0xb400006ef9773618
+2026-03-16 14:24:56.242 21099-22240 MediaCodec              com.devson.devsonplayer              D  [0xb400006ef9749000] setState: 1
+2026-03-16 14:24:56.248 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: false 9 cost 157.13013 refreshRate 16666667 bit true processName com.devson.devsonplayer
+2026-03-16 14:24:56.259 21099-22242 CCodec                  com.devson.devsonplayer              D  allocate(c2.mtk.hevc.decoder)
+2026-03-16 14:24:56.272 21099-22242 Codec2Client            com.devson.devsonplayer              I  Available Codec2 services: "default" "software"
+2026-03-16 14:24:56.296 21099-22242 CCodec                  com.devson.devsonplayer              I  setting up 'default' as default (vendor) store
+2026-03-16 14:24:56.350 21099-22242 CCodec                  com.devson.devsonplayer              I  Created component [c2.mtk.hevc.decoder]
+2026-03-16 14:24:56.350 21099-22242 CCodecBufferChannel     com.devson.devsonplayer              D  [0xb400006ef9773618] setComponent: mName c2.mtk.hevc.decoder#737, mPipelineWatcher 0xb400006ef9773a80
+2026-03-16 14:24:56.350 21099-22242 CCodecBufferChannel     com.devson.devsonplayer              D  PipelineWatcher debug info [c2.mtk.hevc.decoder#737] enable=0
+2026-03-16 14:24:56.354 21099-22242 CCodecConfig            com.devson.devsonplayer              D  read media type: video/hevc
+2026-03-16 14:24:56.358 21099-22242 ReflectedParamUpdater   com.devson.devsonplayer              D  extent() != 1 for single value type: algo.buffers.max-count.values
+2026-03-16 14:24:56.358 21099-22242 ReflectedParamUpdater   com.devson.devsonplayer              D  extent() != 1 for single value type: output.subscribed-indices.values
+2026-03-16 14:24:56.359 21099-22242 ReflectedParamUpdater   com.devson.devsonplayer              D  extent() != 1 for single value type: input.buffers.allocator-ids.values
+2026-03-16 14:24:56.359 21099-22242 ReflectedParamUpdater   com.devson.devsonplayer              D  extent() != 1 for single value type: output.buffers.allocator-ids.values
+2026-03-16 14:24:56.359 21099-22242 ReflectedParamUpdater   com.devson.devsonplayer              D  extent() != 1 for single value type: algo.buffers.allocator-ids.values
+2026-03-16 14:24:56.359 21099-22242 ReflectedParamUpdater   com.devson.devsonplayer              D  extent() != 1 for single value type: output.buffers.pool-ids.values
+2026-03-16 14:24:56.359 21099-22242 ReflectedParamUpdater   com.devson.devsonplayer              D  extent() != 1 for single value type: algo.buffers.pool-ids.values
+2026-03-16 14:24:56.362 21099-22242 ReflectedParamUpdater   com.devson.devsonplayer              D  ignored struct field coded.color-format.locations
+2026-03-16 14:24:56.366 21099-22242 CCodecConfig            com.devson.devsonplayer              D  ignoring local param raw.size (0xd2001800) as it is already supported
+2026-03-16 14:24:56.366 21099-22242 CCodecConfig            com.devson.devsonplayer              D  ignoring local param raw.crop (0xd2001801) as it is already supported
+2026-03-16 14:24:56.366 21099-22242 CCodecConfig            com.devson.devsonplayer              D  ignoring local param default.color (0x5200180b) as it is already supported
+2026-03-16 14:24:56.366 21099-22242 CCodecConfig            com.devson.devsonplayer              D  ignoring local param raw.hdr-static-info (0xd200180a) as it is already supported
+2026-03-16 14:24:56.372 21099-22242 CCodecConfig            com.devson.devsonplayer              I  query failed after returning 17 values (BAD_INDEX)
+2026-03-16 14:24:56.372 21099-22242 CCodecConfig            com.devson.devsonplayer              D  c2 config diff is Dict {
+                                                                                                      c2::i32 algo.priority.value = 1
+                                                                                                      c2::float algo.rate.value = 0
+                                                                                                      c2::float coded.frame-rate.value = 30
+                                                                                                      c2::u32 coded.pl.level = 24834
+                                                                                                      c2::u32 coded.pl.profile = 20481
+                                                                                                      c2::u32 coded.vui.color.matrix = 0
+                                                                                                      c2::u32 coded.vui.color.primaries = 0
+                                                                                                      c2::u32 coded.vui.color.range = 2
+                                                                                                      c2::u32 coded.vui.color.transfer = 0
+                                                                                                      c2::u32 default.color.matrix = 0
+                                                                                                      c2::u32 default.color.primaries = 0
+                                                                                                      c2::u32 default.color.range = 0
+                                                                                                      c2::u32 default.color.transfer = 0
+                                                                                                      c2::u32 input.buffers.max-size.value = 2097152
+                                                                                                      c2::u32 input.delay.value = 4
+                                                                                                      string input.media-type.value = "video/hevc"
+                                                                                                      c2::u32 output.delay.value = 12
+                                                                                                      string output.media-type.value = "video/raw"
+                                                                                                      c2::u32 raw.color.matrix = 0
+                                                                                                      c2::u32 raw.color.primaries = 0
+                                                                                                      c2::u32 raw.color.range = 2
+                                                                                                      c2::u32 raw.color.transfer = 0
+                                                                                                      c2::u32 raw.crop.height = 239
+                                                                                                      c2::u32 raw.crop.left = 0
+                                                                                                      c2::u32 raw.crop.top = 0
+                                                                                                      c2::u32 raw.crop.width = 319
+                                                                                                      c2::float raw.hdr-static-info.mastering.blue.x = 0
+                                                                                                      c2::float raw.hdr-
+2026-03-16 14:24:56.373 21099-22242 ColorUtils              com.devson.devsonplayer              W  expected specified color aspects (2:0:0:0)
+2026-03-16 14:24:56.373 21099-22240 MediaCodec              com.devson.devsonplayer              D  [0xb400006ef9749000] setState: 2
+2026-03-16 14:24:56.440 21099-22240 MediaCodec              com.devson.devsonplayer              I  MediaCodec will operate in async mode
+2026-03-16 14:24:56.440 21099-22233 MediaCodec              com.devson.devsonplayer              I  [0xb400006ef9749000] [c2.mtk.hevc.decoder] configure, format : AMessage(what = 0x00000000) = {
+                                                                                                      int32_t max-height = 720
+                                                                                                      string log-session-id = "CKPJx64Mn4mcyi_Z"
+                                                                                                      int32_t max-width = 1280
+                                                                                                      string mime = "video/hevc"
+                                                                                                      int32_t width = 1280
+                                                                                                      int32_t priority = 0
+                                                                                                      int32_t rotation-degrees = 0
+                                                                                                      int32_t max-input-size = 2097152
+                                                                                                      int32_t height = 720
+                                                                                                      Buffer *csd-0 = 0xb400006ef962ef80
+                                                                                                    }
+2026-03-16 14:24:56.441 21099-22240 MediaCodec              com.devson.devsonplayer              D  flushMediametrics
+2026-03-16 14:24:56.442 21099-22240 MediaCodec              com.devson.devsonplayer              D  [0xb400006ef9749000] [c2.mtk.hevc.decoder] connectToSurface: surface 0xb400006ef978b000, mSurface 0x0
+2026-03-16 14:24:56.442 21099-22240 SurfaceUtils            com.devson.devsonplayer              D  connecting to surface 0xb400006ef978b010, reason connectToSurface
+2026-03-16 14:24:56.442 21099-22240 MediaCodec              com.devson.devsonplayer              I  [c2.mtk.hevc.decoder] setting surface generation to 21605377
+2026-03-16 14:24:56.442 21099-22240 SurfaceUtils            com.devson.devsonplayer              D  disconnecting from surface 0xb400006ef978b010, reason connectToSurface(reconnect)
+2026-03-16 14:24:56.442 21099-22240 SurfaceUtils            com.devson.devsonplayer              D  connecting to surface 0xb400006ef978b010, reason connectToSurface(reconnect)
+2026-03-16 14:24:56.442 21099-22240 MediaCodec              com.devson.devsonplayer              D  [0xb400006ef9749000] setState: 3
+2026-03-16 14:24:56.442 21099-22240 MediaCodec              com.devson.devsonplayer              D  [c2.mtk.hevc.decoder] config set c2 sleep timeout 500 kC2SleepTimeoutMs=500
+2026-03-16 14:24:56.442 21099-22240 OplusCCodec             com.devson.devsonplayer              D  [initiateConfigureComponent:L709] OplusFeedbackInfo  mFeedbackID:-5476376670399593984
+2026-03-16 14:24:56.442 21099-22240 AString                 com.devson.devsonplayer              W  ctor got NULL, using empty string instead
+2026-03-16 14:24:56.443 21099-22240 ListServiceUtils        com.devson.devsonplayer              V  checkInListByUid pid:21099 procName: cost 284us return -1
+2026-03-16 14:24:56.443 21099-22240 AtlasEventUploadUtils   com.devson.devsonplayer              D  setEvent event:atlas_event_video_monitor_network_switch
+2026-03-16 14:24:56.443 21099-22240 IAtlas                  com.devson.devsonplayer              D  IAtlas::init CallingPid 21099
+2026-03-16 14:24:56.443 21099-22240 IAtlas                  com.devson.devsonplayer              D  IAtlas::init this 0xb400006ef18a1ac0
+2026-03-16 14:24:56.444 21099-22240 ListServiceUtils        com.devson.devsonplayer              V  checkInListByUid start module:check-first-IRAP uid:10464  time 280219013573us
+2026-03-16 14:24:56.445 21099-22240 ListServiceUtils        com.devson.devsonplayer              V  checkInListByUid end module:check-first-IRAP uid:10464  time 280219013888us
+2026-03-16 14:24:56.445 21099-22240 ListServiceUtils        com.devson.devsonplayer              D  checkInListByUid module:check-first-IRAP uid:10464 cost 315us return 0
+2026-03-16 14:24:56.445 21099-22240 ListServiceUtils        com.devson.devsonplayer              V  checkInListByUid start module:notify-network-optimize uid:10464  time 280219013918us
+2026-03-16 14:24:56.445 21099-22240 ListServiceUtils        com.devson.devsonplayer              V  checkInListByUid end module:notify-network-optimize uid:10464  time 280219014122us
+2026-03-16 14:24:56.445 21099-22240 ListServiceUtils        com.devson.devsonplayer              D  checkInListByUid module:notify-network-optimize uid:10464 cost 203us return 0
+2026-03-16 14:24:56.445 21099-22240 ListServiceUtils        com.devson.devsonplayer              V  checkInListByUid start module:video-statistics uid:10464  time 280219014154us
+2026-03-16 14:24:56.445 21099-22240 ListServiceUtils        com.devson.devsonplayer              V  checkInListByUid end module:video-statistics uid:10464  time 280219014479us
+2026-03-16 14:24:56.445 21099-22240 ListServiceUtils        com.devson.devsonplayer              D  checkInListByUid module:video-statistics uid:10464 cost 324us return 0
+2026-03-16 14:24:56.446 21099-22240 ListServiceUtils        com.devson.devsonplayer              V  checkInListByUid module:video-resolution-blurry uid:10464 cost 223us return 0
+2026-03-16 14:24:56.446 21099-22240 ListServiceUtils        com.devson.devsonplayer              V  checkInListByUid module:sr-osie-whitelist uid:10464 cost 236us return 0
+2026-03-16 14:24:56.446 21099-22240 OplusCCodec             com.devson.devsonplayer              D  debug enabled , debugType :0
+2026-03-16 14:24:56.446 21099-22240 OplusCCodec             com.devson.devsonplayer              D  [configOplusVppTypeV2:L282] whitelist:sr-osie-whitelist
+2026-03-16 14:24:56.446 21099-22240 ListServiceUtils        com.devson.devsonplayer              V  checkInListByUid module:sr-osie-whitelist uid:10464 cost 132us return 0
+2026-03-16 14:24:56.446 21099-22240 OplusCCodec             com.devson.devsonplayer              D  [configOplusVppTypeV2:L300] value:  - 0
+2026-03-16 14:24:56.446 21099-22240 ListServiceUtils        com.devson.devsonplayer              V  checkInListByUid start module:mtkomx-color-convert uid:10464  time 280219015384us
+2026-03-16 14:24:56.446 21099-22240 ListServiceUtils        com.devson.devsonplayer              V  checkInListByUid end module:mtkomx-color-convert uid:10464  time 280219015534us
+2026-03-16 14:24:56.446 21099-22240 ListServiceUtils        com.devson.devsonplayer              D  checkInListByUid module:mtkomx-color-convert uid:10464 cost 149us return 0
+2026-03-16 14:24:56.447 21099-22240 ListServiceUtils        com.devson.devsonplayer              V  checkInListByPid module:mtkomx-color-convert pid:21099 cost 328us return 0
+2026-03-16 14:24:56.447 21099-22240 ListServiceUtils        com.devson.devsonplayer              V  getListValueByTopActivity module:mtk-vdec-cpu-boost pid:21099 cost 679us return 0
+2026-03-16 14:24:56.448 21099-22240 ListServiceUtils        com.devson.devsonplayer              V  checkInListByUid module:media-sched-boost uid:10464 cost 165us return 0
+2026-03-16 14:24:56.448 21099-22240 OplusMediaCodecUtils    com.devson.devsonplayer              D  getProcessName: pid=21099 name=[com.devson.devsonplayer] success
+2026-03-16 14:24:56.448 21099-22242 ListServiceUtils        com.devson.devsonplayer              V  checkInListByUid module:media-sched-boost uid:10464 cost 280us return 0
+2026-03-16 14:24:56.448 21099-22242 OplusMediaCodecUtils    com.devson.devsonplayer              D  getProcessName: pid=21099 name=[com.devson.devsonplayer] success
+2026-03-16 14:24:56.449 21099-22242 CCodec                  com.devson.devsonplayer              D  [c2.mtk.hevc.decoder] buffers are bound to CCodec for this session
+2026-03-16 14:24:56.449 21099-22242 CCodecConfig            com.devson.devsonplayer              D  no c2 equivalents for log-session-id
+2026-03-16 14:24:56.449 21099-22242 CCodecConfig            com.devson.devsonplayer              D  no c2 equivalents for tp-ux-tid
+2026-03-16 14:24:56.449 21099-22242 CCodecConfig            com.devson.devsonplayer              D  no c2 equivalents for native-window
+2026-03-16 14:24:56.449 21099-22242 CCodecConfig            com.devson.devsonplayer              D  no c2 equivalents for flags
+2026-03-16 14:24:56.450 21099-22242 ReflectedParamUpdater   com.devson.devsonplayer              D  vendor.oplus.vpp.white.list.value found, but param #1107330561 isn't present to update
+2026-03-16 14:24:56.450 21099-22242 CCodecConfig            com.devson.devsonplayer              D  c2 config diff is   c2::i32 algo.priority.value = 0
+                                                                                                      c2::u32 raw.max-size.height = 720
+                                                                                                      c2::u32 raw.max-size.width = 1280
+                                                                                                      c2::u32 raw.pixel-format.value = 34
+                                                                                                      c2::u32 raw.size.height = 720
+                                                                                                      c2::u32 raw.size.width = 1280
+2026-03-16 14:24:56.451 21099-22242 Codec2Client            com.devson.devsonplayer              W  query -- param skipped: index = 1107298332.
+2026-03-16 14:24:56.451 21099-22242 CCodec                  com.devson.devsonplayer              D  encoding statistics level = 0
+2026-03-16 14:24:56.451 21099-22242 CCodec                  com.devson.devsonplayer              D  setup formats input: AMessage(what = 0x00000000) = {
+                                                                                                      int32_t max-input-size = 2097152
+                                                                                                      int32_t width = 1280
+                                                                                                      int32_t priority = 0
+                                                                                                      string mime = "video/hevc"
+                                                                                                      int32_t frame-rate = 30
+                                                                                                      int32_t height = 720
+                                                                                                      int32_t level = 32768
+                                                                                                      Rect crop(0, 0, 318, 238)
+                                                                                                    }
+2026-03-16 14:24:56.451 21099-22242 CCodec                  com.devson.devsonplayer              D  setup formats output: AMessage(what = 0x00000000) = {
+                                                                                                      int32_t android._color-format = 2130708361
+                                                                                                      int32_t android._video-scaling = 1
+                                                                                                      int32_t sar-width = 1
+                                                                                                      int32_t color-standard = 4
+                                                                                                      int32_t color-range = 2
+                                                                                                      int32_t color-transfer = 3
+                                                                                                      int32_t android._dataspace = 259
+                                                                                                      int32_t width = 1280
+                                                                                                      int32_t rotation-degrees = 0
+                                                                                                      int32_t sar-height = 1
+                                                                                                      int32_t max-width = 1280
+                                                                                                      int32_t max-height = 720
+                                                                                                      int32_t priority = 0
+                                                                                                      string mime = "video/raw"
+                                                                                                      Rect crop(0, 0, 318, 238)
+                                                                                                      Buffer hdr-static-info = {
+                                                                                                        00000000:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
+                                                                                                        00000010:  00 00 00 00 00 00 00 00  00                       .........
+                                                                                                      }
+                                                                                                      int32_t frame-rate = 30
+                                                                                                      int32_t height = 720
+                                                                                                      int32_t color-format = 2130708361
+                                                                                                    }
+2026-03-16 14:24:56.451 21099-22242 CCodecConfig            com.devson.devsonplayer              I  query failed after returning 17 values (BAD_INDEX)
+2026-03-16 14:24:56.451 21099-22240 MediaCodec              com.devson.devsonplayer              D  [0xb400006ef9749000] setState: 4
+2026-03-16 14:24:56.452 21099-22233 MediaCodec              com.devson.devsonplayer              D  keep callback message for reclaim
+2026-03-16 14:24:56.452 21099-22240 MediaCodec              com.devson.devsonplayer              D  [0xb400006ef9749000] setState: 5
+2026-03-16 14:24:56.455 21099-22242 Codec2Client            com.devson.devsonplayer              W  query -- param skipped: index = 1342179345.
+2026-03-16 14:24:56.455 21099-22242 Codec2Client            com.devson.devsonplayer              W  query -- param skipped: index = 2415921170.
+2026-03-16 14:24:56.455 21099-22242 Codec2Client            com.devson.devsonplayer              W  query -- param skipped: index = 1610614798.
+2026-03-16 14:24:56.456 21099-22242 C2Store                 com.devson.devsonplayer              D  Using ION
+2026-03-16 14:24:56.458 21099-22242 CCodecBufferChannel     com.devson.devsonplayer              D  [c2.mtk.hevc.decoder#737] Created input block pool with allocatorID 16 => poolID 17 - OK (0)
+2026-03-16 14:24:56.459 21099-22242 CCodecBufferChannel     com.devson.devsonplayer              D  [c2.mtk.hevc.decoder#737] Query output surface allocator returned 0 params => BAD_INDEX (6)
+2026-03-16 14:24:56.460 21099-22242 CCodecBufferChannel     com.devson.devsonplayer              I  [c2.mtk.hevc.decoder#737] Created output block pool with allocatorID 18 => poolID 815 - OK
+2026-03-16 14:24:56.460 21099-22242 CCodecBufferChannel     com.devson.devsonplayer              D  [c2.mtk.hevc.decoder#737] Configured output block pool ids 815 => OK
+2026-03-16 14:24:56.460 21099-22242 CCodecBufferChannel     com.devson.devsonplayer              D  [0xb400006ef9773618] [c2.mtk.hevc.decoder#737] start: output->outputDelay 12, output->numSlots 16
+2026-03-16 14:24:56.460 21099-22242 Codec2-Out...ufferQueue com.devson.devsonplayer              D  remote graphic buffer migration 0/0
+2026-03-16 14:24:56.460 21099-22242 Codec2Client            com.devson.devsonplayer              D  setOutputSurface -- generation=21605377 consumer usage=0x900
+2026-03-16 14:24:56.466 21099-22242 Codec2Client            com.devson.devsonplayer              D  Surface configure completed
+2026-03-16 14:24:56.468 21099-22242 ion                     com.devson.devsonplayer              E  ioctl c0044901 failed with code -1: Invalid argument
+2026-03-16 14:24:56.477 21099-22240 MediaCodec              com.devson.devsonplayer              D  [0xb400006ef9749000] setState: 6
+2026-03-16 14:24:56.484 21099-22233 MediaCodecInfo          com.devson.devsonplayer              D  NoSupport [codec.profileLevel, hvc1.2.4.L93.90, video/hevc] [c2.mtk.hevc.decoder, video/hevc] [RED8AF, RMX3430, realme, 33]
+2026-03-16 14:24:56.486 21099-22233 MediaCodecRenderer      com.devson.devsonplayer              W  Format exceeds selected codec's capabilities [id=1, mimeType=video/hevc, codecs=hvc1.2.4.L93.90, res=1280x720, language=und, labels=[und: Vegamovies.is], selectionFlags=[default], c2.mtk.hevc.decoder]
+2026-03-16 14:24:56.488 21099-22233 DMCodecAdapterFactory   com.devson.devsonplayer              I  Creating an asynchronous MediaCodec adapter for track type audio
+2026-03-16 14:24:56.488 21099-22233 MediaCodec              com.devson.devsonplayer              D  CreateByComponentName: name c2.android.aac.decoder
+2026-03-16 14:24:56.491 21099-22233 CCodecBufferChannel     com.devson.devsonplayer              D  mBufferCountDebug=0 mIsUserLoad=1
+2026-03-16 14:24:56.491 21099-22233 OplusCCodec             com.devson.devsonplayer              D  OplusCCodec [164]: (0xb400006ef0ca2800)
+2026-03-16 14:24:56.493 21099-22233 libc                    com.devson.devsonplayer              W  Access denied finding property "vendor.oplus.media.vpp.stutter"
+2026-03-16 14:24:56.493 21099-22233 ListServiceUtils        com.devson.devsonplayer              V  checkInListByUid module:sr-osie-whitelist uid:10464 cost 189us return 0
+2026-03-16 14:24:56.493 21099-22233 ListServiceUtils        com.devson.devsonplayer              V  checkInListByUid start module:video-setsurface-error uid:10464  time 280219062247us
+2026-03-16 14:24:56.494 21099-21863 CCodec                  com.devson.devsonplayer              D  Component "c2.mtk.hevc.decoder" returned error: 0xe
+2026-03-16 14:24:56.494 21099-22240 MediaCodec              com.devson.devsonplayer              E  Codec reported err 0x80000000/UNKNOWN_ERROR, actionCode 0, while in state 6/STARTED
+2026-03-16 14:24:56.494 21099-22240 MediaCodec              com.devson.devsonplayer              D  flushMediametrics
+2026-03-16 14:24:56.494 21099-22240 MediaCodec              com.devson.devsonplayer              D  [0xb400006ef9749000] setState: 0
+2026-03-16 14:24:56.494 21099-22240 MediaCodec              com.devson.devsonplayer              D  [0xb400006ef9749000] [c2.mtk.hevc.decoder] disconnectFromSurface: mSurface 0xb400006ef978b000
+2026-03-16 14:24:56.494 21099-22240 SurfaceUtils            com.devson.devsonplayer              D  disconnecting from surface 0xb400006ef978b010, reason disconnectFromSurface
+2026-03-16 14:24:56.494 21099-21863 BufferQueueProducer     com.devson.devsonplayer              E  [SurfaceView[com.devson.devsonplayer/com.devson.devsonplayer.MainActivity]#2(BLAST Consumer)2](id:526b00000002,api:0,p:-1,c:21099) dequeueBuffer: BufferQueue has no connected producer
+2026-03-16 14:24:56.495 21099-21863 BufferQueueProducer     com.devson.devsonplayer              E  [SurfaceView[com.devson.devsonplayer/com.devson.devsonplayer.MainActivity]#2(BLAST Consumer)2](id:526b00000002,api:0,p:-1,c:21099) dequeueBuffer: BufferQueue has no connected producer
+2026-03-16 14:24:56.496 21099-21863 BufferQueueProducer     com.devson.devsonplayer              E  [SurfaceView[com.devson.devsonplayer/com.devson.devsonplayer.MainActivity]#2(BLAST Consumer)2](id:526b00000002,api:0,p:-1,c:21099) dequeueBuffer: BufferQueue has no connected producer
+2026-03-16 14:24:56.496 21099-21863 BufferQueueProducer     com.devson.devsonplayer              E  [SurfaceView[com.devson.devsonplayer/com.devson.devsonplayer.MainActivity]#2(BLAST Consumer)2](id:526b00000002,api:0,p:-1,c:21099) dequeueBuffer: BufferQueue has no connected producer
+2026-03-16 14:24:56.497 21099-21863 BufferQueueProducer     com.devson.devsonplayer              E  [SurfaceView[com.devson.devsonplayer/com.devson.devsonplayer.MainActivity]#2(BLAST Consumer)2](id:526b00000002,api:0,p:-1,c:21099) dequeueBuffer: BufferQueue has no connected producer
+2026-03-16 14:24:56.497 21099-22233 ListServiceUtils        com.devson.devsonplayer              V  checkInListByUid end module:video-setsurface-error uid:10464  time 280219065753us
+2026-03-16 14:24:56.497 21099-22233 ListServiceUtils        com.devson.devsonplayer              D  checkInListByUid module:video-setsurface-error uid:10464 cost 3505us return 0
+2026-03-16 14:24:56.497 21099-22233 ListServiceUtils        com.devson.devsonplayer              E  checkInListByUid module:video-setsurface-error uid:10464 cost 3505us return 0
+2026-03-16 14:24:56.497 21099-22233 CCodecBufferChannel     com.devson.devsonplayer              D  mBufferCountDebug=0 mIsUserLoad=1
+2026-03-16 14:24:56.497 21099-22233 MediaCodec              com.devson.devsonplayer              D  [0xb400006ef9751000] init: CCodec 0xb400006ef0ca2800, CCodecBufferChannel 0xb400006ef9773c18
+2026-03-16 14:24:56.497 21099-21863 BufferQueueProducer     com.devson.devsonplayer              E  [SurfaceView[com.devson.devsonplayer/com.devson.devsonplayer.MainActivity]#2(BLAST Consumer)2](id:526b00000002,api:0,p:-1,c:21099) dequeueBuffer: BufferQueue has no connected producer
+2026-03-16 14:24:56.497 21099-22259 MediaCodec              com.devson.devsonplayer              D  [0xb400006ef9751000] setState: 1
+2026-03-16 14:24:56.497 21099-21863 BufferQueueProducer     com.devson.devsonplayer              E  [SurfaceView[com.devson.devsonplayer/com.devson.devsonplayer.MainActivity]#2(BLAST Consumer)2](id:526b00000002,api:0,p:-1,c:21099) dequeueBuffer: BufferQueue has no connected producer
+2026-03-16 14:24:56.497 21099-22259 CCodec                  com.devson.devsonplayer              D  allocate(c2.android.aac.decoder)
+2026-03-16 14:24:56.497 21099-21863 BufferQueueProducer     com.devson.devsonplayer              E  [SurfaceView[com.devson.devsonplayer/com.devson.devsonplayer.MainActivity]#2(BLAST Consumer)2](id:526b00000002,api:0,p:-1,c:21099) dequeueBuffer: BufferQueue has no connected producer
+2026-03-16 14:24:56.497 21099-21863 BufferQueueProducer     com.devson.devsonplayer              E  [SurfaceView[com.devson.devsonplayer/com.devson.devsonplayer.MainActivity]#2(BLAST Consumer)2](id:526b00000002,api:0,p:-1,c:21099) dequeueBuffer: BufferQueue has no connected producer
+2026-03-16 14:24:56.498 21099-21863 BufferQueueProducer     com.devson.devsonplayer              E  [SurfaceView[com.devson.devsonplayer/com.devson.devsonplayer.MainActivity]#2(BLAST Consumer)2](id:526b00000002,api:0,p:-1,c:21099) dequeueBuffer: BufferQueue has no connected producer
+2026-03-16 14:24:56.498 21099-21863 BufferQueueProducer     com.devson.devsonplayer              E  [SurfaceView[com.devson.devsonplayer/com.devson.devsonplayer.MainActivity]#2(BLAST Consumer)2](id:526b00000002,api:0,p:-1,c:21099) dequeueBuffer: BufferQueue has no connected producer
+2026-03-16 14:24:56.501 21099-22259 CCodec                  com.devson.devsonplayer              I  setting up 'default' as default (vendor) store
+2026-03-16 14:24:56.509 21099-21863 BufferQueueProducer     com.devson.devsonplayer              E  [SurfaceView[com.devson.devsonplayer/com.devson.devsonplayer.MainActivity]#2(BLAST Consumer)2](id:526b00000002,api:0,p:-1,c:21099) dequeueBuffer: BufferQueue has no connected producer
+2026-03-16 14:24:56.520 21099-21863 BufferQueueProducer     com.devson.devsonplayer              E  [SurfaceView[com.devson.devsonplayer/com.devson.devsonplayer.MainActivity]#2(BLAST Consumer)2](id:526b00000002,api:0,p:-1,c:21099) dequeueBuffer: BufferQueue has no connected producer
+2026-03-16 14:24:56.530 21099-21863 BufferQueueProducer     com.devson.devsonplayer              E  [SurfaceView[com.devson.devsonplayer/com.devson.devsonplayer.MainActivity]#2(BLAST Consumer)2](id:526b00000002,api:0,p:-1,c:21099) dequeueBuffer: BufferQueue has no connected producer
+2026-03-16 14:24:56.541 21099-21863 BufferQueueProducer     com.devson.devsonplayer              E  [SurfaceView[com.devson.devsonplayer/com.devson.devsonplayer.MainActivity]#2(BLAST Consumer)2](id:526b00000002,api:0,p:-1,c:21099) dequeueBuffer: BufferQueue has no connected producer
+2026-03-16 14:24:56.551 21099-21863 BufferQueueProducer     com.devson.devsonplayer              E  [SurfaceView[com.devson.devsonplayer/com.devson.devsonplayer.MainActivity]#2(BLAST Consumer)2](id:526b00000002,api:0,p:-1,c:21099) dequeueBuffer: BufferQueue has no connected producer
+2026-03-16 14:24:56.562 21099-21863 BufferQueueProducer     com.devson.devsonplayer              E  [SurfaceView[com.devson.devsonplayer/com.devson.devsonplayer.MainActivity]#2(BLAST Consumer)2](id:526b00000002,api:0,p:-1,c:21099) dequeueBuffer: BufferQueue has no connected producer
+2026-03-16 14:24:56.573 21099-21863 BufferQueueProducer     com.devson.devsonplayer              E  [SurfaceView[com.devson.devsonplayer/com.devson.devsonplayer.MainActivity]#2(BLAST Consumer)2](id:526b00000002,api:0,p:-1,c:21099) dequeueBuffer: BufferQueue has no connected producer
+2026-03-16 14:24:56.583 21099-21863 BufferQueueProducer     com.devson.devsonplayer              E  [SurfaceView[com.devson.devsonplayer/com.devson.devsonplayer.MainActivity]#2(BLAST Consumer)2](id:526b00000002,api:0,p:-1,c:21099) dequeueBuffer: BufferQueue has no connected producer
+2026-03-16 14:24:56.594 21099-21863 BufferQueueProducer     com.devson.devsonplayer              E  [SurfaceView[com.devson.devsonplayer/com.devson.devsonplayer.MainActivity]#2(BLAST Consumer)2](id:526b00000002,api:0,p:-1,c:21099) dequeueBuffer: BufferQueue has no connected producer
+2026-03-16 14:24:56.605 21099-21863 BufferQueueProducer     com.devson.devsonplayer              E  [SurfaceView[com.devson.devsonplayer/com.devson.devsonplayer.MainActivity]#2(BLAST Consumer)2](id:526b00000002,api:0,p:-1,c:21099) dequeueBuffer: BufferQueue has no connected producer
+2026-03-16 14:24:56.608 21099-21099 SurfaceView             com.devson.devsonplayer              I  11216180 surfaceChanged -- format=4 w=1280 h=720
+2026-03-16 14:24:56.616 21099-21863 BufferQueueProducer     com.devson.devsonplayer              E  [SurfaceView[com.devson.devsonplayer/com.devson.devsonplayer.MainActivity]#2(BLAST Consumer)2](id:526b00000002,api:0,p:-1,c:21099) dequeueBuffer: BufferQueue has no connected producer
+2026-03-16 14:24:56.619 21099-22259 CCodec                  com.devson.devsonplayer              I  Created component [c2.android.aac.decoder]
+2026-03-16 14:24:56.619 21099-22259 CCodecBufferChannel     com.devson.devsonplayer              D  [0xb400006ef9773c18] setComponent: mName c2.android.aac.decoder#679, mPipelineWatcher 0xb400006ef9774080
+2026-03-16 14:24:56.619 21099-22259 CCodecBufferChannel     com.devson.devsonplayer              D  PipelineWatcher debug info [c2.android.aac.decoder#679] enable=0
+2026-03-16 14:24:56.619 21099-22259 CCodecConfig            com.devson.devsonplayer              D  read media type: audio/mp4a-latm
+2026-03-16 14:24:56.622 21099-22259 ReflectedParamUpdater   com.devson.devsonplayer              D  extent() != 1 for single value type: algo.buffers.max-count.values
+2026-03-16 14:24:56.622 21099-22259 ReflectedParamUpdater   com.devson.devsonplayer              D  extent() != 1 for single value type: output.subscribed-indices.values
+2026-03-16 14:24:56.623 21099-22259 ReflectedParamUpdater   com.devson.devsonplayer              D  extent() != 1 for single value type: input.buffers.allocator-ids.values
+2026-03-16 14:24:56.623 21099-22259 ReflectedParamUpdater   com.devson.devsonplayer              D  extent() != 1 for single value type: output.buffers.allocator-ids.values
+2026-03-16 14:24:56.623 21099-22259 ReflectedParamUpdater   com.devson.devsonplayer              D  extent() != 1 for single value type: algo.buffers.allocator-ids.values
+2026-03-16 14:24:56.623 21099-22259 ReflectedParamUpdater   com.devson.devsonplayer              D  extent() != 1 for single value type: output.buffers.pool-ids.values
+2026-03-16 14:24:56.623 21099-22259 ReflectedParamUpdater   com.devson.devsonplayer              D  extent() != 1 for single value type: algo.buffers.pool-ids.values
+2026-03-16 14:24:56.627 21099-21863 BufferQueueProducer     com.devson.devsonplayer              E  [SurfaceView[com.devson.devsonplayer/com.devson.devsonplayer.MainActivity]#2(BLAST Consumer)2](id:526b00000002,api:0,p:-1,c:21099) dequeueBuffer: BufferQueue has no connected producer
+2026-03-16 14:24:56.630 21099-22259 CCodecConfig            com.devson.devsonplayer              I  query failed after returning 20 values (BAD_INDEX)
+2026-03-16 14:24:56.631 21099-22259 CCodecConfig            com.devson.devsonplayer              D  c2 config diff is Dict {
+                                                                                                      c2::u32 coded.aac-packaging.value = 0
+                                                                                                      c2::u32 coded.bitrate.value = 64000
+                                                                                                      c2::u32 coded.pl.level = 0
+                                                                                                      c2::u32 coded.pl.profile = 8192
+                                                                                                      c2::i32 coding.drc.album-mode.value = 0
+                                                                                                      c2::float coding.drc.attenuation-factor.value = 1
+                                                                                                      c2::float coding.drc.boost-factor.value = 1
+                                                                                                      c2::i32 coding.drc.compression-mode.value = 3
+                                                                                                      c2::i32 coding.drc.effect-type.value = 3
+                                                                                                      c2::float coding.drc.encoded-level.value = 0.25
+                                                                                                      c2::float coding.drc.reference-level.value = -16
+                                                                                                      c2::u32 input.buffers.max-size.value = 8192
+                                                                                                      c2::u32 input.delay.value = 0
+                                                                                                      string input.media-type.value = "audio/mp4a-latm"
+                                                                                                      c2::u32 output.delay.value = 2
+                                                                                                      c2::float output.drc.output-loudness.value = 0.25
+                                                                                                      string output.media-type.value = "audio/raw"
+                                                                                                      c2::u32 raw.channel-count.value = 1
+                                                                                                      c2::u32 raw.channel-mask.value = 0
+                                                                                                      c2::u32 raw.max-channel-count.value = 8
+                                                                                                      c2::u32 raw.sample-rate.value = 44100
+                                                                                                    }
+2026-03-16 14:24:56.631 21099-22259 MediaCodec              com.devson.devsonplayer              D  [0xb400006ef9751000] setState: 2
+2026-03-16 14:24:56.633 21099-22259 MediaCodec              com.devson.devsonplayer              I  MediaCodec will operate in async mode
+2026-03-16 14:24:56.633 21099-22233 MediaCodec              com.devson.devsonplayer              I  [0xb400006ef9751000] [c2.android.aac.decoder] configure, format : AMessage(what = 0x00000000) = {
+                                                                                                      string log-session-id = "CKPJx64Mn4mcyi_Z"
+                                                                                                      int32_t sample-rate = 44100
+                                                                                                      string mime = "audio/mp4a-latm"
+                                                                                                      int32_t channel-count = 2
+                                                                                                      int32_t priority = 0
+                                                                                                      int32_t max-output-channel-count = 99
+                                                                                                      Buffer csd-0 = {
+                                                                                                        00000000:  12 10                                             ..
+                                                                                                      }
+                                                                                                    }
+2026-03-16 14:24:56.633 21099-22259 MediaCodec              com.devson.devsonplayer              D  flushMediametrics
+2026-03-16 14:24:56.633 21099-22259 MediaCodec              com.devson.devsonplayer              D  [0xb400006ef9751000] setState: 3
+2026-03-16 14:24:56.633 21099-22259 OplusCCodec             com.devson.devsonplayer              D  [initiateConfigureComponent:L709] OplusFeedbackInfo  mFeedbackID:-5476376670396340224
+2026-03-16 14:24:56.634 21099-22259 ListServiceUtils        com.devson.devsonplayer              V  checkInListByUid module:sr-osie-whitelist uid:10464 cost 283us return 0
+2026-03-16 14:24:56.634 21099-22259 OplusCCodec             com.devson.devsonplayer              D  debug enabled , debugType :0
+2026-03-16 14:24:56.634 21099-22259 OplusCCodec             com.devson.devsonplayer              D  [configOplusVppTypeV2:L282] whitelist:sr-osie-whitelist
+2026-03-16 14:24:56.634 21099-22259 ListServiceUtils        com.devson.devsonplayer              V  checkInListByUid module:sr-osie-whitelist uid:10464 cost 195us return 0
+2026-03-16 14:24:56.634 21099-22259 OplusCCodec             com.devson.devsonplayer              D  [configOplusVppTypeV2:L300] value:  - 0
+2026-03-16 14:24:56.634 21099-22259 ListServiceUtils        com.devson.devsonplayer              V  checkInListByUid module:media-sched-boost uid:10464 cost 141us return 0
+2026-03-16 14:24:56.634 21099-22259 OplusMediaCodecUtils    com.devson.devsonplayer              D  getProcessName: pid=21099 name=[com.devson.devsonplayer] success
+2026-03-16 14:24:56.635 21099-22259 CCodec                  com.devson.devsonplayer              D  [c2.android.aac.decoder] buffers are bound to CCodec for this session
+2026-03-16 14:24:56.635 21099-22259 CCodecConfig            com.devson.devsonplayer              D  no c2 equivalents for log-session-id
+2026-03-16 14:24:56.635 21099-22259 CCodecConfig            com.devson.devsonplayer              D  no c2 equivalents for tp-ux-tid
+2026-03-16 14:24:56.635 21099-22259 CCodecConfig            com.devson.devsonplayer              D  no c2 equivalents for flags
+2026-03-16 14:24:56.635 21099-22259 ReflectedParamUpdater   com.devson.devsonplayer              D  vendor.oplus.vpp.white.list.value found, but param #1107330561 isn't present to update
+2026-03-16 14:24:56.636 21099-22259 CCodecConfig            com.devson.devsonplayer              D  c2 config diff is   c2::u32 raw.channel-count.value = 2
+2026-03-16 14:24:56.636 21099-22259 Codec2Client            com.devson.devsonplayer              W  query -- param skipped: index = 1107298332.
+2026-03-16 14:24:56.636 21099-22259 CCodec                  com.devson.devsonplayer              D  encoding statistics level = 0
+2026-03-16 14:24:56.636 21099-22259 CCodec                  com.devson.devsonplayer              D  setup formats input: AMessage(what = 0x00000000) = {
+                                                                                                      int32_t aac-drc-album-mode = 0
+                                                                                                      int32_t aac-drc-boost-level = 127
+                                                                                                      int32_t aac-drc-cut-level = 127
+                                                                                                      int32_t aac-drc-effect-type = 3
+                                                                                                      int32_t aac-encoded-target-level = -1
+                                                                                                      int32_t aac-max-output-channel_count = 8
+                                                                                                      int32_t aac-target-ref-level = 64
+                                                                                                      int32_t bitrate = 64000
+                                                                                                      int32_t channel-count = 2
+                                                                                                      int32_t channel-mask = 0
+                                                                                                      int32_t level = 0
+                                                                                                      int32_t max-input-size = 8192
+                                                                                                      int32_t max-output-channel-count = 8
+                                                                                                      string mime = "audio/mp4a-latm"
+                                                                                                      int32_t profile = 2
+                                                                                                      int32_t sample-rate = 44100
+                                                                                                    }
+2026-03-16 14:24:56.636 21099-22259 CCodec                  com.devson.devsonplayer              D  setup formats output: AMessage(what = 0x00000000) = {
+                                                                                                      int32_t aac-drc-album-mode = 0
+                                                                                                      int32_t aac-drc-boost-level = 127
+                                                                                                      int32_t aac-drc-cut-level = 127
+                                                                                                      int32_t aac-drc-effect-type = 3
+                                                                                                      int32_t aac-drc-output-loudness = -1
+                                                                                                      int32_t aac-encoded-target-level = -1
+                                                                                                      int32_t aac-max-output-channel_count = 8
+                                                                                                      int32_t aac-target-ref-level = 64
+                                                                                                      int32_t channel-count = 2
+                                                                                                      int32_t channel-mask = 0
+                                                                                                      int32_t max-output-channel-count = 8
+                                                                                                      string mime = "audio/raw"
+                                                                                                      int32_t sample-rate = 44100
+                                                                                                      int32_t android._config-pcm-encoding = 2
+                                                                                                    }
+2026-03-16 14:24:56.637 21099-22259 CCodecConfig            com.devson.devsonplayer              I  query failed after returning 20 values (BAD_INDEX)
+2026-03-16 14:24:56.637 21099-22259 MediaCodec              com.devson.devsonplayer              D  [0xb400006ef9751000] setState: 4
+2026-03-16 14:24:56.637 21099-21863 BufferQueueProducer     com.devson.devsonplayer              E  [SurfaceView[com.devson.devsonplayer/com.devson.devsonplayer.MainActivity]#2(BLAST Consumer)2](id:526b00000002,api:0,p:-1,c:21099) dequeueBuffer: BufferQueue has no connected producer
+2026-03-16 14:24:56.638 21099-22233 MediaCodec              com.devson.devsonplayer              D  keep callback message for reclaim
+2026-03-16 14:24:56.638 21099-22259 MediaCodec              com.devson.devsonplayer              D  [0xb400006ef9751000] setState: 5
+2026-03-16 14:24:56.648 21099-21863 BufferQueueProducer     com.devson.devsonplayer              E  [SurfaceView[com.devson.devsonplayer/com.devson.devsonplayer.MainActivity]#2(BLAST Consumer)2](id:526b00000002,api:0,p:-1,c:21099) dequeueBuffer: BufferQueue has no connected producer
+2026-03-16 14:24:56.649 21099-21099 SurfaceSyncer           com.devson.devsonplayer              E  Failed to find sync for id=0
+2026-03-16 14:24:56.649 21099-21099 SurfaceSyncer           com.devson.devsonplayer              E  Failed to find sync for id=1
+2026-03-16 14:24:56.649 21099-21099 SurfaceSyncer           com.devson.devsonplayer              E  Failed to find sync for id=2
+2026-03-16 14:24:56.650 21099-21099 VRI[MainActivity]       com.devson.devsonplayer              D  registerCallbacksForSync syncBuffer=false
+2026-03-16 14:24:56.659 21099-21863 BufferQueueProducer     com.devson.devsonplayer              E  [SurfaceView[com.devson.devsonplayer/com.devson.devsonplayer.MainActivity]#2(BLAST Consumer)2](id:526b00000002,api:0,p:-1,c:21099) dequeueBuffer: BufferQueue has no connected producer
+2026-03-16 14:24:56.661 21099-22259 Codec2Client            com.devson.devsonplayer              W  query -- param skipped: index = 1342179345.
+2026-03-16 14:24:56.661 21099-22259 Codec2Client            com.devson.devsonplayer              W  query -- param skipped: index = 2415921170.
+2026-03-16 14:24:56.661 21099-22259 Codec2Client            com.devson.devsonplayer              W  query -- param skipped: index = 1610614798.
+2026-03-16 14:24:56.662 21099-22259 CCodecBufferChannel     com.devson.devsonplayer              D  [c2.android.aac.decoder#679] Created input block pool with allocatorID 16 => poolID 18 - OK (0)
+2026-03-16 14:24:56.666 21099-22259 CCodecBufferChannel     com.devson.devsonplayer              I  [c2.android.aac.decoder#679] Created output block pool with allocatorID 16 => poolID 7480 - OK
+2026-03-16 14:24:56.667 21099-22259 CCodecBufferChannel     com.devson.devsonplayer              D  [c2.android.aac.decoder#679] Configured output block pool ids 7480 => OK
+2026-03-16 14:24:56.667 21099-22259 CCodecBufferChannel     com.devson.devsonplayer              D  [0xb400006ef9773c18] [c2.android.aac.decoder#679] start: output->outputDelay 2, output->numSlots 6
+2026-03-16 14:24:56.669 21099-21863 BufferQueueProducer     com.devson.devsonplayer              E  [SurfaceView[com.devson.devsonplayer/com.devson.devsonplayer.MainActivity]#2(BLAST Consumer)2](id:526b00000002,api:0,p:-1,c:21099) dequeueBuffer: BufferQueue has no connected producer
+2026-03-16 14:24:56.672 21099-22259 CCodecBuffers           com.devson.devsonplayer              D  [c2.android.aac.decoder#679:1D-Output.Impl[N]] converted 0 buffers to array mode of 6
+2026-03-16 14:24:56.675 21099-22259 MediaCodec              com.devson.devsonplayer              D  [0xb400006ef9751000] setState: 6
+2026-03-16 14:24:56.680 21099-21863 BufferQueueProducer     com.devson.devsonplayer              E  [SurfaceView[com.devson.devsonplayer/com.devson.devsonplayer.MainActivity]#2(BLAST Consumer)2](id:526b00000002,api:0,p:-1,c:21099) dequeueBuffer: BufferQueue has no connected producer
+2026-03-16 14:24:56.684 21099-21721 BLASTBufferQueue        com.devson.devsonplayer              D  [VRI[MainActivity]#0](f:0,a:2) producer disconnected before: mAbandoned=0
+                                                                                                    - BufferQueue mMaxAcquiredBufferCount=2 mMaxDequeuedBufferCount=2
+                                                                                                      mDequeueBufferCannotBlock=0 mAsyncMode=0
+                                                                                                      mQueueBufferCanDrop=0 mLegacyBufferDrop=1
+                                                                                                      default-size=[1600x720] default-format=1   transform-hint=04 frame-counter=235
+                                                                                                      mTransformHintInUse=04 mAutoPrerotation=0
+                                                                                                    FIFO(0):
+                                                                                                    (mConsumerName=VRI[MainActivity]#0(BLAST Consumer)0, mConnectedApi=1, mConsumerUsageBits=2304, mId=526b00000000, producer=[21099:com.devson.devsonplayer], consumer=[21099:com.devson.devsonplayer])
+                                                                                                    Slots:
+                                                                                                     >[00:0xb400006f11a4ee00] state=ACQUIRED 0xb400006f7131b400 frame=235 [ 720x1600: 720,  1]
+                                                                                                      [01:0x0] state=FREE    
+                                                                                                      [02:0x0] state=FREE    
+                                                                                                      [03:0x0] state=FREE    
+2026-03-16 14:24:56.685 21099-21721 VRI[MainActivity]       com.devson.devsonplayer              D  Received frameCommittedCallback lastAttemptedDrawFrameNum=235 didProduceBuffer=true syncBuffer=false
+2026-03-16 14:24:56.685 21099-21099 VRI[MainActivity]       com.devson.devsonplayer              D  draw finished.
+2026-03-16 14:24:56.691 21099-21863 BufferQueueProducer     com.devson.devsonplayer              E  [SurfaceView[com.devson.devsonplayer/com.devson.devsonplayer.MainActivity]#2(BLAST Consumer)2](id:526b00000002,api:0,p:-1,c:21099) dequeueBuffer: BufferQueue has no connected producer
+2026-03-16 14:24:56.694 21099-22233 MediaCodecVideoRenderer com.devson.devsonplayer              E  Video codec error
+                                                                                                      android.media.MediaCodec$CodecException: Error 0x80000000
+2026-03-16 14:24:56.696 21099-22233 MediaCodecInfo          com.devson.devsonplayer              D  NoSupport [codec.profileLevel, hvc1.2.4.L93.90, video/hevc] [c2.mtk.hevc.decoder, video/hevc] [RED8AF, RMX3430, realme, 33]
+2026-03-16 14:24:56.696 21099-22233 MediaCodecInfo          com.devson.devsonplayer              D  NoSupport [codec.profileLevel, hvc1.2.4.L93.90, video/hevc] [c2.android.hevc.decoder, video/hevc] [RED8AF, RMX3430, realme, 33]
+2026-03-16 14:24:56.702 21099-21863 BufferQueueProducer     com.devson.devsonplayer              E  [SurfaceView[com.devson.devsonplayer/com.devson.devsonplayer.MainActivity]#2(BLAST Consumer)2](id:526b00000002,api:0,p:-1,c:21099) dequeueBuffer: BufferQueue has no connected producer
+2026-03-16 14:24:56.703 21099-22233 ExoPlayerImplInternal   com.devson.devsonplayer              E  Playback error (Fix with AI)
+                                                                                                      androidx.media3.exoplayer.ExoPlaybackException: MediaCodecVideoRenderer error, index=0, format=Format(1, Vegamovies.is, null, video/hevc, hvc1.2.4.L93.90, -1, und, [1280, 720, -1.0, null], [-1, -1]), format_supported=NO_EXCEEDS_CAPABILITIES
+                                                                                                          at androidx.media3.exoplayer.ExoPlayerImplInternal.handleMessage(ExoPlayerImplInternal.java:641)
+                                                                                                          at android.os.Handler.dispatchMessage(Handler.java:102)
+                                                                                                          at android.os.Looper.loopOnce(Looper.java:240)
+                                                                                                          at android.os.Looper.loop(Looper.java:351)
+                                                                                                          at android.os.HandlerThread.run(HandlerThread.java:67)
+                                                                                                      Caused by: androidx.media3.exoplayer.video.MediaCodecVideoDecoderException: Decoder failed: c2.mtk.hevc.decoder
+                                                                                                          at androidx.media3.exoplayer.video.MediaCodecVideoRenderer.createDecoderException(MediaCodecVideoRenderer.java:2105)
+                                                                                                          at androidx.media3.exoplayer.mediacodec.MediaCodecRenderer.render(MediaCodecRenderer.java:899)
+                                                                                                          at androidx.media3.exoplayer.video.MediaCodecVideoRenderer.render(MediaCodecVideoRenderer.java:1094)
+                                                                                                          at androidx.media3.exoplayer.ExoPlayerImplInternal.doSomeWork(ExoPlayerImplInternal.java:1138)
+                                                                                                          at androidx.media3.exoplayer.ExoPlayerImplInternal.handleMessage(ExoPlayerImplInternal.java:562)
+                                                                                                          at android.os.Handler.dispatchMessage(Handler.java:102) 
+                                                                                                          at android.os.Looper.loopOnce(Looper.java:240) 
+                                                                                                          at android.os.Looper.loop(Looper.java:351) 
+                                                                                                          at android.os.HandlerThread.run(HandlerThread.java:67) 
+                                                                                                      Caused by: android.media.MediaCodec$CodecException: Error 0x80000000
+2026-03-16 14:24:56.706 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: true 10 cost 179.57074 refreshRate 16741157 bit true processName com.devson.devsonplayer
+2026-03-16 14:24:56.712 21099-22259 CCodecConfig            com.devson.devsonplayer              D  c2 config diff is   c2::u32 raw.channel-mask.value = 12
+2026-03-16 14:24:56.713 21099-22259 CCodecBuffers           com.devson.devsonplayer              D  [c2.android.aac.decoder#679:Output[N]] popFromStashAndRegister: at 1000000000000us, output format changed to AMessage(what = 0x00000000) = {
+                                                                                                      int32_t aac-drc-album-mode = 0
+                                                                                                      int32_t aac-drc-boost-level = 127
+                                                                                                      int32_t aac-drc-cut-level = 127
+                                                                                                      int32_t aac-drc-effect-type = 3
+                                                                                                      int32_t aac-drc-output-loudness = -1
+                                                                                                      int32_t aac-encoded-target-level = -1
+                                                                                                      int32_t aac-max-output-channel_count = 8
+                                                                                                      int32_t aac-target-ref-level = 64
+                                                                                                      int32_t channel-count = 2
+                                                                                                      int32_t channel-mask = 12
+                                                                                                      int32_t max-output-channel-count = 8
+                                                                                                      string mime = "audio/raw"
+                                                                                                      int32_t sample-rate = 44100
+                                                                                                      int32_t android._config-pcm-encoding = 2
+                                                                                                    }
+2026-03-16 14:24:56.715 21099-21863 BufferQueueProducer     com.devson.devsonplayer              E  [SurfaceView[com.devson.devsonplayer/com.devson.devsonplayer.MainActivity]#2(BLAST Consumer)2](id:526b00000002,api:0,p:-1,c:21099) dequeueBuffer: BufferQueue has no connected producer
+2026-03-16 14:24:56.725 21099-22233 ExoPlayerImplInternal   com.devson.devsonplayer              E  Disable failed. (Fix with AI)
+                                                                                                      java.lang.IllegalStateException
+                                                                                                          at android.media.MediaCodec.native_flush(Native Method)
+                                                                                                          at android.media.MediaCodec.flush(MediaCodec.java:2388)
+                                                                                                          at androidx.media3.exoplayer.mediacodec.AsynchronousMediaCodecAdapter.flush(AsynchronousMediaCodecAdapter.java:265)
+                                                                                                          at androidx.media3.exoplayer.mediacodec.MediaCodecRenderer.flushCodec(MediaCodecRenderer.java:965)
+                                                                                                          at androidx.media3.exoplayer.mediacodec.MediaCodecRenderer.flushOrReleaseCodec(MediaCodecRenderer.java:958)
+                                                                                                          at androidx.media3.exoplayer.mediacodec.MediaCodecRenderer.onDisabled(MediaCodecRenderer.java:782)
+                                                                                                          at androidx.media3.exoplayer.video.MediaCodecVideoRenderer.onDisabled(MediaCodecVideoRenderer.java:890)
+                                                                                                          at androidx.media3.exoplayer.BaseRenderer.disable(BaseRenderer.java:244)
+                                                                                                          at androidx.media3.exoplayer.ExoPlayerImplInternal.disableRenderer(ExoPlayerImplInternal.java:1859)
+                                                                                                          at androidx.media3.exoplayer.ExoPlayerImplInternal.resetInternal(ExoPlayerImplInternal.java:1577)
+                                                                                                          at androidx.media3.exoplayer.ExoPlayerImplInternal.stopInternal(ExoPlayerImplInternal.java:1536)
+                                                                                                          at androidx.media3.exoplayer.ExoPlayerImplInternal.handleMessage(ExoPlayerImplInternal.java:687)
+                                                                                                          at android.os.Handler.dispatchMessage(Handler.java:102)
+                                                                                                          at android.os.Looper.loopOnce(Looper.java:240)
+                                                                                                          at android.os.Looper.loop(Looper.java:351)
+                                                                                                          at android.os.HandlerThread.run(HandlerThread.java:67)
+2026-03-16 14:24:56.725 21099-22259 MediaCodec              com.devson.devsonplayer              D  [0xb400006ef9751000] setState: 7
+2026-03-16 14:24:56.725 21099-22259 OplusCCodec             com.devson.devsonplayer              D  signalFlush [807]: (0xb400006ef0ca2800)
+2026-03-16 14:24:56.725 21099-22259 OplusFeedbackInfo       com.devson.devsonplayer              I  [signalFlush:L1053]
+2026-03-16 14:24:56.726 21099-22259 MediaCodec              com.devson.devsonplayer              D  [0xb400006ef9751000] setState: 8
+2026-03-16 14:24:56.726 21099-22233 MediaCodec              com.devson.devsonplayer              D  keep callback message for reclaim
+2026-03-16 14:24:56.727 21099-22259 MediaCodec              com.devson.devsonplayer              D  [0xb400006ef9751000] setState: 6
+2026-03-16 14:24:56.727 21099-21863 BufferQueueProducer     com.devson.devsonplayer              E  [SurfaceView[com.devson.devsonplayer/com.devson.devsonplayer.MainActivity]#2(BLAST Consumer)2](id:526b00000002,api:0,p:-1,c:21099) dequeueBuffer: BufferQueue has no connected producer
+2026-03-16 14:24:56.728 21099-22259 CCodecConfig            com.devson.devsonplayer              I  query failed after returning 20 values (BAD_INDEX)
+2026-03-16 14:24:56.728 21099-22259 Codec2Client            com.devson.devsonplayer              W  query -- param skipped: index = 1342179345.
+2026-03-16 14:24:56.728 21099-22259 Codec2Client            com.devson.devsonplayer              W  query -- param skipped: index = 2415921170.
+2026-03-16 14:24:56.728 21099-22259 Codec2Client            com.devson.devsonplayer              W  query -- param skipped: index = 1610614798.
+2026-03-16 14:24:56.738 21099-21863 BufferQueueProducer     com.devson.devsonplayer              E  [SurfaceView[com.devson.devsonplayer/com.devson.devsonplayer.MainActivity]#2(BLAST Consumer)2](id:526b00000002,api:0,p:-1,c:21099) dequeueBuffer: BufferQueue has no connected producer
+2026-03-16 14:24:56.742 21099-22233 MediaCodec              com.devson.devsonplayer              D  [0xb400006ef9749000] [c2.mtk.hevc.decoder] releaseAsync
+2026-03-16 14:24:56.743 21099-22240 MediaCodec              com.devson.devsonplayer              D  [0xb400006ef9749000] setState: 10
+2026-03-16 14:24:56.743 21099-22240 OplusCCodec             com.devson.devsonplayer              D  initiateShutdown [791]: (0xb400006ef0988200) keepComponentAllocated=0
+2026-03-16 14:24:56.743 21099-22240 OplusFeedbackInfo       com.devson.devsonplayer              I  [sendFeedbackInfo:L335]  send:MM_FB_EventID#21001#ClientPid#21099#ReportLevel#0#timeUsage#0#videoComponent#c2.mtk.hevc.decoder#videoHeight#720#videoMime#video/hevc#videoWidth#1280
+2026-03-16 14:24:56.743 21099-22240 AtlasEventUploadUtils   com.devson.devsonplayer              D  setEvent event:atlas_event_atlasserver_feedback
+2026-03-16 14:24:56.744 21099-22240 CCodecBufferChannel     com.devson.devsonplayer              D  [c2.mtk.hevc.decoder#737] MediaCodec discarded an unknown buffer
+2026-03-16 14:24:56.744 21099-22240 CCodecBufferChannel     com.devson.devsonplayer              D  [c2.mtk.hevc.decoder#737] MediaCodec discarded an unknown buffer
+2026-03-16 14:24:56.744 21099-22240 CCodecBufferChannel     com.devson.devsonplayer              D  [c2.mtk.hevc.decoder#737] MediaCodec discarded an unknown buffer
+2026-03-16 14:24:56.744 21099-22240 CCodecBufferChannel     com.devson.devsonplayer              D  [c2.mtk.hevc.decoder#737] MediaCodec discarded an unknown buffer
+2026-03-16 14:24:56.744 21099-22240 CCodecBufferChannel     com.devson.devsonplayer              D  [c2.mtk.hevc.decoder#737] MediaCodec discarded an unknown buffer
+2026-03-16 14:24:56.745 21099-22240 CCodecBufferChannel     com.devson.devsonplayer              D  [c2.mtk.hevc.decoder#737] MediaCodec discarded an unknown buffer
+2026-03-16 14:24:56.745 21099-22240 CCodecBufferChannel     com.devson.devsonplayer              D  [c2.mtk.hevc.decoder#737] MediaCodec discarded an unknown buffer
+2026-03-16 14:24:56.745 21099-22240 CCodecBufferChannel     com.devson.devsonplayer              D  [c2.mtk.hevc.decoder#737] MediaCodec discarded an unknown buffer
+2026-03-16 14:24:56.748 21099-22233 MediaCodec              com.devson.devsonplayer              D  [0xb400006ef9751000] [c2.android.aac.decoder] releaseAsync
+2026-03-16 14:24:56.748 21099-22259 MediaCodec              com.devson.devsonplayer              D  [0xb400006ef9751000] setState: 10
+2026-03-16 14:24:56.748 21099-22259 OplusCCodec             com.devson.devsonplayer              D  initiateShutdown [791]: (0xb400006ef0ca2800) keepComponentAllocated=0
+2026-03-16 14:24:56.749 21099-21863 BufferQueueProducer     com.devson.devsonplayer              E  [SurfaceView[com.devson.devsonplayer/com.devson.devsonplayer.MainActivity]#2(BLAST Consumer)2](id:526b00000002,api:0,p:-1,c:21099) dequeueBuffer: BufferQueue has no connected producer
+2026-03-16 14:24:56.750 21099-22242 BufferQueueProducer     com.devson.devsonplayer              E  [SurfaceView[com.devson.devsonplayer/com.devson.devsonplayer.MainActivity]#2(BLAST Consumer)2](id:526b00000002,api:0,p:-1,c:21099) cancelBuffer: BufferQueue has no connected producer
+2026-03-16 14:24:56.750 21099-22259 CCodecBufferChannel     com.devson.devsonplayer              D  [c2.android.aac.decoder#679] MediaCodec discarded an unknown buffer
+2026-03-16 14:24:56.751 21099-22259 CCodecBufferChannel     com.devson.devsonplayer              D  [c2.android.aac.decoder#679] MediaCodec discarded an unknown buffer
+2026-03-16 14:24:56.752 21099-22259 CCodecBufferChannel     com.devson.devsonplayer              D  [c2.android.aac.decoder#679] MediaCodec discarded an unknown buffer
+2026-03-16 14:24:56.752 21099-22259 CCodecBufferChannel     com.devson.devsonplayer              D  [c2.android.aac.decoder#679] MediaCodec discarded an unknown buffer
+2026-03-16 14:24:56.759 21099-22259 hw-BpHwBinder           com.devson.devsonplayer              I  onLastStrongRef automatically unlinking death recipients
+2026-03-16 14:24:56.761 21099-22259 MediaCodec              com.devson.devsonplayer              D  [0xb400006ef9751000] [c2.android.aac.decoder] kWhatReleaseCompleted
+2026-03-16 14:24:56.761 21099-22259 MediaCodec              com.devson.devsonplayer              D  [0xb400006ef9751000] setState: 0
+2026-03-16 14:24:56.761 21099-22259 MediaCodec              com.devson.devsonplayer              D  flushMediametrics
+2026-03-16 14:24:56.761 21099-22259 MediaCodec              com.devson.devsonplayer              D  [0xb400006ef9751000] ~MediaCodec
+2026-03-16 14:24:56.762 21099-22259 MediaCodec              com.devson.devsonplayer              D  flushMediametrics
+2026-03-16 14:24:56.762 21099-22259 OplusCCodec             com.devson.devsonplayer              D  ~OplusCCodec [183]: (0xb400006ef0ca2800)
+2026-03-16 14:24:56.762 21099-22259 OplusFeedbackInfo       com.devson.devsonplayer              D  ~OplusAnalysisFPS
+2026-03-16 14:24:56.764 21099-21099 PlayerController        com.devson.devsonplayer              E  ExoPlayer error: MediaCodecVideoRenderer error, index=0, format=Format(1, Vegamovies.is, null, video/hevc, hvc1.2.4.L93.90, -1, und, [1280, 720, -1.0, null], [-1, -1]), format_supported=NO_EXCEEDS_CAPABILITIES, falling back to SOFTWARE
+2026-03-16 14:24:56.765 21099-21099 ExoPlayerImpl           com.devson.devsonplayer              I  Release 72d8dc [AndroidXMedia3/1.5.1] [RED8AF, RMX3430, realme, 33] [media3.common, media3.exoplayer, media3.decoder, media3.datasource, media3.extractor]
+2026-03-16 14:24:56.770 21099-22240 MediaCodec              com.devson.devsonplayer              D  [0xb400006ef9749000] [c2.mtk.hevc.decoder] kWhatReleaseCompleted
+2026-03-16 14:24:56.770 21099-22240 MediaCodec              com.devson.devsonplayer              D  [0xb400006ef9749000] setState: 0
+2026-03-16 14:24:56.770 21099-22281 hw-BpHwBinder           com.devson.devsonplayer              I  onLastStrongRef automatically unlinking death recipients
+2026-03-16 14:24:56.771 21099-22240 MediaCodec              com.devson.devsonplayer              D  flushMediametrics
+2026-03-16 14:24:56.771 21099-22240 MediaCodec              com.devson.devsonplayer              D  [0xb400006ef9749000] ~MediaCodec
+2026-03-16 14:24:56.774 21099-22240 MediaCodec              com.devson.devsonplayer              D  flushMediametrics
+2026-03-16 14:24:56.774 21099-22240 OplusCCodec             com.devson.devsonplayer              D  ~OplusCCodec [183]: (0xb400006ef0988200)
+2026-03-16 14:24:56.775 21099-22240 OplusFeedbackInfo       com.devson.devsonplayer              D  ~OplusAnalysisFPS
+2026-03-16 14:24:56.775 21099-22240 AtlasEventUploadUtils   com.devson.devsonplayer              D  setEvent event:atlas_event_video_monitor_network_switch
+2026-03-16 14:24:56.775 21099-21099 FFmpegDecoder           com.devson.devsonplayer              I  FFmpegDecoder created
+2026-03-16 14:24:56.807 21099-21099 VideoRenderer           com.devson.devsonplayer              I  VideoRenderer initialized 1920x1080
+2026-03-16 14:24:56.899 21099-21099 FFmpegDecoder           com.devson.devsonplayer              I  Video stream idx=0  Audio stream idx=1
+2026-03-16 14:24:56.899 21099-21099 FFmpegDecoder           com.devson.devsonplayer              I  Codec: hevc  0x1280  pix_fmt=yuv420p10le  profile=0  level=0
+2026-03-16 14:24:56.901 21099-21099 FFmpegDecoder           com.devson.devsonplayer              E  sws_getContext failed (src_fmt=62)
+2026-03-16 14:24:56.902 21099-21099 FFmpegDecoder           com.devson.devsonplayer              I  Decoder initialized: 0x1280  duration=5.00s  codec=hevc
+2026-03-16 14:24:56.902 21099-21099 NativePlayer            com.devson.devsonplayer              I  NativePlayer init OK  handle=0xb400006f95b483c0
+2026-03-16 14:24:56.904 21099-22284 FFmpegDecoder           com.devson.devsonplayer              I  Decode thread started
+2026-03-16 14:24:56.906 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: true 8 cost 147.22348 refreshRate 16666667 bit true processName com.devson.devsonplayer
+2026-03-16 14:24:56.947 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: true 2 cost 37.34064 refreshRate 16736516 bit true processName com.devson.devsonplayer
+2026-03-16 14:24:57.045 21099-22284 FFmpegDecoder           com.devson.devsonplayer              I  Video format updated: 1280x720 fmt=62
+2026-03-16 14:24:57.045 21099-22284 FFmpegDecoder           com.devson.devsonplayer              I  SWS: yuv420p10le → YUV420P (1280x720)
+2026-03-16 14:24:57.052 21099-22284 libMEOW                 com.devson.devsonplayer              D  meow new tls: 0xb400006ee64a1500
+2026-03-16 14:24:57.052 21099-22284 libMEOW                 com.devson.devsonplayer              D  applied 1 plugins for [com.devson.devsonplayer]:
+2026-03-16 14:24:57.052 21099-22284 libMEOW                 com.devson.devsonplayer              D    plugin 1: [libMEOW_gift.so]: 0xb400006f761ebb80
+2026-03-16 14:24:57.052 21099-22284 libMEOW                 com.devson.devsonplayer              D  rebuild call chain: 0xb400006ee63d9cc0
+2026-03-16 14:24:57.079 21099-22284 BLASTBufferQueue        com.devson.devsonplayer              D  [SurfaceView[com.devson.devsonplayer/com.devson.devsonplayer.MainActivity]#2](f:0,a:1) acquireNextBufferLocked size=1280x720 mFrameNumber=1 applyTransaction=true mTimestamp=280219647587855(auto) mPendingTransactions.size=0 graphicBufferId=90619514978319 transform=7
+2026-03-16 14:24:57.265 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: true 1 cost 19.936388 refreshRate 16757987 bit true processName com.devson.devsonplayer
+2026-03-16 14:24:57.509 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: true 1 cost 31.672897 refreshRate 16742795 bit true processName com.devson.devsonplayer
+2026-03-16 14:24:57.531 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: true 1 cost 19.832008 refreshRate 16742138 bit true processName com.devson.devsonplayer
+2026-03-16 14:24:58.469 21099-21115 on.devsonplayer         com.devson.devsonplayer              W  Cleared Reference was only reachable from finalizer (only reported once)
+2026-03-16 14:24:58.483 21099-21115 on.devsonplayer         com.devson.devsonplayer              I  NativeAlloc concurrent copying GC freed 5995KB AllocSpace bytes, 28(1660KB) LOS objects, 61% free, 7590KB/19MB, paused 74us,39us total 106.194ms
+2026-03-16 14:24:58.486 21099-21721 OpenGLRenderer          com.devson.devsonplayer              D  SkiaOpenGLPipeline::setSurface: this=0xb400006f7617c700, surface=NULL
+2026-03-16 14:24:59.040 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: true 1 cost 25.918713 refreshRate 16700558 bit true processName com.devson.devsonplayer
+2026-03-16 14:25:00.018 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: false 1 cost 18.70084 refreshRate 16707955 bit true processName com.devson.devsonplayer
+2026-03-16 14:25:00.053 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: true 1 cost 20.037544 refreshRate 16707955 bit true processName com.devson.devsonplayer
+2026-03-16 14:25:00.102 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: true 1 cost 18.851168 refreshRate 16703628 bit true processName com.devson.devsonplayer
+2026-03-16 14:25:00.321 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: true 1 cost 20.965525 refreshRate 16702082 bit true processName com.devson.devsonplayer
+2026-03-16 14:25:00.792 21099-21099 AudioManagerExtImpl     com.devson.devsonplayer              D  getStreamVolume packageName=com.devson.devsonplayer, index=16, streamType=3
+2026-03-16 14:25:01.273 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: false 5 cost 88.221405 refreshRate 16705045 bit true processName com.devson.devsonplayer
+2026-03-16 14:25:01.459 21099-22245 BufferPoolAccessor2.0   com.devson.devsonplayer              D  bufferpool2 0xb400006ef9276828 : 0(0 size) total buffers - 0(0 size) used buffers - 7/16 (recycle/alloc) - 1/1 (fetch/transfer)
+2026-03-16 14:25:01.459 21099-22245 BufferPoolAccessor2.0   com.devson.devsonplayer              D  evictor expired: 1, evicted: 1
+2026-03-16 14:25:02.459 21099-22245 BufferPoolAccessor2.0   com.devson.devsonplayer              D  bufferpool2 0xb400006ef1671028 : 0(0 size) total buffers - 0(0 size) used buffers - 9/14 (recycle/alloc) - 4/5 (fetch/transfer)
+2026-03-16 14:25:02.459 21099-22245 BufferPoolAccessor2.0   com.devson.devsonplayer              D  evictor expired: 1, evicted: 1
+2026-03-16 14:25:04.143 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: true 1 cost 18.022305 refreshRate 16706459 bit true processName com.devson.devsonplayer
+2026-03-16 14:25:04.391 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: true 1 cost 33.081993 refreshRate 16700347 bit true processName com.devson.devsonplayer
+2026-03-16 14:25:04.645 21099-21099 Quality                 com.devson.devsonplayer              I  Skipped: true 1 cost 19.785715 refreshRate 16705609 bit true processName com.devson.devsonplayer

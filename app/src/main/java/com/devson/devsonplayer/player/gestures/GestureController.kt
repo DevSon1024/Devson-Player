@@ -64,14 +64,16 @@ class GestureController(
         return true
     }
 
+    var seekDurationMs: Long = 10_000L
+
     override fun onDoubleTap(e: MotionEvent): Boolean {
         val x = e.x
         val leftZone = viewWidth / 3
         val rightZone = (viewWidth / 3) * 2
 
         when {
-            x < leftZone -> listener.onSeekExtended(-10_000L)
-            x > rightZone -> listener.onSeekExtended(10_000L)
+            x < leftZone -> listener.onSeekExtended(-seekDurationMs)
+            x > rightZone -> listener.onSeekExtended(seekDurationMs)
             else -> listener.onTogglePlayPause()
         }
         return true

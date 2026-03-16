@@ -12,13 +12,15 @@ public:
     ~VideoRenderer();
 
     bool init(ANativeWindow* window, int width, int height);
-
+    void updateSize(int width, int height);
     /** Upload YUV420P planes and blit to surface. */
     void renderFrame(const uint8_t* y_plane, int y_stride,
                      const uint8_t* u_plane, int u_stride,
                      const uint8_t* v_plane, int v_stride);
 
     void release();
+    int getFrameWidth() const { return frame_width_; }
+    int getFrameHeight() const { return frame_height_; }
 
 private:
     bool initEGL();
@@ -33,6 +35,7 @@ private:
     GLuint vbo_;
     GLuint tex_y_, tex_u_, tex_v_;
 
-    int  frame_width_, frame_height_;
+    int frame_width_;
+    int frame_height_;
     bool initialized_;
 };

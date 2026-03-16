@@ -151,6 +151,10 @@ class GestureOverlayView @JvmOverloads constructor(
     var onSpeedAction: ((Float) -> Unit)? = null
     var onSingleTapAction: (() -> Unit)? = null
 
+    var seekDurationMs: Long
+        get() = gestureController.seekDurationMs
+        set(value) { gestureController.seekDurationMs = value }
+
     //  Drawing 
 
     override fun dispatchDraw(canvas: Canvas) {

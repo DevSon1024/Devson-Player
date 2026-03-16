@@ -15,10 +15,11 @@ enum class SortBy(val label: String) {
 }
 
 data class ViewSettings(
-    val viewMode: ViewMode = ViewMode.FLAT,
+    // Changed defaults for Task 1
+    val viewMode: ViewMode = ViewMode.EXPLORER,
     val layoutStyle: LayoutStyle = LayoutStyle.LIST,
     val gridColumnCount: Int = 2,
-    val sortBy: SortBy = SortBy.DATE_NEWEST,
+    val sortBy: SortBy = SortBy.NAME_AZ,
     val showDuration: Boolean = true,
     val showFileSize: Boolean = true,
     val showResolution: Boolean = false

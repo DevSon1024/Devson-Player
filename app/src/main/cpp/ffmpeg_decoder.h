@@ -15,7 +15,7 @@ extern "C" {
 
 // Callback: delivers a decoded YUV420P AVFrame and its PTS in microseconds.
 // Frame is nullptr to signal EOF.
-using DecoderCallback = std::function<void(AVFrame* frame, int64_t pts_us)>;
+using DecoderCallback = std::function<void(AVFrame*, int64_t pts_us, int width, int height)>;
 
 class FFmpegDecoder {
 public:
@@ -26,6 +26,7 @@ public:
     void  startDecoding();
     void  pause();
     void  resume();
+    
     void  seekTo(int64_t position_us);
     void  setSpeed(float speed);
     void  release();
@@ -54,6 +55,7 @@ private:
 
     int     width_, height_;
     int64_t duration_us_;
+    bool paused_ = false;
 
     std::atomic<bool>    eof_;
     std::atomic<bool>    seek_requested_;

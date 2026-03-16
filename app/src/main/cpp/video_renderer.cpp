@@ -125,6 +125,9 @@ bool VideoRenderer::init(ANativeWindow* window, int width, int height) {
     if (!initEGL()) return false;
     if (!initGL())  return false;
 
+    // so the background decode thread is allowed to use it.
+    eglMakeCurrent(egl_display_, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+
     initialized_ = true;
     LOGI("VideoRenderer initialized %dx%d", width, height);
     return true;
@@ -211,10 +214,22 @@ bool VideoRenderer::initGL() {
     return true;
 }
 
+void VideoRenderer::updateSize(int width, int height) {
+    if (!initialized_) return;
+    frame_width_  = width;
+    frame_height_ = height;
+    
+    // Bind context to this thread before resizing
+    eglMakeCurrent(egl_display_, egl_surface_, egl_surface_, egl_context_);
+    glViewport(0, 0, width, height);
+}
+
 void VideoRenderer::renderFrame(const uint8_t* y_plane, int y_stride,
                                  const uint8_t* u_plane, int u_stride,
                                  const uint8_t* v_plane, int v_stride) {
     if (!initialized_) return;
+
+    eglMakeCurrent(egl_display_, egl_surface_, egl_surface_, egl_context_);
 
     glClear(GL_COLOR_BUFFER_BIT);
     glUseProgram(program_);

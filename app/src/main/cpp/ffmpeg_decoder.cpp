@@ -120,7 +120,7 @@ bool FFmpegDecoder::openVideoCodec() {
     }
 
     // Enable multi-thread decoding (up to 4 threads)
-    codec_ctx_->thread_count = 4;
+    codec_ctx_->thread_count = 8;
     codec_ctx_->thread_type  = FF_THREAD_FRAME | FF_THREAD_SLICE;
 
     // Open codec
@@ -170,7 +170,16 @@ void FFmpegDecoder::setupSwsContext() {
     if (!sws_ctx_) {
         LOGE("sws_getContext failed (src_fmt=%d)", src_fmt);
     } else {
-        LOGI("SWS: %s → YUV420P", av_get_pix_fmt_name(src_fmt));
+        LOGI("SWS: %s → YUV420P (%dx%d)", av_get_pix_fmt_name(src_fmt), width_, height_);
+        
+        // ADD THIS LINE: Free previous buffer before re-allocating
+        av_frame_unref(sw_frame_); 
+        
+        // Prepare sw_frame buffer
+        sw_frame_->format = AV_PIX_FMT_YUV420P;
+        sw_frame_->width  = width_;
+        sw_frame_->height = height_;
+        av_frame_get_buffer(sw_frame_, 32);
     }
 
     // Prepare sw_frame buffer
@@ -187,12 +196,14 @@ void FFmpegDecoder::startDecoding() {
 }
 
 void FFmpegDecoder::pause() {
-    playing_ = false;
+    std::lock_guard<std::mutex> lock(mutex_);
+    paused_ = true;
 }
 
 void FFmpegDecoder::resume() {
-    playing_ = true;
-    cv_.notify_all();
+    std::lock_guard<std::mutex> lock(mutex_);
+    paused_ = false;
+    cv_.notify_all(); // Wake up the thread
 }
 
 void FFmpegDecoder::seekTo(int64_t position_us) {
@@ -231,6 +242,10 @@ void FFmpegDecoder::decodeLoop() {
     while (playing_) {
         std::unique_lock<std::mutex> lock(mutex_);
 
+        cv_.wait(lock, [this]() { return !paused_ || !playing_ || seek_requested_; });
+
+        if (!playing_) break;
+
         // Handle seek
         if (seek_requested_) {
             seek_requested_ = false;
@@ -249,7 +264,7 @@ void FFmpegDecoder::decodeLoop() {
         if (ret == AVERROR_EOF) {
             eof_ = true;
             LOGI("EOF reached");
-            if (callback_) callback_(nullptr, -1); // signal EOF
+            if (callback_) callback_(nullptr, -1, 0, 0); // signal EOF
             break;
         }
         if (ret < 0) {
@@ -282,6 +297,14 @@ void FFmpegDecoder::processVideoPacket() {
             break;
         }
 
+        if (width_ != frame_->width || height_ != frame_->height || codec_ctx_->pix_fmt != frame_->format) {
+            LOGI("Video format updated: %dx%d fmt=%d", frame_->width, frame_->height, frame_->format);
+            width_ = frame_->width;
+            height_ = frame_->height;
+            codec_ctx_->pix_fmt = static_cast<AVPixelFormat>(frame_->format);
+            setupSwsContext();
+        }
+
         // Convert pixel format if needed
         AVFrame* output_frame = frame_;
         if (sws_ctx_) {
@@ -302,7 +325,7 @@ void FFmpegDecoder::processVideoPacket() {
 
         // Deliver frame to callback
         if (callback_) {
-            callback_(output_frame, pts_us);
+            callback_(output_frame, pts_us, width_, height_);
         }
 
         av_frame_unref(frame_);

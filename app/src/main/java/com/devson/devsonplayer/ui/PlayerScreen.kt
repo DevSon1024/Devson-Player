@@ -115,12 +115,8 @@ fun PlayerScreen(
         }
 
         Box(modifier = videoModifier, contentAlignment = Alignment.Center) {
-            when (decoderType) {
-                DecoderSelector.DecoderType.SOFTWARE ->
-                    SoftwareRenderSurface(context, viewModel, Modifier.fillMaxSize())
-                else ->
-                    HardwareRenderSurface(context, viewModel, Modifier.fillMaxSize())
-            }
+            // Replace the 'when (decoderType)' block with a single unified surface
+            UnifiedRenderSurface(context, viewModel, Modifier.fillMaxSize())
         }
 
         // 2. Gesture overlay
@@ -139,6 +135,10 @@ fun PlayerScreen(
                     }
                     onSpeedAction = { speed -> viewModel.setSpeed(speed) }
                 }
+            },
+            update = { view ->
+                // Ensures the gesture view always uses the user's chosen seek duration
+                view.seekDurationMs = prefsViewModel.effectiveSeekMs()
             },
             modifier = Modifier.fillMaxSize()
         )
@@ -178,10 +178,8 @@ fun PlayerScreen(
     }
 }
 
-//  Hardware SurfaceView 
-
 @Composable
-private fun HardwareRenderSurface(
+private fun UnifiedRenderSurface(
     context: Context,
     viewModel: PlayerViewModel,
     modifier: Modifier = Modifier
@@ -190,31 +188,16 @@ private fun HardwareRenderSurface(
         factory = {
             SurfaceView(context).apply {
                 holder.addCallback(object : SurfaceHolder.Callback {
-                    override fun surfaceCreated(h: SurfaceHolder)              { viewModel.setHardwareSurface(h.surface) }
+                    override fun surfaceCreated(h: SurfaceHolder) {
+                        // Pass the same surface to both hardware and software paths
+                        viewModel.setHardwareSurface(h.surface)
+                        viewModel.setSoftwareSurface(h.surface)
+                    }
                     override fun surfaceChanged(h: SurfaceHolder, f: Int, w: Int, h2: Int) {}
-                    override fun surfaceDestroyed(h: SurfaceHolder)            { viewModel.setHardwareSurface(null) }
-                })
-            }
-        },
-        modifier = modifier
-    )
-}
-
-//  Software SurfaceView 
-
-@Composable
-private fun SoftwareRenderSurface(
-    context: Context,
-    viewModel: PlayerViewModel,
-    modifier: Modifier = Modifier
-) {
-    AndroidView(
-        factory = {
-            SurfaceView(context).apply {
-                holder.addCallback(object : SurfaceHolder.Callback {
-                    override fun surfaceCreated(h: SurfaceHolder)              { viewModel.setSoftwareSurface(h.surface) }
-                    override fun surfaceChanged(h: SurfaceHolder, f: Int, w: Int, h2: Int) {}
-                    override fun surfaceDestroyed(h: SurfaceHolder)            { viewModel.setSoftwareSurface(null) }
+                    override fun surfaceDestroyed(h: SurfaceHolder) {
+                        viewModel.setHardwareSurface(null)
+                        viewModel.setSoftwareSurface(null)
+                    }
                 })
             }
         },
