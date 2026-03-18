@@ -1,13 +1,17 @@
 /**
  * video_renderer.cpp
  *
- * OpenGL ES 2.0 renderer for DevsonPlayer software decode path.
+ * OpenGL ES 2.0 / EGL renderer for DevsonPlayer software decode path.
  * Accepts YUV420P frames from FFmpeg and renders them via GLSL shaders.
- * Uses ANativeWindow / EGL for surface binding.
+ *
+ * Key improvements vs original:
+ *  - Uniform locations cached once after program link (not re-queried every frame)
+ *  - EGL_BAD_SURFACE handled gracefully instead of crashing
+ *  - pauseRendering / resumeRendering for activity lifecycle
+ *  - Surface validity guard before every GL call
  */
 
 #include "video_renderer.h"
-
 #include <android/log.h>
 #include <android/native_window.h>
 #include <cstring>
@@ -15,6 +19,7 @@
 #define LOG_TAG "VideoRenderer"
 #define LOGI(...)  __android_log_print(ANDROID_LOG_INFO,  LOG_TAG, __VA_ARGS__)
 #define LOGE(...)  __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
+#define LOGW(...)  __android_log_print(ANDROID_LOG_WARN,  LOG_TAG, __VA_ARGS__)
 
 //  GLSL Shaders 
 
@@ -41,18 +46,15 @@ void main() {
     float u = texture2D(u_textureU, v_texCoord).r - 0.5;
     float v = texture2D(u_textureV, v_texCoord).r - 0.5;
 
-    float r = y + 1.402 * v;
-    float g = y - 0.344136 * u - 0.714136 * v;
-    float b = y + 1.772 * u;
+    float r = clamp(y + 1.402 * v,              0.0, 1.0);
+    float g = clamp(y - 0.344136 * u - 0.714136 * v, 0.0, 1.0);
+    float b = clamp(y + 1.772 * u,              0.0, 1.0);
 
-    gl_FragColor = vec4(clamp(r, 0.0, 1.0),
-                        clamp(g, 0.0, 1.0),
-                        clamp(b, 0.0, 1.0),
-                        1.0);
+    gl_FragColor = vec4(r, g, b, 1.0);
 }
 )glsl";
 
-// Full-screen quad vertices: position (xy) + texcoord (uv)
+// Full-screen quad: position (xy) + texcoord (uv)
 static const GLfloat kQuadVertices[] = {
     // x      y     u     v
     -1.0f,  1.0f, 0.0f, 0.0f,   // top-left
@@ -61,7 +63,7 @@ static const GLfloat kQuadVertices[] = {
      1.0f, -1.0f, 1.0f, 1.0f,   // bottom-right
 };
 
-//  helpers 
+//  Helpers 
 
 static GLuint compileShader(GLenum type, const char* src) {
     GLuint shader = glCreateShader(type);
@@ -82,7 +84,7 @@ static GLuint compileShader(GLenum type, const char* src) {
 static GLuint createProgram(const char* vs_src, const char* fs_src) {
     GLuint vs = compileShader(GL_VERTEX_SHADER,   vs_src);
     GLuint fs = compileShader(GL_FRAGMENT_SHADER, fs_src);
-    if (!vs || !fs) return 0;
+    if (!vs || !fs) { glDeleteShader(vs); glDeleteShader(fs); return 0; }
 
     GLuint prog = glCreateProgram();
     glAttachShader(prog, vs);
@@ -91,31 +93,22 @@ static GLuint createProgram(const char* vs_src, const char* fs_src) {
 
     GLint ok;
     glGetProgramiv(prog, GL_LINK_STATUS, &ok);
+    glDeleteShader(vs);
+    glDeleteShader(fs);
     if (!ok) {
         char log[512];
         glGetProgramInfoLog(prog, sizeof(log), nullptr, log);
         LOGE("Program link error: %s", log);
         glDeleteProgram(prog);
-        prog = 0;
+        return 0;
     }
-    glDeleteShader(vs);
-    glDeleteShader(fs);
     return prog;
 }
 
-//  VideoRenderer implementation 
+//  VideoRenderer 
 
-VideoRenderer::VideoRenderer()
-    : native_window_(nullptr), egl_display_(EGL_NO_DISPLAY),
-      egl_context_(EGL_NO_CONTEXT), egl_surface_(EGL_NO_SURFACE),
-      program_(0), vbo_(0),
-      tex_y_(0), tex_u_(0), tex_v_(0),
-      frame_width_(0), frame_height_(0), initialized_(false) {
-}
-
-VideoRenderer::~VideoRenderer() {
-    release();
-}
+VideoRenderer::VideoRenderer()  = default;
+VideoRenderer::~VideoRenderer() { release(); }
 
 bool VideoRenderer::init(ANativeWindow* window, int width, int height) {
     native_window_ = window;
@@ -125,26 +118,20 @@ bool VideoRenderer::init(ANativeWindow* window, int width, int height) {
     if (!initEGL()) return false;
     if (!initGL())  return false;
 
-    // so the background decode thread is allowed to use it.
+    // Release EGL context from this thread so the decode thread can claim it
     eglMakeCurrent(egl_display_, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
 
     initialized_ = true;
-    LOGI("VideoRenderer initialized %dx%d", width, height);
+    LOGI("VideoRenderer initialised %dx%d", width, height);
     return true;
 }
 
 bool VideoRenderer::initEGL() {
     egl_display_ = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-    if (egl_display_ == EGL_NO_DISPLAY) {
-        LOGE("eglGetDisplay failed");
-        return false;
-    }
+    if (egl_display_ == EGL_NO_DISPLAY) { LOGE("eglGetDisplay failed"); return false; }
 
     EGLint major, minor;
-    if (!eglInitialize(egl_display_, &major, &minor)) {
-        LOGE("eglInitialize failed");
-        return false;
-    }
+    if (!eglInitialize(egl_display_, &major, &minor)) { LOGE("eglInitialize failed"); return false; }
 
     EGLint attribs[] = {
         EGL_SURFACE_TYPE,    EGL_WINDOW_BIT,
@@ -157,7 +144,7 @@ bool VideoRenderer::initEGL() {
     };
 
     EGLConfig config;
-    EGLint num_configs;
+    EGLint    num_configs = 0;
     if (!eglChooseConfig(egl_display_, attribs, &config, 1, &num_configs) || num_configs == 0) {
         LOGE("eglChooseConfig failed");
         return false;
@@ -165,41 +152,37 @@ bool VideoRenderer::initEGL() {
 
     EGLint ctx_attribs[] = { EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE };
     egl_context_ = eglCreateContext(egl_display_, config, EGL_NO_CONTEXT, ctx_attribs);
-    if (egl_context_ == EGL_NO_CONTEXT) {
-        LOGE("eglCreateContext failed");
-        return false;
-    }
+    if (egl_context_ == EGL_NO_CONTEXT) { LOGE("eglCreateContext failed"); return false; }
 
     egl_surface_ = eglCreateWindowSurface(egl_display_, config, native_window_, nullptr);
-    if (egl_surface_ == EGL_NO_SURFACE) {
-        LOGE("eglCreateWindowSurface failed");
-        return false;
-    }
+    if (egl_surface_ == EGL_NO_SURFACE) { LOGE("eglCreateWindowSurface failed"); return false; }
 
     if (!eglMakeCurrent(egl_display_, egl_surface_, egl_surface_, egl_context_)) {
         LOGE("eglMakeCurrent failed");
         return false;
     }
-
     return true;
 }
 
 bool VideoRenderer::initGL() {
-    // Compile shader program
     program_ = createProgram(kVertexShader, kFragmentShader);
     if (!program_) return false;
 
-    // Vertex buffer
+    //  Cache uniform locations (done once — not per frame) 
+    loc_y_   = glGetUniformLocation(program_, "u_textureY");
+    loc_u_   = glGetUniformLocation(program_, "u_textureU");
+    loc_v_   = glGetUniformLocation(program_, "u_textureV");
+    loc_pos_ = glGetAttribLocation (program_, "a_position");
+    loc_tex_ = glGetAttribLocation (program_, "a_texCoord");
+
+    // VBO
     glGenBuffers(1, &vbo_);
     glBindBuffer(GL_ARRAY_BUFFER, vbo_);
     glBufferData(GL_ARRAY_BUFFER, sizeof(kQuadVertices), kQuadVertices, GL_STATIC_DRAW);
 
-    // Three YUV plane textures
-    glGenTextures(1, &tex_y_);
-    glGenTextures(1, &tex_u_);
-    glGenTextures(1, &tex_v_);
-
-    auto setupTex = [](GLuint tex) {
+    // YUV textures
+    auto setupTex = [](GLuint& tex) {
+        glGenTextures(1, &tex);
         glBindTexture(GL_TEXTURE_2D, tex);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -214,86 +197,124 @@ bool VideoRenderer::initGL() {
     return true;
 }
 
+//  updateSize 
+
 void VideoRenderer::updateSize(int width, int height) {
-    if (!initialized_) return;
+    if (!initialized_ || paused_) return;
     frame_width_  = width;
     frame_height_ = height;
-    
-    // Bind context to this thread before resizing
-    eglMakeCurrent(egl_display_, egl_surface_, egl_surface_, egl_context_);
-    glViewport(0, 0, width, height);
+    if (eglMakeCurrent(egl_display_, egl_surface_, egl_surface_, egl_context_)) {
+        glViewport(0, 0, width, height);
+    }
 }
+
+//  pauseRendering / resumeRendering 
+
+void VideoRenderer::pauseRendering() {
+    paused_.store(true, std::memory_order_relaxed);
+}
+
+void VideoRenderer::resumeRendering() {
+    paused_.store(false, std::memory_order_relaxed);
+}
+
+//  renderFrame 
 
 void VideoRenderer::renderFrame(const uint8_t* y_plane, int y_stride,
                                  const uint8_t* u_plane, int u_stride,
                                  const uint8_t* v_plane, int v_stride) {
-    if (!initialized_) return;
+    if (!initialized_)                                  return;
+    if (paused_.load(std::memory_order_relaxed))        return;
+    if (!y_plane || !u_plane || !v_plane)               return;
+    if (egl_display_ == EGL_NO_DISPLAY ||
+        egl_surface_ == EGL_NO_SURFACE ||
+        egl_context_ == EGL_NO_CONTEXT)                 return;
 
-    eglMakeCurrent(egl_display_, egl_surface_, egl_surface_, egl_context_);
+    if (!eglMakeCurrent(egl_display_, egl_surface_, egl_surface_, egl_context_)) {
+        EGLint err = eglGetError();
+        if (err == EGL_BAD_SURFACE || err == EGL_BAD_NATIVE_WINDOW) {
+            LOGW("EGL surface lost (err=0x%x) — skipping frame", err);
+        } else {
+            LOGE("eglMakeCurrent failed: 0x%x", err);
+        }
+        return;
+    }
 
+    glViewport(0, 0, frame_width_, frame_height_);
     glClear(GL_COLOR_BUFFER_BIT);
     glUseProgram(program_);
 
-    // Upload Y plane (full resolution)
+    // Upload Y plane (full resolution) — width = stride to handle padding
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, tex_y_);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, y_stride, frame_height_,
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE,
+                 y_stride, frame_height_,
                  0, GL_LUMINANCE, GL_UNSIGNED_BYTE, y_plane);
 
     // Upload U plane (half resolution)
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, tex_u_);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, u_stride, frame_height_ / 2,
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE,
+                 u_stride, frame_height_ / 2,
                  0, GL_LUMINANCE, GL_UNSIGNED_BYTE, u_plane);
 
     // Upload V plane (half resolution)
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, tex_v_);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, v_stride, frame_height_ / 2,
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE,
+                 v_stride, frame_height_ / 2,
                  0, GL_LUMINANCE, GL_UNSIGNED_BYTE, v_plane);
 
-    // Set uniforms
-    glUniform1i(glGetUniformLocation(program_, "u_textureY"), 0);
-    glUniform1i(glGetUniformLocation(program_, "u_textureU"), 1);
-    glUniform1i(glGetUniformLocation(program_, "u_textureV"), 2);
+    // Set uniforms (cached locations)
+    glUniform1i(loc_y_, 0);
+    glUniform1i(loc_u_, 1);
+    glUniform1i(loc_v_, 2);
 
-    // Bind VBO and set attribute pointers
+    // Bind VBO and vertex attribs
     glBindBuffer(GL_ARRAY_BUFFER, vbo_);
-    GLint pos_loc = glGetAttribLocation(program_, "a_position");
-    GLint tex_loc = glGetAttribLocation(program_, "a_texCoord");
-
-    glEnableVertexAttribArray(pos_loc);
-    glVertexAttribPointer(pos_loc, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*)0);
-    glEnableVertexAttribArray(tex_loc);
-    glVertexAttribPointer(tex_loc, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(loc_pos_);
+    glVertexAttribPointer(loc_pos_, 2, GL_FLOAT, GL_FALSE,
+                          4 * sizeof(GLfloat), (void*)0);
+    glEnableVertexAttribArray(loc_tex_);
+    glVertexAttribPointer(loc_tex_, 2, GL_FLOAT, GL_FALSE,
+                          4 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
 
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
-    glDisableVertexAttribArray(pos_loc);
-    glDisableVertexAttribArray(tex_loc);
+    glDisableVertexAttribArray(loc_pos_);
+    glDisableVertexAttribArray(loc_tex_);
 
-    eglSwapBuffers(egl_display_, egl_surface_);
+    // Swap — handle surface-lost error gracefully
+    if (eglSwapBuffers(egl_display_, egl_surface_) == EGL_FALSE) {
+        EGLint err = eglGetError();
+        if (err != EGL_SUCCESS && err != EGL_BAD_SURFACE) {
+            LOGE("eglSwapBuffers failed: 0x%x", err);
+        }
+    }
 }
+
+//  release 
 
 void VideoRenderer::release() {
     if (!initialized_) return;
     initialized_ = false;
-
-    if (tex_y_) { glDeleteTextures(1, &tex_y_); tex_y_ = 0; }
-    if (tex_u_) { glDeleteTextures(1, &tex_u_); tex_u_ = 0; }
-    if (tex_v_) { glDeleteTextures(1, &tex_v_); tex_v_ = 0; }
-    if (vbo_)   { glDeleteBuffers(1, &vbo_);    vbo_   = 0; }
-    if (program_){ glDeleteProgram(program_);    program_ = 0; }
+    paused_.store(true, std::memory_order_relaxed);
 
     if (egl_display_ != EGL_NO_DISPLAY) {
+        eglMakeCurrent(egl_display_, egl_surface_, egl_surface_, egl_context_);
+
+        if (tex_y_)    { glDeleteTextures(1, &tex_y_);  tex_y_  = 0; }
+        if (tex_u_)    { glDeleteTextures(1, &tex_u_);  tex_u_  = 0; }
+        if (tex_v_)    { glDeleteTextures(1, &tex_v_);  tex_v_  = 0; }
+        if (vbo_)      { glDeleteBuffers (1, &vbo_);    vbo_    = 0; }
+        if (program_)  { glDeleteProgram (program_);    program_= 0; }
+
         eglMakeCurrent(egl_display_, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-        if (egl_context_ != EGL_NO_CONTEXT) eglDestroyContext(egl_display_, egl_context_);
-        if (egl_surface_ != EGL_NO_SURFACE) eglDestroySurface(egl_display_, egl_surface_);
+        if (egl_context_ != EGL_NO_CONTEXT) { eglDestroyContext(egl_display_, egl_context_); egl_context_ = EGL_NO_CONTEXT; }
+        if (egl_surface_ != EGL_NO_SURFACE) { eglDestroySurface(egl_display_, egl_surface_); egl_surface_ = EGL_NO_SURFACE; }
         eglTerminate(egl_display_);
         egl_display_ = EGL_NO_DISPLAY;
-        egl_context_ = EGL_NO_CONTEXT;
-        egl_surface_ = EGL_NO_SURFACE;
     }
 
     LOGI("VideoRenderer released");
