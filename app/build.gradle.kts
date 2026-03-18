@@ -125,9 +125,9 @@ dependencies {
     implementation(libs.androidx.media3.datasource)
     implementation(libs.androidx.media3.extractor)
 
-    // FFmpeg prebuilt AAR (software decode path) — ffmpeg-kit replaces deprecated mobile-ffmpeg
-    ffmpegConfig("io.github.maitrungduc1410:ffmpeg-kit-https:6.0.1")
-    implementation("io.github.maitrungduc1410:ffmpeg-kit-https:6.0.1")
+    // Use the 16KB page-aligned, full-gpl version for maximum codec & Android 15 support
+    ffmpegConfig("io.github.jamaismagic.ffmpeg:ffmpeg-kit-main-full-gpl-16kb:6.1.4")
+    implementation("io.github.jamaismagic.ffmpeg:ffmpeg-kit-main-full-gpl-16kb:6.1.4")
 
     // Coil (video thumbnails)
     implementation(libs.coil.compose)

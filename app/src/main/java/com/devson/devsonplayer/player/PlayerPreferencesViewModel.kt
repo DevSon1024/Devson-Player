@@ -105,7 +105,24 @@ class PlayerPreferencesViewModel(application: Application) : AndroidViewModel(ap
 
     init { simulateDeviceStats() }
 
-    private fun simulateDeviceStats() { /* Unchanged */ }
+    private fun simulateDeviceStats() {
+        viewModelScope.launch {
+            while (true) {
+                val current = _deviceStats.value
+                _deviceStats.value = current.copy(
+                    cpuPercent = Random.nextInt(5, 30),
+                    batteryPercent = (current.batteryPercent - (if (Random.nextFloat() > 0.95) 1 else 0)).coerceAtLeast(1),
+                    fps = Random.nextInt(58, 62),
+                    temperatureCelsius = 30f + Random.nextFloat() * 10f
+                )
+                delay(2000)
+            }
+        }
+    }
+
+    fun updateDecoder(decoder: String) {
+        _deviceStats.value = _deviceStats.value.copy(activeDecoder = decoder)
+    }
 
     // Save values to SharedPreferences immediately when they change
     fun setSeekDuration(d: SeekDuration) {

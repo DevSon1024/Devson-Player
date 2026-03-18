@@ -1,5 +1,7 @@
 #include "audio_renderer.h"
+#include "ffmpeg_decoder.h"
 #include <android/log.h>
+#include <cstring>
 
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, "AudioRenderer", __VA_ARGS__)
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO,  "AudioRenderer", __VA_ARGS__)
@@ -69,8 +71,42 @@ bool AudioRenderer::write(const uint8_t* pcmData, int numFrames) {
     return result.value() == numFrames;
 }
 
-oboe::DataCallbackResult AudioRenderer::onAudioReady(oboe::AudioStream * /*audioStream*/, void * /*audioData*/, int32_t /*numFrames*/) {
-    return oboe::DataCallbackResult::Continue; // Not used in blocking mode
+void AudioRenderer::setDecoder(FFmpegDecoder* decoder) {
+    decoder_ = decoder;
+}
+
+oboe::DataCallbackResult AudioRenderer::onAudioReady(oboe::AudioStream* /*audioStream*/,
+                                                     void* audioData,
+                                                     int32_t numFrames) {
+    // Oboe gives us a buffer of numFrames stereo S16 frames.
+    // bytesNeeded = frames * 2 channels * 2 bytes/sample
+    const int bytesNeeded = numFrames * 2 * 2;
+    auto* outputBuffer = static_cast<uint8_t*>(audioData);
+
+    if (!decoder_) {
+        // No decoder attached — output silence
+        memset(outputBuffer, 0, bytesNeeded);
+        return oboe::DataCallbackResult::Continue;
+    }
+
+    uint8_t* decodedData = nullptr;
+    int bytesDecoded = decoder_->decodeAudio(&decodedData);
+
+    if (bytesDecoded > 0 && decodedData != nullptr) {
+        // Copy what we have (never exceed the output buffer)
+        int bytesToCopy = (bytesDecoded < bytesNeeded) ? bytesDecoded : bytesNeeded;
+        memcpy(outputBuffer, decodedData, bytesToCopy);
+
+        // Silence-fill any remainder to avoid buzzing from uninitialized memory
+        if (bytesToCopy < bytesNeeded) {
+            memset(outputBuffer + bytesToCopy, 0, bytesNeeded - bytesToCopy);
+        }
+    } else {
+        // No audio available (decoder not ready, seek flush, or EOF) — output silence
+        memset(outputBuffer, 0, bytesNeeded);
+    }
+
+    return oboe::DataCallbackResult::Continue;
 }
 
 void AudioRenderer::onErrorAfterClose(oboe::AudioStream * /*stream*/, oboe::Result error) {

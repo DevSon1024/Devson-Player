@@ -3,12 +3,18 @@
 #include <oboe/Oboe.h>
 #include <cstdint>
 
+// Forward declaration to avoid circular header dependency
+class FFmpegDecoder;
+
 class AudioRenderer : public oboe::AudioStreamCallback {
 public:
     AudioRenderer();
     ~AudioRenderer();
 
     bool init(int sampleRate, int channelCount);
+
+    // Wire in the decoder so onAudioReady can pull PCM frames on demand.
+    void setDecoder(FFmpegDecoder* decoder);
     void start();
     void pause();
     void stop();
@@ -26,4 +32,5 @@ private:
     oboe::AudioStream* stream_ = nullptr;
     int sample_rate_;
     int channel_count_;
+    FFmpegDecoder* decoder_ = nullptr;  // Not owned; set via setDecoder()
 };

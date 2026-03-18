@@ -14,6 +14,8 @@
 #include <android/log.h>
 #include <cstring>
 #include <stdexcept>
+#include <thread>
+#include <chrono>
 
 #define LOG_TAG "FFmpegDecoder"
 #define LOGI(...)  __android_log_print(ANDROID_LOG_INFO,  LOG_TAG, __VA_ARGS__)
@@ -39,7 +41,10 @@ FFmpegDecoder::FFmpegDecoder()
       frame_(nullptr), sw_frame_(nullptr), packet_(nullptr),
       width_(0), height_(0), duration_us_(0),
       eof_(false), seek_requested_(false), seek_target_us_(0),
-      playing_(false), playback_speed_(1.0f){
+      playing_(false), playback_speed_(1.0f),
+      // --- NEW: Initialize audio pointers to prevent crashes ---
+      audio_out_buffer_(nullptr), audio_codec_ctx_(nullptr), 
+      swr_ctx_(nullptr), audio_frame_(nullptr) {
     LOGI("FFmpegDecoder created");
 }
 
@@ -155,27 +160,65 @@ bool FFmpegDecoder::openAudioCodec() {
 
     AVStream* stream = fmt_ctx_->streams[audio_stream_idx_];
     const AVCodec* codec = avcodec_find_decoder(stream->codecpar->codec_id);
-    if (!codec) return false;
+    if (!codec) {
+        LOGE("openAudioCodec: no decoder found for codec_id=%d", stream->codecpar->codec_id);
+        return false;
+    }
 
     audio_codec_ctx_ = avcodec_alloc_context3(codec);
-    avcodec_parameters_to_context(audio_codec_ctx_, stream->codecpar);
+    if (!audio_codec_ctx_) { LOGE("openAudioCodec: avcodec_alloc_context3 failed"); return false; }
 
-    if (avcodec_open2(audio_codec_ctx_, codec, nullptr) < 0) return false;
+    int ret = avcodec_parameters_to_context(audio_codec_ctx_, stream->codecpar);
+    if (ret < 0) { LOGE("openAudioCodec: avcodec_parameters_to_context failed"); return false; }
 
-    // Setup Resampler to standard PCM 16-bit, 44.1kHz, Stereo
-    swr_ctx_ = swr_alloc();
-    av_opt_set_chlayout(swr_ctx_, "in_chlayout", &audio_codec_ctx_->ch_layout, 0);
-    av_opt_set_int(swr_ctx_, "in_sample_rate", audio_codec_ctx_->sample_rate, 0);
-    av_opt_set_sample_fmt(swr_ctx_, "in_sample_fmt", audio_codec_ctx_->sample_fmt, 0);
+    ret = avcodec_open2(audio_codec_ctx_, codec, nullptr);
+    if (ret < 0) {
+        char errbuf[256]; av_strerror(ret, errbuf, sizeof(errbuf));
+        LOGE("openAudioCodec: avcodec_open2 failed: %s", errbuf);
+        return false;
+    }
 
-    AVChannelLayout out_ch_layout;
-    av_channel_layout_default(&out_ch_layout, 2); // Stereo
-    av_opt_set_chlayout(swr_ctx_, "out_chlayout", &out_ch_layout, 0);
-    av_opt_set_int(swr_ctx_, "out_sample_rate", 44100, 0);
-    av_opt_set_sample_fmt(swr_ctx_, "out_sample_fmt", AV_SAMPLE_FMT_S16, 0);
+    LOGI("Audio codec opened: %s  sr=%d  ch=%d  fmt=%s",
+         codec->name, audio_codec_ctx_->sample_rate,
+         audio_codec_ctx_->ch_layout.nb_channels,
+         av_get_sample_fmt_name(audio_codec_ctx_->sample_fmt));
 
-    swr_init(swr_ctx_);
+    // Pre-allocate a safe output buffer (256KB covers ~1.5s of stereo 16-bit 44.1kHz PCM)
+    delete[] audio_out_buffer_;
+    audio_out_buffer_ = new uint8_t[256000];
+
+    // Build resampler using the modern FFmpeg 6.0 API
+    AVChannelLayout out_ch_layout = AV_CHANNEL_LAYOUT_STEREO;
+    av_channel_layout_default(&out_ch_layout, 2);  // Canonical stereo
+
+    ret = swr_alloc_set_opts2(
+        &swr_ctx_,
+        &out_ch_layout,            // output: stereo
+        AV_SAMPLE_FMT_S16,         // output: 16-bit signed PCM
+        44100,                     // output: 44100 Hz
+        &audio_codec_ctx_->ch_layout,  // input: from stream
+        audio_codec_ctx_->sample_fmt,  // input: from stream
+        audio_codec_ctx_->sample_rate, // input: from stream
+        0, nullptr
+    );
+    if (ret < 0 || !swr_ctx_) {
+        LOGE("openAudioCodec: swr_alloc_set_opts2 failed");
+        return false;
+    }
+
+    ret = swr_init(swr_ctx_);
+    if (ret < 0) {
+        char errbuf[256]; av_strerror(ret, errbuf, sizeof(errbuf));
+        LOGE("openAudioCodec: swr_init failed: %s", errbuf);
+        swr_free(&swr_ctx_);
+        return false;
+    }
+
     audio_frame_ = av_frame_alloc();
+    if (!audio_frame_) { LOGE("openAudioCodec: av_frame_alloc failed"); return false; }
+
+    LOGI("Audio resampler ready: %d Hz stereo -> 44100 Hz stereo S16",
+         audio_codec_ctx_->sample_rate);
     return true;
 }
 
@@ -249,6 +292,10 @@ void FFmpegDecoder::seekTo(int64_t position_us) {
 
 void FFmpegDecoder::setSpeed(float speed) {
     playback_speed_ = speed;
+}
+
+void FFmpegDecoder::setMasterClock(MasterClock* clock) {
+    clock_ = clock;
 }
 
 void FFmpegDecoder::release() {
@@ -349,6 +396,8 @@ void FFmpegDecoder::setAudioStream(int relative_audio_index) {
 }
 
 void FFmpegDecoder::processAudioPacket() {
+    if (!audio_codec_ctx_ || !swr_ctx_ || !audio_frame_ || !audio_out_buffer_) return;
+
     int ret = avcodec_send_packet(audio_codec_ctx_, packet_);
     if (ret < 0) return;
 
@@ -357,26 +406,96 @@ void FFmpegDecoder::processAudioPacket() {
         if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) break;
         if (ret < 0) break;
 
-        // Convert format to 16-bit PCM (Returns number of frames per channel)
+        // Calculate exact output sample count to avoid buffer overread
+        int64_t delay_samples = swr_get_delay(swr_ctx_, audio_codec_ctx_->sample_rate);
+        int max_out_samples = static_cast<int>(
+            av_rescale_rnd(delay_samples + audio_frame_->nb_samples,
+                           44100, audio_codec_ctx_->sample_rate, AV_ROUND_UP));
+
+        uint8_t* out_ptr = audio_out_buffer_;
         int out_frames = swr_convert(swr_ctx_,
-                                     &audio_out_buffer_, 192000 / 4,
-                (const uint8_t**)audio_frame_->data,
-                audio_frame_->nb_samples);
+                                     &out_ptr, max_out_samples,
+                                     (const uint8_t**)audio_frame_->data,
+                                     audio_frame_->nb_samples);
 
         if (out_frames > 0) {
+            // 2 channels * 2 bytes per sample (S16)
+            int data_size = out_frames * 2 * 2;
+
             int64_t pts_us = 0;
             if (audio_frame_->pts != AV_NOPTS_VALUE) {
                 pts_us = av_rescale_q(audio_frame_->pts,
                                       fmt_ctx_->streams[audio_stream_idx_]->time_base,
                                       AV_TIME_BASE_Q);
             }
+
+            // --- Master Clock: update audio PTS so the video thread can sync to it ---
+            if (clock_) {
+                int64_t frame_duration_us = static_cast<int64_t>(out_frames) * 1000000LL / 44100;
+                clock_->audio_pts_us.store(pts_us + frame_duration_us, std::memory_order_relaxed);
+                clock_->has_audio.store(true, std::memory_order_relaxed);
+            }
+
             if (audio_callback_) {
-                // Pass frames (out_frames) to Oboe, not bytes!
+                // Pass frames (out_frames), not bytes, to blocking write path
                 audio_callback_(audio_out_buffer_, out_frames, pts_us);
             }
+
+            (void)data_size; // used by decodeAudio() pull path; kept for reference
         }
         av_frame_unref(audio_frame_);
     }
+}
+
+// Pull-based audio: called directly from the Oboe onAudioReady callback.
+// Reads one packet, decodes it, resamples it, and returns the PCM byte count.
+int FFmpegDecoder::decodeAudio(uint8_t** out_buffer) {
+    if (!audio_codec_ctx_ || !swr_ctx_ || !audio_frame_ || !audio_out_buffer_) return 0;
+
+    // Try to receive a pending frame first
+    int ret = avcodec_receive_frame(audio_codec_ctx_, audio_frame_);
+
+    // If the codec needs more input, read a packet and send it
+    if (ret == AVERROR(EAGAIN)) {
+        // Read packets until we get an audio packet or hit an error
+        while (true) {
+            AVPacket* pkt = av_packet_alloc();
+            if (!pkt) return 0;
+
+            ret = av_read_frame(fmt_ctx_, pkt);
+            if (ret < 0) { av_packet_free(&pkt); return 0; }
+
+            if (pkt->stream_index == audio_stream_idx_) {
+                avcodec_send_packet(audio_codec_ctx_, pkt);
+                av_packet_free(&pkt);
+                ret = avcodec_receive_frame(audio_codec_ctx_, audio_frame_);
+                break;
+            }
+            av_packet_free(&pkt);
+        }
+    }
+
+    if (ret < 0) return 0;
+
+    // Resample the decoded frame
+    int64_t delay_samples = swr_get_delay(swr_ctx_, audio_codec_ctx_->sample_rate);
+    int max_out_samples = static_cast<int>(
+        av_rescale_rnd(delay_samples + audio_frame_->nb_samples,
+                       44100, audio_codec_ctx_->sample_rate, AV_ROUND_UP));
+
+    uint8_t* out_ptr = audio_out_buffer_;
+    int actual_out_samples = swr_convert(swr_ctx_,
+                                         &out_ptr, max_out_samples,
+                                         (const uint8_t**)audio_frame_->data,
+                                         audio_frame_->nb_samples);
+    av_frame_unref(audio_frame_);
+
+    if (actual_out_samples <= 0) return 0;
+
+    // 2 channels * 2 bytes per S16 sample
+    int data_size = actual_out_samples * 2 * 2;
+    *out_buffer = audio_out_buffer_;
+    return data_size;
 }
 
 void FFmpegDecoder::processVideoPacket() {
@@ -422,6 +541,33 @@ void FFmpegDecoder::processVideoPacket() {
 
         // Deliver frame to callback
         if (callback_) {
+            // --- A/V SYNC: compare video PTS against audio master clock ---
+            if (clock_ && clock_->has_audio.load(std::memory_order_relaxed)) {
+                // Thresholds (all in microseconds)
+                constexpr int64_t SYNC_THRESHOLD_US = 15000;   // 15 ms  — render normally
+                constexpr int64_t DROP_THRESHOLD_US  = 150000;  // 150 ms — drop frame
+                constexpr int64_t MAX_SLEEP_US        = 50000;  // 50 ms  — max sleep per frame
+
+                int64_t audio_pts = clock_->audio_pts_us.load(std::memory_order_relaxed);
+                int64_t diff      = pts_us - audio_pts; // positive → video ahead
+
+                if (diff > SYNC_THRESHOLD_US) {
+                    // Video is running ahead — sleep to let audio catch up.
+                    int64_t sleep_us = std::min(diff, MAX_SLEEP_US);
+                    LOGI("A/V sync: video ahead by %.1f ms, sleeping %.1f ms",
+                         diff / 1000.0, sleep_us / 1000.0);
+                    std::this_thread::sleep_for(std::chrono::microseconds(sleep_us));
+                } else if (diff < -DROP_THRESHOLD_US) {
+                    // Video is too far behind — drop the frame.
+                    LOGW("A/V sync: dropping frame, video behind audio by %.1f ms",
+                         -diff / 1000.0);
+                    av_frame_unref(frame_);
+                    continue; // skip callback, move to next packet
+                }
+                // If diff is between -DROP_THRESHOLD and -SYNC_THRESHOLD the video is
+                // slightly behind but within catchup range — render it anyway.
+            }
+
             callback_(output_frame, pts_us, width_, height_);
         }
 

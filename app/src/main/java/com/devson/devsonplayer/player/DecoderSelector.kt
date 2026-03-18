@@ -4,15 +4,6 @@ import android.media.MediaFormat
 import android.util.Log
 import com.devson.devsonplayer.utils.CodecDetector
 
-/**
- * DecoderSelector
- *
- * Chooses between hardware (MediaCodec via Media3/ExoPlayer) and
- * software (FFmpeg via JNI) decoding paths based on:
- *  - Codec type (H264, HEVC, VP9, AV1)
- *  - Bit depth (8-bit vs 10-bit)
- *  - Device hardware capability
- */
 object DecoderSelector {
 
     private const val TAG = "DecoderSelector"
@@ -23,13 +14,12 @@ object DecoderSelector {
         val mimeType: String,
         val width: Int,
         val height: Int,
-        val bitDepth: Int = 8,         // 8 or 10
+        val bitDepth: Int = 8,
         val profile: Int = -1,
         val level: Int = -1,
         val frameRate: Float = 30f
     )
 
-    /** Cached capability map to avoid repeated MediaCodecList queries. */
     private val capabilityCache = mutableMapOf<String, CodecDetector.CodecCapability?>()
 
     fun selectDecoder(info: VideoInfo): DecoderType {
@@ -37,9 +27,14 @@ object DecoderSelector {
 
         val codecType = mimeToCodecType(info.mimeType)
 
-        // If codec is unknown or unsupported by MediaCodec, always software
         if (codecType == null) {
             Log.i(TAG, "Unknown MIME → SOFTWARE")
+            return DecoderType.SOFTWARE
+        }
+
+        // --- NEW RULE: Force all HEVC/H.265 videos to use the Software Decoder ---
+        if (codecType == CodecDetector.CodecType.HEVC) {
+            Log.i(TAG, "HEVC video detected → Forcing SOFTWARE decoder by default")
             return DecoderType.SOFTWARE
         }
 
@@ -52,20 +47,17 @@ object DecoderSelector {
             return DecoderType.SOFTWARE
         }
 
-        // 10-bit: only go hardware if device explicitly supports it
         if (info.bitDepth >= 10 && !cap.supports10Bit) {
             Log.i(TAG, "HW decoder lacks 10-bit for $codecType → SOFTWARE")
             return DecoderType.SOFTWARE
         }
 
-        // Resolution check: hardware decoder max size
         if (info.width > cap.maxWidth || info.height > cap.maxHeight) {
             Log.i(TAG, "Resolution ${info.width}x${info.height} exceeds HW max " +
                     "${cap.maxWidth}x${cap.maxHeight} → SOFTWARE")
             return DecoderType.SOFTWARE
         }
 
-        // Validate format with MediaCodecList
         val format = buildMediaFormat(info)
         if (!CodecDetector.canHardwareDecode(format)) {
             Log.i(TAG, "canHardwareDecode=false for format → SOFTWARE")
@@ -86,13 +78,13 @@ object DecoderSelector {
 
     private fun mimeToCodecType(mime: String): CodecDetector.CodecType? {
         return when (mime.lowercase()) {
-            "video/avc"             -> CodecDetector.CodecType.H264
-            "video/hevc"            -> CodecDetector.CodecType.HEVC
+            "video/avc"            -> CodecDetector.CodecType.H264
+            "video/hevc"           -> CodecDetector.CodecType.HEVC
             "video/x-vnd.on2.vp9"  -> CodecDetector.CodecType.VP9
-            "video/av01"            -> CodecDetector.CodecType.AV1
-            "video/mp4v-es"         -> CodecDetector.CodecType.MPEG4
+            "video/av01"           -> CodecDetector.CodecType.AV1
+            "video/mp4v-es"        -> CodecDetector.CodecType.MPEG4
             "video/x-vnd.on2.vp8"  -> CodecDetector.CodecType.VP8
-            else                     -> null
+            else                   -> null
         }
     }
 }

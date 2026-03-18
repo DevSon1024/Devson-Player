@@ -217,31 +217,44 @@ class PlayerController(private val context: Context) {
     private fun loadWithFFmpeg(path: String) {
         activeDecoder = DecoderType.SOFTWARE
         _decoderType.value = DecoderType.SOFTWARE
-        releaseNative()
+        
+        scope.launch {
+            _state.value = PlayerState.Buffering
+            
+            val surface = softwareSurface ?: run {
+                Log.e(TAG, "No software surface available")
+                _state.value = PlayerState.Error("Surface not ready")
+                return@launch
+            }
 
-        val surface = softwareSurface ?: run {
-            Log.e(TAG, "No software surface available")
-            _state.value = PlayerState.Error("Surface not ready")
-            return
+            // Perform heavy native init on IO thread
+            val ok = withContext(Dispatchers.IO) {
+                releaseNative()
+                nativePlayer.init(path, surface, 1920, 1080)
+            }
+
+            if (!ok) {
+                _state.value = PlayerState.Error("Failed to init native player for $path")
+                return@launch
+            }
+
+            // Update UI/State on Main thread
+            currentDurationMs = withContext(Dispatchers.IO) { nativePlayer.getDurationUs() / 1000L }
+            if (currentDurationMs <= 5000L) {
+                currentDurationMs = probedDurationMs
+            }
+            isPlayingNative = true
+            
+            withContext(Dispatchers.IO) {
+                nativePlayer.startDecoding()
+            }
+            
+            currentPositionMs = 0L
+            _state.value = PlayerState.Playing(currentPositionMs, currentDurationMs)
+
+            // Position simulation
+            startPositionSimulation()
         }
-
-        val ok = nativePlayer.init(path, surface, 1920, 1080)
-        if (!ok) {
-            _state.value = PlayerState.Error("Failed to init native player for $path")
-            return
-        }
-
-        currentDurationMs = nativePlayer.getDurationUs() / 1000L
-        if (currentDurationMs <= 5000L) {
-            currentDurationMs = probedDurationMs
-        }
-        isPlayingNative = true
-        nativePlayer.startDecoding()
-        currentPositionMs = 0L
-        _state.value = PlayerState.Playing(currentPositionMs, currentDurationMs)
-
-        // Position simulation (FFmpeg decoder doesn't push position back; use elapsed time)
-        startPositionSimulation()
     }
 
     private fun startPositionSimulation() {
@@ -390,7 +403,13 @@ class PlayerController(private val context: Context) {
 
     private fun mimeFromCodecName(name: String): String {
         return when {
-            name.contains("hevc", true) || name.contains("h265", true) -> "video/hevc"
+            // HEVC identifiers: standard mime, codec names, and MP4/MKV container tags
+            name.contains("hevc", true) ||
+            name.contains("h265", true) ||
+            name.contains("hvc1", true) ||   // MP4 container HEVC codec tag
+            name.contains("hev1", true) ||   // Alternative MP4 HEVC codec tag
+            name == "video/hevc"             -> "video/hevc"
+
             name.contains("avc",  true) || name.contains("h264", true) -> "video/avc"
             name.contains("vp9",  true)                                 -> "video/x-vnd.on2.vp9"
             name.contains("av1",  true)                                 -> "video/av01"

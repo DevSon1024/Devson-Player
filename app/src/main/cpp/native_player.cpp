@@ -5,6 +5,7 @@
 #include "ffmpeg_decoder.h"
 #include "video_renderer.h"
 #include "audio_renderer.h"
+#include "master_clock.h"
 
 #define LOG_TAG "NativePlayer"
 #define LOGI(...)  __android_log_print(ANDROID_LOG_INFO,  LOG_TAG, __VA_ARGS__)
@@ -16,6 +17,7 @@ struct PlayerContext {
     FFmpegDecoder  decoder;
     VideoRenderer  renderer;
     AudioRenderer  audio_renderer;
+    MasterClock    clock;          // Audio-based master clock for A/V sync
     ANativeWindow* window = nullptr;
     bool           renderer_ready = false;
 };
@@ -111,6 +113,9 @@ Java_com_devson_devsonplayer_player_NativePlayer_nativeInitPlayer(
         return 0;
     }
 
+    // Wire the shared A/V master clock into the decoder
+    ctx->decoder.setMasterClock(&ctx->clock);
+
     LOGI("NativePlayer init OK  handle=%p", ctx);
     return reinterpret_cast<jlong>(ctx);
 }
@@ -160,6 +165,7 @@ Java_com_devson_devsonplayer_player_NativePlayer_nativeSeek(
         JNIEnv* /*env*/, jobject /*this*/, jlong handle, jlong position_us)
 {
 if (!handle) return;
+toCtx(handle)->clock.reset();          // Discard stale audio PTS before the new position
 toCtx(handle)->audio_renderer.flush(); // Clear stale audio from buffers
 toCtx(handle)->decoder.seekTo(static_cast<int64_t>(position_us));
 }

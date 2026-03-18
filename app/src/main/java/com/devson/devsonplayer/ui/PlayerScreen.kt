@@ -102,6 +102,16 @@ fun PlayerScreen(
         }
     }
 
+    // Sync decoder info to the Stats HUD
+    LaunchedEffect(decoderType) {
+        val label = when (decoderType) {
+            DecoderSelector.DecoderType.HARDWARE -> "Hardware (MediaCodec)"
+            DecoderSelector.DecoderType.SOFTWARE -> "Software (FFmpeg)"
+            else -> "Selecting..."
+        }
+        prefsViewModel.updateDecoder(label)
+    }
+
     // Auto-orientation based on video dimensions
     LaunchedEffect(videoInfo) {
         videoInfo?.let { info ->

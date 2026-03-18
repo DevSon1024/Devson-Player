@@ -7,6 +7,8 @@
 #include <condition_variable>
 #include <atomic>
 
+#include "master_clock.h"
+
 extern "C" {
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
@@ -26,6 +28,7 @@ public:
 
     bool init(const char* path, DecoderCallback video_callback, AudioCallback audio_callback);
     void setAudioStream(int stream_index);
+    void setMasterClock(MasterClock* clock);  // Wire in the shared A/V clock
     void  startDecoding();
     void  pause();
     void  resume();
@@ -33,6 +36,10 @@ public:
     void  seekTo(int64_t position_us);
     void  setSpeed(float speed);
     void  release();
+
+    // Pull-based audio: fills *out_buffer with resampled 16-bit PCM.
+    // Returns number of bytes written, or 0 if no audio is available.
+    int   decodeAudio(uint8_t** out_buffer);
 
     int     getWidth()      const;
     int     getHeight()     const;
@@ -81,4 +88,6 @@ private:
     std::condition_variable  cv_;
 
     DecoderCallback callback_;
+
+    MasterClock* clock_ = nullptr;  // Shared audio-based master clock (not owned)
 };
